@@ -1,5 +1,6 @@
 package com.hamsterhub.controller;
 
+import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.JwtUtil;
@@ -52,6 +53,7 @@ public class AccountController {
 
     @ApiOperation("修改密码(token)")
     @PostMapping(value = "/changePassword")
+    @Token
     public Response ChangePassword(@RequestBody ChangePasswordVO changePasswordVO) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         // 密码错误

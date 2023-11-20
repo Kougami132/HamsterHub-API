@@ -40,7 +40,7 @@ public class DeviceServiceImpl implements DeviceService {
         if (deviceId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
         // 存储设备不存在
-        if (this.isExist(deviceId))
+        if (!this.isExist(deviceId))
             throw new BusinessException(CommonErrorCode.E_300001);
 
         deviceMapper.deleteById(deviceId);
@@ -66,7 +66,7 @@ public class DeviceServiceImpl implements DeviceService {
         if (deviceId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
         // 存储设备不存在
-        if (this.isExist(deviceId))
+        if (!this.isExist(deviceId))
             throw new BusinessException(CommonErrorCode.E_300001);
 
         Device entity = deviceMapper.selectById(deviceId);

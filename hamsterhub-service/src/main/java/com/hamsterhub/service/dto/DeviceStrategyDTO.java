@@ -1,10 +1,11 @@
 package com.hamsterhub.service.dto;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@NoArgsConstructor
 @Data
 @ApiModel(value="DeviceStrategyDTO", description="")
 public class DeviceStrategyDTO {
@@ -18,5 +19,10 @@ public class DeviceStrategyDTO {
 
     @ApiModelProperty(value = "存储策略ID")
     private Long strategyId;
+
+    public DeviceStrategyDTO(Long deviceId, Long strategyId) {
+        this.deviceId = deviceId;
+        this.strategyId = strategyId;
+    }
 
 }

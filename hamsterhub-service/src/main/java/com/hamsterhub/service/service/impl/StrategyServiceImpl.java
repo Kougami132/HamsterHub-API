@@ -27,6 +27,9 @@ public class StrategyServiceImpl implements StrategyService {
         // 传入对象为空
         if (strategyDTO == null)
             throw new BusinessException(CommonErrorCode.E_100001);
+        // 存储策略名称已存在
+        if (strategyMapper.selectCount(new LambdaQueryWrapper<Strategy>().eq(Strategy::getName, strategyDTO.getName())) > 0)
+            throw new BusinessException(CommonErrorCode.E_400002);
 
         Strategy entity = StrategyConvert.INSTANCE.dto2entity(strategyDTO);
         entity.setId(null);
@@ -40,7 +43,7 @@ public class StrategyServiceImpl implements StrategyService {
         if (strategyId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
         // 存储设备不存在
-        if (this.isExist(strategyId))
+        if (!this.isExist(strategyId))
             throw new BusinessException(CommonErrorCode.E_400001);
 
         strategyMapper.deleteById(strategyId);
@@ -51,7 +54,7 @@ public class StrategyServiceImpl implements StrategyService {
         // 传入对象为空
         if (strategyDTO == null)
             throw new BusinessException(CommonErrorCode.E_100001);
-        // 存储策略已存在
+        // 存储策略名称已存在
         Wrapper exist = new LambdaQueryWrapper<Strategy>().eq(Strategy::getName, strategyDTO.getName());
         if (strategyMapper.selectCount(exist) > 0 && !strategyMapper.selectOne(exist).getId().equals(strategyDTO.getId()))
             throw new BusinessException(CommonErrorCode.E_400002);
@@ -66,7 +69,7 @@ public class StrategyServiceImpl implements StrategyService {
         if (strategyId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
         // 存储策略不存在
-        if (this.isExist(strategyId))
+        if (!this.isExist(strategyId))
             throw new BusinessException(CommonErrorCode.E_400001);
 
         Strategy entity = strategyMapper.selectById(strategyId);

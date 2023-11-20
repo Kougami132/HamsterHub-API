@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -33,10 +34,10 @@ public class DeviceStrategyServiceImpl implements DeviceStrategyService {
         if (deviceStrategyDTO == null)
             throw new BusinessException(CommonErrorCode.E_100001);
         // 设备不存在
-        if (deviceService.isExist(deviceStrategyDTO.getDeviceId()))
+        if (!deviceService.isExist(deviceStrategyDTO.getDeviceId()))
             throw new BusinessException(CommonErrorCode.E_300001);
         // 存储策略不存在
-        if (strategyService.isExist(deviceStrategyDTO.getStrategyId()))
+        if (!strategyService.isExist(deviceStrategyDTO.getStrategyId()))
             throw new BusinessException(CommonErrorCode.E_400001);
         // 设备已经配置过
         if (this.isDeviceExist(deviceStrategyDTO.getDeviceId()))
@@ -49,15 +50,24 @@ public class DeviceStrategyServiceImpl implements DeviceStrategyService {
     }
 
     @Override
-    public void delete(Long deviceStrategyId) throws BusinessException {
+    public void deleteByDeviceId(Long deviceId) throws BusinessException {
         // 传入对象为空
-        if (deviceStrategyId == null)
+        if (deviceId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
-        // 存储设备不存在
-        if (this.isExist(deviceStrategyId))
+        // 策略配置不存在
+        if (!this.isDeviceExist(deviceId))
             throw new BusinessException(CommonErrorCode.E_400003);
 
-        deviceStrategyMapper.deleteById(deviceStrategyId);
+        deviceStrategyMapper.delete(new LambdaQueryWrapper<DeviceStrategy>().eq(DeviceStrategy::getDeviceId, deviceId));
+    }
+
+    @Override
+    public void deleteByStrategyId(Long strategyId) throws BusinessException {
+        // 传入对象为空
+        if (strategyId == null)
+            throw new BusinessException(CommonErrorCode.E_100001);
+
+        deviceStrategyMapper.delete(new LambdaQueryWrapper<DeviceStrategy>().eq(DeviceStrategy::getStrategyId, strategyId));
     }
 
     @Override
@@ -66,10 +76,10 @@ public class DeviceStrategyServiceImpl implements DeviceStrategyService {
         if (deviceStrategyDTO == null)
             throw new BusinessException(CommonErrorCode.E_100001);
         // 设备不存在
-        if (deviceService.isExist(deviceStrategyDTO.getDeviceId()))
+        if (!deviceService.isExist(deviceStrategyDTO.getDeviceId()))
             throw new BusinessException(CommonErrorCode.E_300001);
         // 存储策略不存在
-        if (strategyService.isExist(deviceStrategyDTO.getStrategyId()))
+        if (!strategyService.isExist(deviceStrategyDTO.getStrategyId()))
             throw new BusinessException(CommonErrorCode.E_400001);
         // 设备已经配置过
         if (this.isDeviceExist(deviceStrategyDTO.getDeviceId()) && !deviceStrategyMapper.selectOne(new LambdaQueryWrapper<DeviceStrategy>().eq(DeviceStrategy::getDeviceId, deviceStrategyDTO.getDeviceId())).getId().equals(deviceStrategyDTO.getId()))
@@ -85,7 +95,7 @@ public class DeviceStrategyServiceImpl implements DeviceStrategyService {
         if (deviceStrategyId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
         // 存储设备不存在
-        if (this.isExist(deviceStrategyId))
+        if (!this.isExist(deviceStrategyId))
             throw new BusinessException(CommonErrorCode.E_400003);
 
         DeviceStrategy entity = deviceStrategyMapper.selectById(deviceStrategyId);
@@ -96,6 +106,24 @@ public class DeviceStrategyServiceImpl implements DeviceStrategyService {
     public List<DeviceStrategyDTO> queryBatch() throws BusinessException {
         List<DeviceStrategy> entities = deviceStrategyMapper.selectList(null);
         return DeviceStrategyConvert.INSTANCE.entity2dtoBatch(entities);
+    }
+
+    @Override
+    public Long queryStrategyId(Long deviceId) throws BusinessException {
+        Long result = -1L;
+        DeviceStrategy data = deviceStrategyMapper.selectOne(new LambdaQueryWrapper<DeviceStrategy>().eq(DeviceStrategy::getDeviceId, deviceId));
+        if (data != null)
+            result = data.getStrategyId();
+        return result;
+    }
+
+    @Override
+    public List<Long> queryDeviceIds(Long strategyId) throws BusinessException {
+        List<Long> result = new ArrayList<>();
+        List<DeviceStrategy> data = deviceStrategyMapper.selectList(new LambdaQueryWrapper<DeviceStrategy>().eq(DeviceStrategy::getStrategyId, strategyId));
+        for (DeviceStrategy i: data)
+            result.add(i.getDeviceId());
+        return result;
     }
 
     @Override
