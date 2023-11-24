@@ -34,7 +34,8 @@ public class MatchUtil {
     }
 
     public static Boolean isPathMatches(String path) {
-        String regex = "^\\/(?:[^\\s\\/]+\\/)*[^\\s\\/]+(?:\\.\\w+)?$";
+        if (path.equals("/")) return true;
+        String regex = "^\\/(?:[^\\/]+\\/)*[^\\/]+$";
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(path);
         return m.matches();

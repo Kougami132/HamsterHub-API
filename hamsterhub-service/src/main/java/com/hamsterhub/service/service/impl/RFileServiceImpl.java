@@ -9,12 +9,15 @@ import com.hamsterhub.service.dto.RFileDTO;
 import com.hamsterhub.service.entity.RFile;
 import com.hamsterhub.service.mapper.RFileMapper;
 import com.hamsterhub.service.service.DeviceService;
+import com.hamsterhub.service.service.DeviceStrategyService;
 import com.hamsterhub.service.service.RFileService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
+import java.util.List;
+
+@Service
 @Transactional
 public class RFileServiceImpl implements RFileService {
 
@@ -22,6 +25,8 @@ public class RFileServiceImpl implements RFileService {
     private RFileMapper rFileMapper;
     @Autowired
     private DeviceService deviceService;
+    @Autowired
+    private DeviceStrategyService deviceStrategyService;
 
     @Override
     public RFileDTO create(RFileDTO rFileDTO) throws BusinessException {
@@ -89,12 +94,36 @@ public class RFileServiceImpl implements RFileService {
     }
 
     @Override
+    public RFileDTO query(String hash, Long strategyId) throws BusinessException {
+        // 传入对象为空
+        if (hash == null)
+            throw new BusinessException(CommonErrorCode.E_100001);
+        // 文件不存在
+        if (!this.isExist(hash, strategyId))
+            throw new BusinessException(CommonErrorCode.E_500001);
+
+        List<Long> deviceIds = deviceStrategyService.queryDeviceIds(strategyId);
+        List<RFile> rFiles = rFileMapper.selectList(new LambdaQueryWrapper<RFile>().eq(RFile::getHash, hash));
+        if (rFiles.size() != 0)
+            for (RFile i: rFiles)
+                if (deviceIds.contains(i.getDeviceId()))
+                    return RFileConvert.INSTANCE.entity2dto(i);
+        return null;
+    }
+
+    @Override
     public Boolean isExist(Long rFileId) throws BusinessException {
         return rFileMapper.selectCount(new LambdaQueryWrapper<RFile>().eq(RFile::getId, rFileId)) > 0;
     }
 
     @Override
-    public Boolean isExist(String hash) throws BusinessException {
-        return rFileMapper.selectCount(new LambdaQueryWrapper<RFile>().eq(RFile::getHash, hash)) > 0;
+    public Boolean isExist(String hash, Long strategyId) throws BusinessException {
+        List<Long> deviceIds = deviceStrategyService.queryDeviceIds(strategyId);
+        List<RFile> rFiles = rFileMapper.selectList(new LambdaQueryWrapper<RFile>().eq(RFile::getHash, hash));
+        if (rFiles.size() != 0)
+            for (RFile i: rFiles)
+                if (deviceIds.contains(i.getDeviceId()))
+                    return true;
+        return false;
     }
 }

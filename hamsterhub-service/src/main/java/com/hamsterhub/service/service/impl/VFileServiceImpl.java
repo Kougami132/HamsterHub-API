@@ -4,24 +4,22 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MatchUtil;
-import com.hamsterhub.common.util.StringUtil;
-import com.hamsterhub.service.convert.RFileConvert;
 import com.hamsterhub.service.convert.VFileConvert;
+import com.hamsterhub.service.dto.StrategyDTO;
 import com.hamsterhub.service.dto.VFileDTO;
-import com.hamsterhub.service.entity.RFile;
 import com.hamsterhub.service.entity.VFile;
 import com.hamsterhub.service.mapper.VFileMapper;
 import com.hamsterhub.service.service.AccountService;
 import com.hamsterhub.service.service.StrategyService;
 import com.hamsterhub.service.service.VFileService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Service
 @Transactional
 public class VFileServiceImpl implements VFileService {
 
@@ -97,6 +95,20 @@ public class VFileServiceImpl implements VFileService {
     }
 
     @Override
+    public VFileDTO query(Long accountId, String root, String path, String name) throws BusinessException {
+        // 传入对象为空
+        if (accountId == null)
+            throw new BusinessException(CommonErrorCode.E_100001);
+        // 用户不存在
+        if (!accountService.isExist(accountId))
+            throw new BusinessException(CommonErrorCode.E_200013);
+
+        StrategyDTO strategyDTO = strategyService.query(root);
+        VFile entity = vFileMapper.selectOne(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getPath, path).eq(VFile::getName, name));
+        return VFileConvert.INSTANCE.entity2dto(entity);
+    }
+
+    @Override
     public List<Long> deleteBatch(Long accountId, List<Long> vFileIds) throws BusinessException {
         // 传入对象为空
         if (accountId == null || vFileIds == null)
@@ -113,7 +125,7 @@ public class VFileServiceImpl implements VFileService {
     }
 
     @Override
-    public List<VFileDTO> queryBatch(Long accountId, String path) throws BusinessException {
+    public List<VFileDTO> queryBatch(Long accountId, String root, String path) throws BusinessException {
         // 传入对象为空
         if (accountId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
@@ -121,7 +133,8 @@ public class VFileServiceImpl implements VFileService {
         if (!accountService.isExist(accountId))
             throw new BusinessException(CommonErrorCode.E_200013);
 
-        List<VFile> entities = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getPath, path));
+        StrategyDTO strategyDTO = strategyService.query(root);
+        List<VFile> entities = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getPath, path));
         return VFileConvert.INSTANCE.entity2dtoBatch(entities);
     }
 

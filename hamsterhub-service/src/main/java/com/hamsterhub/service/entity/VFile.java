@@ -37,8 +37,8 @@ public class VFile {
     @TableField("ACCOUNT_ID")
     private Long accountID;
 
-    @TableField("PERMISSION")
-    private Integer permission;
+    @TableField("SIZE")
+    private Long size;
 
     @TableField("STRATEGY_ID")
     private Long strategyId;

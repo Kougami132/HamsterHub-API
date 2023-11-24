@@ -11,13 +11,13 @@ import com.hamsterhub.service.service.DeviceService;
 import com.hamsterhub.service.service.DeviceStrategyService;
 import com.hamsterhub.service.service.StrategyService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Service
 @Transactional
 public class DeviceStrategyServiceImpl implements DeviceStrategyService {
 

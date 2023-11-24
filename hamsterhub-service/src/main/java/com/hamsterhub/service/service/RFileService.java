@@ -8,6 +8,7 @@ public interface RFileService {
     void delete(Long rFileId) throws BusinessException;
     void update(RFileDTO rFileDTO) throws BusinessException;
     RFileDTO query(Long rFileId) throws BusinessException;
+    RFileDTO query(String hash, Long strategyId) throws BusinessException;
     Boolean isExist(Long rFileId) throws BusinessException;
-    Boolean isExist(String hash) throws BusinessException;
+    Boolean isExist(String hash, Long strategyId) throws BusinessException;
 }

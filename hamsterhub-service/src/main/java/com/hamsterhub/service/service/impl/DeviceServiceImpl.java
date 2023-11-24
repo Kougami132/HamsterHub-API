@@ -10,12 +10,12 @@ import com.hamsterhub.service.entity.Device;
 import com.hamsterhub.service.mapper.DeviceMapper;
 import com.hamsterhub.service.service.DeviceService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Component
+@Service
 @Transactional
 public class DeviceServiceImpl implements DeviceService {
 

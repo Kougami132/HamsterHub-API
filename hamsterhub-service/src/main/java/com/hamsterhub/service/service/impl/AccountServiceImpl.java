@@ -13,10 +13,10 @@ import com.hamsterhub.service.entity.Account;
 import com.hamsterhub.service.mapper.AccountMapper;
 import com.hamsterhub.service.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-@Component
+@Service
 @Transactional
 public class AccountServiceImpl implements AccountService {
 

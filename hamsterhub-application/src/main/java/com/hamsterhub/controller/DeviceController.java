@@ -4,7 +4,11 @@ import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.convert.DeviceConvert;
+import com.hamsterhub.device.Storage;
+import com.hamsterhub.device.ext.LocalDisk;
 import com.hamsterhub.response.Response;
+import com.hamsterhub.service.FileService;
+import com.hamsterhub.service.StorageService;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.dto.DeviceDTO;
 import com.hamsterhub.service.service.AccountService;
@@ -13,28 +17,29 @@ import com.hamsterhub.util.SecurityUtil;
 import com.hamsterhub.vo.DeviceVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
+import javax.annotation.PostConstruct;
+import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Stream;
+
 import static java.util.stream.Collectors.toList;
 
 @RestController
 @Api(tags = "存储设备 数据接口")
 public class DeviceController {
-
-    private List<String> TYPE = Stream.of("本地", "阿里云").collect(toList());
-
-    @Resource
+    @Autowired
+    private StorageService storageService;
+    @Autowired
     private DeviceService deviceService;
-    @Resource
+    @Autowired
     private AccountService accountService;
 
     @ApiOperation("设备类型")
     @GetMapping(value = "/deviceType")
     public Response deviceType() {
-        return Response.success().data(TYPE);
+        return Response.success().data(storageService.getTypes());
     }
 
     @ApiOperation("设备列表(token)")
@@ -59,7 +64,7 @@ public class DeviceController {
         if (!accountDTO.isAdmin())
             throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
         // 不存在该设备类型编号
-        if (deviceVO.getType() < 0 || deviceVO.getType() >= TYPE.size())
+        if (deviceVO.getType() < 0 || deviceVO.getType() >= storageService.getTypes().size())
             throw new BusinessException(CommonErrorCode.E_300004);
 
         DeviceDTO data = deviceService.create(DeviceConvert.INSTANCE.vo2dto(deviceVO));
@@ -78,7 +83,7 @@ public class DeviceController {
         if (!deviceService.isExist(deviceVO.getId()))
             throw new BusinessException(CommonErrorCode.E_300001);
         // 不存在该设备类型编号
-        if (deviceVO.getType() < 0 || deviceVO.getType() >= TYPE.size())
+        if (deviceVO.getType() < 0 || deviceVO.getType() >= storageService.getTypes().size())
             throw new BusinessException(CommonErrorCode.E_300004);
 
         deviceService.update(DeviceConvert.INSTANCE.vo2dto(deviceVO));

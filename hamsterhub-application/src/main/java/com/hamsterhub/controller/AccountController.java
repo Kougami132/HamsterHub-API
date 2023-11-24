@@ -15,15 +15,15 @@ import com.hamsterhub.vo.ChangePasswordVO;
 import com.hamsterhub.vo.AccountVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.Resource;
 
 @RestController
 @Api(tags = "用户 数据接口")
 public class AccountController {
 
-    @Resource
+    @Autowired
     private AccountService accountService;
 
     @ApiOperation("注册账号")

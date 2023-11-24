@@ -10,12 +10,12 @@ import com.hamsterhub.service.entity.Strategy;
 import com.hamsterhub.service.mapper.StrategyMapper;
 import com.hamsterhub.service.service.StrategyService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@Component
+@Service
 @Transactional
 public class StrategyServiceImpl implements StrategyService {
 
@@ -30,6 +30,9 @@ public class StrategyServiceImpl implements StrategyService {
         // 存储策略名称已存在
         if (strategyMapper.selectCount(new LambdaQueryWrapper<Strategy>().eq(Strategy::getName, strategyDTO.getName())) > 0)
             throw new BusinessException(CommonErrorCode.E_400002);
+        // 存储策略根目录已存在
+        if (strategyMapper.selectCount(new LambdaQueryWrapper<Strategy>().eq(Strategy::getRoot, strategyDTO.getRoot())) > 0)
+            throw new BusinessException(CommonErrorCode.E_400006);
 
         Strategy entity = StrategyConvert.INSTANCE.dto2entity(strategyDTO);
         entity.setId(null);
@@ -58,6 +61,10 @@ public class StrategyServiceImpl implements StrategyService {
         Wrapper exist = new LambdaQueryWrapper<Strategy>().eq(Strategy::getName, strategyDTO.getName());
         if (strategyMapper.selectCount(exist) > 0 && !strategyMapper.selectOne(exist).getId().equals(strategyDTO.getId()))
             throw new BusinessException(CommonErrorCode.E_400002);
+        // 存储策略根目录已存在
+        Wrapper exist2 = new LambdaQueryWrapper<Strategy>().eq(Strategy::getRoot, strategyDTO.getRoot());
+        if (strategyMapper.selectCount(exist) > 0 && !strategyMapper.selectOne(exist).getId().equals(strategyDTO.getId()))
+            throw new BusinessException(CommonErrorCode.E_400002);
 
         Strategy entity = StrategyConvert.INSTANCE.dto2entity(strategyDTO);
         strategyMapper.updateById(entity);
@@ -74,6 +81,14 @@ public class StrategyServiceImpl implements StrategyService {
 
         Strategy entity = strategyMapper.selectById(strategyId);
         return StrategyConvert.INSTANCE.entity2dto(entity);
+    }
+
+    @Override
+    public StrategyDTO query(String root) throws BusinessException {
+        Strategy strategyDTO = strategyMapper.selectOne(new LambdaQueryWrapper<Strategy>().eq(Strategy::getRoot, root));
+        if (strategyDTO == null)
+            throw new BusinessException(CommonErrorCode.E_400001);
+        return StrategyConvert.INSTANCE.entity2dto(strategyDTO);
     }
 
     @Override

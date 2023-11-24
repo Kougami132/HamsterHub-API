@@ -16,12 +16,12 @@ import com.hamsterhub.util.SecurityUtil;
 import com.hamsterhub.vo.StrategyVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -34,11 +34,11 @@ public class StrategyController {
     private List<String> TYPE = Stream.of("聚合", "备份").collect(toList()),
                          MODE = Stream.of("优先存储较大剩余容量设备", "优先存储较小剩余容量设备").collect(toList());
 
-    @Resource
+    @Autowired
     private DeviceService deviceService;
-    @Resource
+    @Autowired
     private StrategyService strategyService;
-    @Resource
+    @Autowired
     private DeviceStrategyService deviceStrategyService;
 
     @ApiOperation("策略类型")
