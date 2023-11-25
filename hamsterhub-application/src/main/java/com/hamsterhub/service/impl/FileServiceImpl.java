@@ -89,5 +89,11 @@ public class FileServiceImpl implements FileService {
         return storage.downLoad(rFileDTO.getPath());
     }
 
+    @Override
+    public void delete(RFileDTO rFileDTO) throws BusinessException {
+        DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
+        Storage storage = storageService.getInstance(deviceDTO);
+        storage.delete(rFileDTO.getPath());
+    }
 
 }

@@ -143,6 +143,12 @@ public class VFileServiceImpl implements VFileService {
         return vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getId, vFileId)) > 0;
     }
 
+    @Override
+    public Boolean isExist(Long accountId, String root, String path, String name) throws BusinessException {
+        StrategyDTO strategyDTO = strategyService.query(root);
+        return vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getPath, path).eq(VFile::getName, name)) > 0;
+    }
+
     public void rm(List<Long> result, Long vFileId) {
         VFile entity = vFileMapper.selectById(vFileId);
         if (entity.getType().equals(0)) { //文件夹

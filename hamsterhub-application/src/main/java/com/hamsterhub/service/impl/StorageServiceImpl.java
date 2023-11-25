@@ -36,4 +36,9 @@ public class StorageServiceImpl implements StorageService {
         return storage.withDevice(deviceDTO);
     }
 
+    @Override
+    public Boolean isTypeExist(Integer type) throws BusinessException {
+        return type < 0 || type >= this.getTypes().size();
+    }
+
 }

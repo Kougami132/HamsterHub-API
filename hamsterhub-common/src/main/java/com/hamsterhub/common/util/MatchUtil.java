@@ -1,5 +1,8 @@
 package com.hamsterhub.common.util;
 
+import com.alibaba.fastjson.JSONObject;
+import com.google.gson.JsonObject;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +42,17 @@ public class MatchUtil {
         Pattern p = Pattern.compile(regex);
         Matcher m = p.matcher(path);
         return m.matches();
+    }
+
+    public static Boolean isJson(String str) {
+        if (StringUtil.isBlank(str)) return true;
+        try {
+            JSONObject.parseObject(str);
+        }
+        catch (Exception e) {
+            return false;
+        }
+        return true;
     }
 
 }

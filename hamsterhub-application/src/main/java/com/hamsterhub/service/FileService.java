@@ -9,4 +9,5 @@ public interface FileService {
     String getHash(MultipartFile file) throws BusinessException;
     RFileDTO upload(MultipartFile file, StrategyDTO strategyDTO) throws BusinessException;
     String download(RFileDTO rFileDTO) throws BusinessException;
+    void delete(RFileDTO rFileDTO) throws BusinessException;
 }

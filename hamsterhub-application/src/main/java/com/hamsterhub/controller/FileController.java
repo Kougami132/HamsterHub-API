@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @RestController
 @Api(tags = "文件传输 数据接口")
@@ -40,6 +41,14 @@ public class FileController {
     private StrategyService strategyService;
     @Autowired
     private FileService fileService;
+
+    @ApiOperation("查询文件是否存在(token)")
+    @PostMapping(value = "/isExist")
+    @Token
+    public Response isExist(@RequestParam("hash") String hash, @RequestParam("root") String root) {
+        StrategyDTO strategyDTO = strategyService.query(root);
+        return Response.success().data(rFileService.isExist(hash, strategyDTO.getId()));
+    }
 
     @ApiOperation("查看文件列表(token)")
     @PostMapping(value = "/queryFiles")
@@ -71,15 +80,32 @@ public class FileController {
             return Response.success().data(vFileDTO);
     }
 
-    @ApiOperation("查询文件是否存在(token)")
-    @PostMapping(value = "/isExist")
+    @ApiOperation("创建目录(token)")
+    @PostMapping(value = "/mkdir")
     @Token
-    public Response isExist(@RequestParam("hash") String hash, @RequestParam("root") String root) {
+    public Response mkdir(@RequestParam("root") String root, @RequestParam("url") String url) {
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+        // 路径格式错误
+        if (!MatchUtil.isPathMatches(url))
+            throw new BusinessException(CommonErrorCode.E_600002);
+
+        // 遍历创建目录
+        String[] dirs = url.split("/");
+        String path = "/";
         StrategyDTO strategyDTO = strategyService.query(root);
-        return Response.success().data(rFileService.isExist(hash, strategyDTO.getId()));
+        for (int i = 0; i < dirs.length; i ++) {
+            String name = dirs[i];
+            if (name.equals("")) continue;
+            if (!vFileService.isExist(accountDTO.getId(), root, path, name))
+                vFileService.create(new VFileDTO(null, 0, name, path, 0L, 0, LocalDateTime.now(), accountDTO.getId(), 0L, strategyDTO.getId()));
+            if (path.equals("/")) path = "";
+            path += "/" + name;
+        }
+
+        return Response.success();
     }
 
-    @ApiOperation("上传文件(file和hash选一个传)(token)")
+    @ApiOperation("上传文件(hash可选)(token)")
     @PostMapping(value = "/upload")
     @Token
     public Response upload(@RequestParam("file") MultipartFile file, @RequestParam(value = "hash", required = false) String hash, @RequestParam("root") String root, @RequestParam("path") String path) {
@@ -95,10 +121,13 @@ public class FileController {
         if (path.equals("")) path = "/";
         if (!name.equals("")) { // 不为根目录，检查目录是否存在
             VFileDTO vFileDTO = vFileService.query(accountDTO.getId(), root, path, name);
-            if (vFileDTO != null && !vFileDTO.getType().equals(0))
+            if (vFileDTO == null || !vFileDTO.getType().equals(0))
                 throw new BusinessException(CommonErrorCode.E_600003);
         }
-        if (!name.equals("")) path += "/" + name;
+        if (!name.equals("")) {
+            if (!path.equals("/")) path += "/";
+            path += name;
+        }
         name = file.getOriginalFilename();
         // 文件名为空
         if (StringUtil.isBlank(name))
@@ -123,14 +152,18 @@ public class FileController {
         vFileDTO = new VFileDTO(null, 1, name, path, rFileDTO.getId(), version, LocalDateTime.now(), accountDTO.getId(), rFileDTO.getSize(), strategyDTO.getId());
         vFileService.create(vFileDTO);
 
-        return Response.success().msg("上传成功");
+        return Response.success().msg("上传成功").data(vFileDTO);
     }
 
     @ApiOperation("下载文件(token)")
     @PostMapping(value = "/download")
     @Token
     public Response download(@RequestParam("vFileId") Long vFileId, HttpServletResponse response) {
+        AccountDTO accountDTO = SecurityUtil.getAccount();
         VFileDTO vFileDTO = vFileService.query(vFileId);
+        // 文件与用户不匹配
+        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
+            throw new BusinessException(CommonErrorCode.E_600005);
         RFileDTO rFileDTO = rFileService.query(vFileDTO.getRFileId());
         DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
         String result = fileService.download(rFileDTO);
@@ -164,6 +197,22 @@ public class FileController {
             catch (Exception e) {
                 e.printStackTrace();
             }
+        return Response.success();
+    }
+
+    @ApiOperation("删除文件(token)")
+    @PostMapping(value = "/delete")
+    @Token
+    public Response delete(@RequestParam("vFileId") Long vFileId) {
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+        VFileDTO vFileDTO = vFileService.query(vFileId);
+        // 文件与用户不匹配
+        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
+            throw new BusinessException(CommonErrorCode.E_600005);
+
+        List<Long> delete = vFileService.delete(vFileDTO.getId());
+        for (Long i: delete)
+            fileService.delete(rFileService.query(i));
         return Response.success();
     }
 

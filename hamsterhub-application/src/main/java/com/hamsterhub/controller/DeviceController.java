@@ -20,11 +20,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.PostConstruct;
-import java.util.Comparator;
 import java.util.List;
-
-import static java.util.stream.Collectors.toList;
 
 @RestController
 @Api(tags = "存储设备 数据接口")
@@ -33,8 +29,6 @@ public class DeviceController {
     private StorageService storageService;
     @Autowired
     private DeviceService deviceService;
-    @Autowired
-    private AccountService accountService;
 
     @ApiOperation("设备类型")
     @GetMapping(value = "/deviceType")
@@ -64,10 +58,16 @@ public class DeviceController {
         if (!accountDTO.isAdmin())
             throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
         // 不存在该设备类型编号
-        if (deviceVO.getType() < 0 || deviceVO.getType() >= storageService.getTypes().size())
+        if (storageService.isTypeExist(deviceVO.getType()))
             throw new BusinessException(CommonErrorCode.E_300004);
 
-        DeviceDTO data = deviceService.create(DeviceConvert.INSTANCE.vo2dto(deviceVO));
+        DeviceDTO deviceDTO = DeviceConvert.INSTANCE.vo2dto(deviceVO);
+        Storage storage = storageService.getInstance(deviceDTO);
+        // 连接测试
+        if (!storage.verify())
+            throw new BusinessException(CommonErrorCode.E_300006);
+
+        DeviceDTO data = deviceService.create(deviceDTO);
         return Response.success().data(data);
     }
 
@@ -83,10 +83,16 @@ public class DeviceController {
         if (!deviceService.isExist(deviceVO.getId()))
             throw new BusinessException(CommonErrorCode.E_300001);
         // 不存在该设备类型编号
-        if (deviceVO.getType() < 0 || deviceVO.getType() >= storageService.getTypes().size())
+        if (storageService.isTypeExist(deviceVO.getType()))
             throw new BusinessException(CommonErrorCode.E_300004);
 
-        deviceService.update(DeviceConvert.INSTANCE.vo2dto(deviceVO));
+        DeviceDTO deviceDTO = DeviceConvert.INSTANCE.vo2dto(deviceVO);
+        Storage storage = storageService.getInstance(deviceDTO);
+        // 连接测试
+        if (!storage.verify())
+            throw new BusinessException(CommonErrorCode.E_300006);
+
+        deviceService.update(deviceDTO);
         return Response.success();
     }
 

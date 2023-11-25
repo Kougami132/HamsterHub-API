@@ -9,4 +9,5 @@ import java.util.List;
 public interface StorageService {
     List<String> getTypes() throws BusinessException;
     Storage getInstance(DeviceDTO deviceDTO) throws BusinessException;
+    Boolean isTypeExist(Integer type) throws BusinessException;
 }
