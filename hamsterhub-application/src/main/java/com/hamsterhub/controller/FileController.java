@@ -8,10 +8,7 @@ import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.service.FileService;
 import com.hamsterhub.service.dto.*;
-import com.hamsterhub.service.service.DeviceService;
-import com.hamsterhub.service.service.RFileService;
-import com.hamsterhub.service.service.StrategyService;
-import com.hamsterhub.service.service.VFileService;
+import com.hamsterhub.service.service.*;
 import com.hamsterhub.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,6 +37,8 @@ public class FileController {
     @Autowired
     private StrategyService strategyService;
     @Autowired
+    private ShareService shareService;
+    @Autowired
     private FileService fileService;
 
     @ApiOperation("查询文件是否存在(token)")
@@ -51,9 +50,9 @@ public class FileController {
     }
 
     @ApiOperation("查看文件列表(token)")
-    @PostMapping(value = "/queryFiles")
+    @PostMapping(value = "/queryFile")
     @Token
-    public Response queryFiles(@RequestParam("root") String root, @RequestParam("url") String url) {
+    public Response queryFile(@RequestParam("root") String root, @RequestParam("url") String url) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         // 路径格式错误
         if (!MatchUtil.isPathMatches(url))
@@ -167,6 +166,7 @@ public class FileController {
         RFileDTO rFileDTO = rFileService.query(vFileDTO.getRFileId());
         DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
         String result = fileService.download(rFileDTO);
+
         if (deviceDTO.getType() != 0) // 非本地硬盘，返回直链
             return Response.success().data(result);
         else // 设备本地硬盘，返回文件

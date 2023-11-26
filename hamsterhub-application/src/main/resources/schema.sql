@@ -20,7 +20,7 @@ CREATE TABLE `device` (
                           `ID` bigint(20) NOT NULL COMMENT '主键',
                           `NAME` varchar(50) NOT NULL UNIQUE COMMENT '设备名称',
                           `TYPE` bigint(10) NOT NULL COMMENT '设备类型',
-                          `PARAM` varchar(50) NOT NULL COMMENT '连接参数',
+                          `PARAM` TEXT NOT NULL COMMENT '连接参数',
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
@@ -62,10 +62,22 @@ CREATE TABLE `v_file` (
                           `PATH` varchar(200) NOT NULL COMMENT '文件虚拟路径',
                           `R_FILE_ID` bigint(20) NOT NULL COMMENT '实际文件id',
                           `VERSION` bigint(20) NOT NULL COMMENT '文件版本',
-                          `TIMESTAMP` DATETIME NOT NULL COMMENT '文件最后修改时间',
+                          `LAST_UPDATE` DATETIME NOT NULL COMMENT '文件最后修改时间',
                           `ACCOUNT_ID` bigint(20) NOT NULL COMMENT '用户ID',
                           `SIZE` bigint(20) NOT NULL COMMENT '文件大小',
                           `STRATEGY_ID` bigint(20) NOT NULL COMMENT '存储策略ID',
+                          PRIMARY KEY (`ID`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+DROP TABLE IF EXISTS `share`;
+CREATE TABLE `share` (
+                          `ID` bigint(20) NOT NULL COMMENT '主键',
+                          `TYPE` bigint(10) NOT NULL COMMENT '分享类型(公开、私有)',
+                          `TICKET` varchar(50) NOT NULL UNIQUE COMMENT '分享码',
+                          `V_FILE_ID` bigint(20) NOT NULL UNIQUE COMMENT '虚拟文件id',
+                          `KEY` varchar(50) NOT NULL COMMENT '提取码',
+                          `EXPIRY` DATETIME NOT NULL COMMENT '分享过期时间',
+                          `ACCOUNT_ID` bigint(20) NOT NULL COMMENT '用户ID',
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 

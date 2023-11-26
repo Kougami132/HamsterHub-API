@@ -34,7 +34,7 @@ public class VFileDTO {
     private Integer version;
 
     @ApiModelProperty(value = "文件修改时间")
-    private LocalDateTime timestamp;
+    private LocalDateTime lastUpdate;
 
     @ApiModelProperty(value = "文件所有人ID")
     private Long accountID;

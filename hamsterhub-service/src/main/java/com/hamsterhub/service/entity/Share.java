@@ -9,8 +9,8 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-@TableName("v_file")
-public class VFile {
+@TableName("share")
+public class Share {
     private static final long serialVersionUID = 1L;
 
     @TableId(value = "ID", type = IdType.ID_WORKER)
@@ -19,27 +19,19 @@ public class VFile {
     @TableField("TYPE")
     private Integer type;
 
-    @TableField("NAME")
-    private String name;
+    @TableField("TICKET")
+    private String ticket;
 
-    @TableField("PATH")
-    private String path;
+    @TableField("V_FILE_ID")
+    private Long vFileId;
 
-    @TableField("R_FILE_ID")
-    private Long rFileId;
+    @TableField("KEY")
+    private String key;
 
-    @TableField("VERSION")
-    private Integer version;
-
-    @TableField("LAST_UPDATE")
-    private LocalDateTime lastUpdate;
+    @TableField("EXPIRY")
+    private LocalDateTime expiry;
 
     @TableField("ACCOUNT_ID")
     private Long accountID;
 
-    @TableField("SIZE")
-    private Long size;
-
-    @TableField("STRATEGY_ID")
-    private Long strategyId;
 }

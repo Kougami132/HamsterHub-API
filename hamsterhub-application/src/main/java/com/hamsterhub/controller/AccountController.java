@@ -29,6 +29,9 @@ public class AccountController {
     @ApiOperation("注册账号")
     @PostMapping(value = "/registerAccount")
     public Response registerAccount(@RequestBody AccountVO accountVO) {
+        // 统一小写
+        accountVO.setUsername(accountVO.getUsername().toLowerCase());
+
         AccountDTO accountDTO = AccountConvert.INSTANCE.vo2dto(accountVO);
         accountDTO.setType(0);
         accountService.create(accountDTO);
@@ -41,6 +44,9 @@ public class AccountController {
     @ApiOperation("登录账号")
     @PostMapping(value = "/loginAccount")
     public Response LoginAccount(@RequestBody AccountVO accountVO) {
+        // 统一小写
+        accountVO.setUsername(accountVO.getUsername().toLowerCase());
+
         AccountDTO accountDTO = accountService.query(accountVO.getUsername());
         // 密码错误
         if (!accountDTO.getPassword().equals(MD5Util.getMd5(accountVO.getPassword())))
@@ -66,7 +72,7 @@ public class AccountController {
     }
 
     @ApiOperation("校验Token")
-    @GetMapping(value = "/checkToken")
+    @PostMapping(value = "/checkToken")
     public Boolean checkToken(@RequestParam("token") String token) {
         return JwtUtil.checkToken(token);
     }
