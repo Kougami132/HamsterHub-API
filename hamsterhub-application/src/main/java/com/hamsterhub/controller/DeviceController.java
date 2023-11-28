@@ -5,13 +5,11 @@ import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.convert.DeviceConvert;
 import com.hamsterhub.device.Storage;
-import com.hamsterhub.device.ext.LocalDisk;
+import com.hamsterhub.response.SizeResponse;
 import com.hamsterhub.response.Response;
-import com.hamsterhub.service.FileService;
 import com.hamsterhub.service.StorageService;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.dto.DeviceDTO;
-import com.hamsterhub.service.service.AccountService;
 import com.hamsterhub.service.service.DeviceService;
 import com.hamsterhub.util.SecurityUtil;
 import com.hamsterhub.vo.DeviceVO;
@@ -36,7 +34,7 @@ public class DeviceController {
         return Response.success().data(storageService.getTypes());
     }
 
-    @ApiOperation("设备列表(token)")
+    @ApiOperation("设备列表(admin)")
     @GetMapping(value = "/queryDevice")
     @Token
     public Response queryDevice() {
@@ -49,7 +47,7 @@ public class DeviceController {
         return Response.success().data(data);
     }
 
-    @ApiOperation("创建设备(token)")
+    @ApiOperation("创建设备(admin)")
     @PostMapping(value = "/createDevice")
     @Token
     public Response createDevice(@RequestBody DeviceVO deviceVO) {
@@ -71,7 +69,7 @@ public class DeviceController {
         return Response.success().data(data);
     }
 
-    @ApiOperation("修改设备(token)")
+    @ApiOperation("修改设备(admin)")
     @PostMapping(value = "/modifyDevice")
     @Token
     public Response modifyDevice(@RequestBody DeviceVO deviceVO) {
@@ -96,10 +94,10 @@ public class DeviceController {
         return Response.success();
     }
 
-    @ApiOperation("删除设备(token)")
+    @ApiOperation("删除设备(admin)")
     @PostMapping(value = "/deleteDevice")
     @Token
-    public Response deleteDevice(@RequestBody Long deviceId) {
+    public Response deleteDevice(@RequestParam("deviceId") Long deviceId) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         // 权限不足
         if (!accountDTO.isAdmin())
@@ -110,6 +108,25 @@ public class DeviceController {
 
         deviceService.delete(deviceId);
         return Response.success();
+    }
+
+    @ApiOperation("获取设备存储空间(admin)")
+    @PostMapping(value = "/queryDeviceSize")
+    @Token
+    public Response queryDeviceSize(@RequestParam("deviceId") Long deviceId) {
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+        // 权限不足
+        if (!accountDTO.isAdmin())
+            throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
+        // 设备不存在
+        if (!deviceService.isExist(deviceId))
+            throw new BusinessException(CommonErrorCode.E_300001);
+
+        DeviceDTO deviceDTO = deviceService.query(deviceId);
+        Storage storage = storageService.getInstance(deviceDTO);
+        SizeResponse data = new SizeResponse(storage.getTotalSize(), storage.getUsableSize());
+
+        return Response.success().data(data);
     }
 
 }

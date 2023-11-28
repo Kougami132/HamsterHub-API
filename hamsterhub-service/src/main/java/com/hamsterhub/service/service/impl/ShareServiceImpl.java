@@ -35,6 +35,9 @@ public class ShareServiceImpl implements ShareService {
 
     @Override
     public void delete(Long shareId) throws BusinessException {
+        // 分享ID不存在
+        if (!this.isExist(shareId))
+            throw new BusinessException(CommonErrorCode.E_600011);
         shareMapper.deleteById(shareId);
     }
 
@@ -45,11 +48,17 @@ public class ShareServiceImpl implements ShareService {
 
     @Override
     public ShareDTO query(Long shareId) throws BusinessException {
+        // 分享ID不存在
+        if (!this.isExist(shareId))
+            throw new BusinessException(CommonErrorCode.E_600011);
         return ShareConvert.INSTANCE.entity2dto(shareMapper.selectOne(new LambdaQueryWrapper<Share>().eq(Share::getId, shareId)));
     }
 
     @Override
     public ShareDTO query(String ticket) throws BusinessException {
+        // 分享码不存在
+        if (!this.isExist(ticket))
+            throw new BusinessException(CommonErrorCode.E_600007);
         return ShareConvert.INSTANCE.entity2dto(shareMapper.selectOne(new LambdaQueryWrapper<Share>().eq(Share::getTicket, ticket)));
     }
 

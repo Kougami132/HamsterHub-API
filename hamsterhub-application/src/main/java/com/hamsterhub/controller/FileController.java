@@ -44,7 +44,8 @@ public class FileController {
     @ApiOperation("查询文件是否存在(token)")
     @PostMapping(value = "/isExist")
     @Token
-    public Response isExist(@RequestParam("hash") String hash, @RequestParam("root") String root) {
+    public Response isExist(@RequestParam("root") String root,
+                            @RequestParam("hash") String hash) {
         StrategyDTO strategyDTO = strategyService.query(root);
         return Response.success().data(rFileService.isExist(hash, strategyDTO.getId()));
     }
@@ -52,7 +53,8 @@ public class FileController {
     @ApiOperation("查看文件列表(token)")
     @PostMapping(value = "/queryFile")
     @Token
-    public Response queryFile(@RequestParam("root") String root, @RequestParam("url") String url) {
+    public Response queryFile(@RequestParam("root") String root,
+                              @RequestParam("url") String url) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         // 路径格式错误
         if (!MatchUtil.isPathMatches(url))
@@ -82,7 +84,8 @@ public class FileController {
     @ApiOperation("创建目录(token)")
     @PostMapping(value = "/mkdir")
     @Token
-    public Response mkdir(@RequestParam("root") String root, @RequestParam("url") String url) {
+    public Response mkdir(@RequestParam("root") String root,
+                          @RequestParam("url") String url) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         // 路径格式错误
         if (!MatchUtil.isPathMatches(url))
@@ -107,7 +110,10 @@ public class FileController {
     @ApiOperation("上传文件(hash可选)(token)")
     @PostMapping(value = "/upload")
     @Token
-    public Response upload(@RequestParam("file") MultipartFile file, @RequestParam(value = "hash", required = false) String hash, @RequestParam("root") String root, @RequestParam("path") String path) {
+    public Response upload(@RequestParam("root") String root,
+                           @RequestParam("file") MultipartFile file,
+                           @RequestParam(value = "hash", required = false) String hash,
+                           @RequestParam("path") String path) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         // 路径格式错误
         if (!MatchUtil.isPathMatches(path))
@@ -157,7 +163,8 @@ public class FileController {
     @ApiOperation("下载文件(token)")
     @PostMapping(value = "/download")
     @Token
-    public Response download(@RequestParam("vFileId") Long vFileId, HttpServletResponse response) {
+    public Response download(@RequestParam("vFileId") Long vFileId,
+                             HttpServletResponse response) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         VFileDTO vFileDTO = vFileService.query(vFileId);
         // 文件与用户不匹配

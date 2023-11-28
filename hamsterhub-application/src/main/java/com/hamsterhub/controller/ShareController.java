@@ -55,7 +55,9 @@ public class ShareController {
     @ApiOperation("分享文件(token)")
     @PostMapping(value = "/shareFile")
     @Token
-    public Response shareFile(@RequestParam("vFileId") Long vFileId, @RequestParam(value = "key", required = false) String key, @RequestParam(value = "expiry", required = false) Long expiry) {
+    public Response shareFile(@RequestParam("vFileId") Long vFileId,
+                              @RequestParam(value = "key", required = false) String key,
+                              @RequestParam(value = "expiry", required = false) Long expiry) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         VFileDTO vFileDTO = vFileService.query(vFileId);
         // 文件与用户不匹配
@@ -67,7 +69,6 @@ public class ShareController {
 
         // 0: 无需提取码 1: 需要提取码
         Integer type = 0;
-        // 默认随机提取码
         if (!StringUtil.isBlank(key))
             type = 1;
 
@@ -91,7 +92,8 @@ public class ShareController {
 
     @ApiOperation("获取分享文件")
     @PostMapping(value = "/queryShare")
-    public Response queryShare(@RequestParam("ticket") String ticket, @RequestParam("key") String key) {
+    public Response queryShare(@RequestParam("ticket") String ticket,
+                               @RequestParam("key") String key) {
         // 分享码不存在
         if (!shareService.isExist(ticket))
             throw new BusinessException(CommonErrorCode.E_600007);
@@ -117,7 +119,9 @@ public class ShareController {
 
     @ApiOperation("下载分享文件")
     @PostMapping(value = "/downloadShare")
-    public Response downloadShare(@RequestParam("ticket") String ticket, @RequestParam("key") String key, HttpServletResponse response) {
+    public Response downloadShare(@RequestParam("ticket") String ticket,
+                                  @RequestParam("key") String key,
+                                  HttpServletResponse response) {
         // 分享码不存在
         if (!shareService.isExist(ticket))
             throw new BusinessException(CommonErrorCode.E_600007);

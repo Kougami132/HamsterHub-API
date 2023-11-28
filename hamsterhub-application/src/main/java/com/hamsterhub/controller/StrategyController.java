@@ -4,9 +4,13 @@ import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.convert.StrategyConvert;
+import com.hamsterhub.device.Storage;
 import com.hamsterhub.response.Response;
+import com.hamsterhub.response.SizeResponse;
 import com.hamsterhub.response.StrategyResponse;
+import com.hamsterhub.service.StorageService;
 import com.hamsterhub.service.dto.AccountDTO;
+import com.hamsterhub.service.dto.DeviceDTO;
 import com.hamsterhub.service.dto.DeviceStrategyDTO;
 import com.hamsterhub.service.dto.StrategyDTO;
 import com.hamsterhub.service.service.DeviceService;
@@ -17,10 +21,7 @@ import com.hamsterhub.vo.StrategyVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Stream;
@@ -40,6 +41,8 @@ public class StrategyController {
     private StrategyService strategyService;
     @Autowired
     private DeviceStrategyService deviceStrategyService;
+    @Autowired
+    private StorageService storageService;
 
     @ApiOperation("策略类型")
     @GetMapping(value = "/strategyType")
@@ -57,10 +60,10 @@ public class StrategyController {
     @GetMapping(value = "/queryStrategy")
     @Token
     public Response queryStrategy() {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        // 权限不足
-        if (!accountDTO.isAdmin())
-            throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
+//        AccountDTO accountDTO = SecurityUtil.getAccount();
+//        // 权限不足
+//        if (!accountDTO.isAdmin())
+//            throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
 
         List<StrategyResponse> data = StrategyConvert.INSTANCE.dto2resBatch(strategyService.queryBatch());
         for (StrategyResponse i: data)
@@ -68,7 +71,7 @@ public class StrategyController {
         return Response.success().data(data);
     }
 
-    @ApiOperation("创建策略(token)")
+    @ApiOperation("创建策略(admin)")
     @PostMapping(value = "/createStrategy")
     @Token
     public Response createStrategy(@RequestBody StrategyVO strategyVO) {
@@ -97,7 +100,7 @@ public class StrategyController {
         return Response.success().data(data);
     }
 
-    @ApiOperation("修改策略(token)")
+    @ApiOperation("修改策略(admin)")
     @PostMapping(value = "/modifyStrategy")
     @Token
     public Response modifyStrategy(@RequestBody StrategyVO strategyVO) {
@@ -137,10 +140,10 @@ public class StrategyController {
         return Response.success();
     }
 
-    @ApiOperation("删除策略(token)")
+    @ApiOperation("删除策略(admin)")
     @PostMapping(value = "/deleteStrategy")
     @Token
-    public Response deleteStrategy(@RequestBody Long strategyId) {
+    public Response deleteStrategy(@RequestParam("strategyId") Long strategyId) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         // 权限不足
         if (!accountDTO.isAdmin())
@@ -152,6 +155,22 @@ public class StrategyController {
         strategyService.delete(strategyId);
         deviceStrategyService.deleteByStrategyId(strategyId);
         return Response.success();
+    }
+
+    @ApiOperation("获取策略存储空间(token)")
+    @PostMapping(value = "/queryStrategySize")
+    @Token
+    public Response queryStrategySize(@RequestParam("root") String root) {
+        StrategyDTO strategyDTO = strategyService.query(root);
+        List<Long> deviceIds = deviceStrategyService.queryDeviceIds(strategyDTO.getId());
+        SizeResponse data = new SizeResponse();
+        for (Long i: deviceIds) {
+            DeviceDTO deviceDTO = deviceService.query(i);
+            Storage storage = storageService.getInstance(deviceDTO);
+            data.addTotal(storage.getTotalSize());
+            data.addUsable(storage.getUsableSize());
+        }
+        return Response.success().data(data);
     }
 
 }

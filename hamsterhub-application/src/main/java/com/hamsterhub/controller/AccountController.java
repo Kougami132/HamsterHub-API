@@ -11,7 +11,6 @@ import com.hamsterhub.response.Response;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.service.AccountService;
 import com.hamsterhub.util.SecurityUtil;
-import com.hamsterhub.vo.ChangePasswordVO;
 import com.hamsterhub.vo.AccountVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -60,13 +59,14 @@ public class AccountController {
     @ApiOperation("修改密码(token)")
     @PostMapping(value = "/changePassword")
     @Token
-    public Response ChangePassword(@RequestBody ChangePasswordVO changePasswordVO) {
+    public Response ChangePassword(@RequestParam("oldPassword") String oldPassword,
+                                   @RequestParam("newPassword") String newPassword) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         // 密码错误
-        if (!accountDTO.getPassword().equals(MD5Util.getMd5(changePasswordVO.getOldPassword())))
+        if (!accountDTO.getPassword().equals(MD5Util.getMd5(oldPassword)))
             throw new BusinessException(CommonErrorCode.E_200016);
 
-        accountDTO.setPassword(MD5Util.getMd5(changePasswordVO.getNewPassword()));
+        accountDTO.setPassword(MD5Util.getMd5(newPassword));
         accountService.update(accountDTO);
         return Response.success().msg("密码修改成功");
     }

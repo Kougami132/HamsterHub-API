@@ -1,6 +1,7 @@
 package com.hamsterhub.service.impl;
 
 import com.hamsterhub.common.domain.BusinessException;
+import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.device.Storage;
 import com.hamsterhub.service.FileService;
@@ -37,23 +38,24 @@ public class FileServiceImpl implements FileService {
     }
 
     // 选择设备算法
-    private DeviceDTO switchDevice(List<DeviceDTO> deviceDTOs, Integer mode) {
-        DeviceDTO result = deviceDTOs.get(0);
+    private DeviceDTO switchDevice(List<DeviceDTO> deviceDTOs, Integer mode, Long size) {
+        DeviceDTO result = null;
         if (mode.equals(0)) { // 优先选择剩余容量大
             Long max = 0L;
             for (DeviceDTO i: deviceDTOs) {
                 Storage storage = storageService.getInstance(i);
                 if (storage.getUsableSize() > max) {
                     max = storage.getUsableSize();
-                    result = i;
+                    if (max > size)
+                        result = i;
                 }
             }
         }
         else if (mode.equals(1)) { // 优先选择剩余容量小
-            Long min = 0L;
+            Long min = Long.MAX_VALUE;
             for (DeviceDTO i: deviceDTOs) {
                 Storage storage = storageService.getInstance(i);
-                if (storage.getUsableSize() < min) {
+                if (storage.getUsableSize() < min && storage.getUsableSize() > size) {
                     min = storage.getUsableSize();
                     result = i;
                 }
@@ -73,7 +75,10 @@ public class FileServiceImpl implements FileService {
         for (Long i: deviceIds)
             deviceDTOs.add(deviceService.query(i));
         // 选择设备算法
-        DeviceDTO deviceDTO = switchDevice(deviceDTOs, strategyDTO.getMode());
+        DeviceDTO deviceDTO = switchDevice(deviceDTOs, strategyDTO.getMode(), file.getSize());
+        // 设备空间不足
+        if (deviceDTO == null)
+            throw new BusinessException(CommonErrorCode.E_300007);
         Storage storage = storageService.getInstance(deviceDTO);
         // 上传文件
         String url = storage.upload(file, hash);
