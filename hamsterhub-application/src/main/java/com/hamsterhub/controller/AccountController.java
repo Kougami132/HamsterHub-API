@@ -41,14 +41,15 @@ public class AccountController {
     }
 
     @ApiOperation("登录账号")
-    @PostMapping(value = "/loginAccount")
-    public Response LoginAccount(@RequestBody AccountVO accountVO) {
+    @GetMapping(value = "/loginAccount")
+    public Response LoginAccount(@RequestParam("username") String username,
+                                 @RequestParam("password") String password) {
         // 统一小写
-        accountVO.setUsername(accountVO.getUsername().toLowerCase());
+        username = username.toLowerCase();
 
-        AccountDTO accountDTO = accountService.query(accountVO.getUsername());
+        AccountDTO accountDTO = accountService.query(username);
         // 密码错误
-        if (!accountDTO.getPassword().equals(MD5Util.getMd5(accountVO.getPassword())))
+        if (!accountDTO.getPassword().equals(MD5Util.getMd5(password)))
             throw new BusinessException(CommonErrorCode.E_200016);
 
         String token = JwtUtil.createToken(accountDTO.getUsername());
@@ -72,7 +73,7 @@ public class AccountController {
     }
 
     @ApiOperation("校验Token")
-    @PostMapping(value = "/checkToken")
+    @GetMapping(value = "/checkToken")
     public Boolean checkToken(@RequestParam("token") String token) {
         return JwtUtil.checkToken(token);
     }

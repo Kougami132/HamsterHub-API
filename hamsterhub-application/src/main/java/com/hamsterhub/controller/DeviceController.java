@@ -111,7 +111,7 @@ public class DeviceController {
     }
 
     @ApiOperation("获取设备存储空间(admin)")
-    @PostMapping(value = "/queryDeviceSize")
+    @GetMapping(value = "/queryDeviceSize")
     @Token
     public Response queryDeviceSize(@RequestParam("deviceId") Long deviceId) {
         AccountDTO accountDTO = SecurityUtil.getAccount();

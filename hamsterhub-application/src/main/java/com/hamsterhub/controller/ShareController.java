@@ -91,7 +91,7 @@ public class ShareController {
     }
 
     @ApiOperation("获取分享文件")
-    @PostMapping(value = "/queryShare")
+    @GetMapping(value = "/queryShare")
     public Response queryShare(@RequestParam("ticket") String ticket,
                                @RequestParam("key") String key) {
         // 分享码不存在
@@ -118,7 +118,7 @@ public class ShareController {
     }
 
     @ApiOperation("下载分享文件")
-    @PostMapping(value = "/downloadShare")
+    @GetMapping(value = "/downloadShare")
     public Response downloadShare(@RequestParam("ticket") String ticket,
                                   @RequestParam("key") String key,
                                   HttpServletResponse response) {

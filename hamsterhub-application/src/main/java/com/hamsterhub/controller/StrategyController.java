@@ -158,7 +158,7 @@ public class StrategyController {
     }
 
     @ApiOperation("获取策略存储空间(token)")
-    @PostMapping(value = "/queryStrategySize")
+    @GetMapping(value = "/queryStrategySize")
     @Token
     public Response queryStrategySize(@RequestParam("root") String root) {
         StrategyDTO strategyDTO = strategyService.query(root);
