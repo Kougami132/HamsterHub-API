@@ -41,7 +41,7 @@ public class AccountController {
     }
 
     @ApiOperation("登录账号")
-    @GetMapping(value = "/loginAccount")
+    @PostMapping(value = "/loginAccount")
     public Response LoginAccount(@RequestParam("username") String username,
                                  @RequestParam("password") String password) {
         // 统一小写
@@ -76,5 +76,14 @@ public class AccountController {
     @GetMapping(value = "/checkToken")
     public Boolean checkToken(@RequestParam("token") String token) {
         return JwtUtil.checkToken(token);
+    }
+
+    @ApiOperation("刷新Token")
+    @GetMapping(value = "/refreshToken")
+    public Response refreshToken(@RequestParam("token") String token) {
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+        String newToken = JwtUtil.createToken(accountDTO.getUsername());
+        LoginResponse data = new LoginResponse(accountDTO.getUsername(), newToken);
+        return Response.success().data(data);
     }
 }

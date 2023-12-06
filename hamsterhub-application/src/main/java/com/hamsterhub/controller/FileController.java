@@ -7,6 +7,7 @@ import com.hamsterhub.common.util.MatchUtil;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.service.FileService;
+import com.hamsterhub.service.RedisService;
 import com.hamsterhub.service.dto.*;
 import com.hamsterhub.service.service.*;
 import com.hamsterhub.util.SecurityUtil;
@@ -23,7 +24,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Api(tags = "文件传输 数据接口")
@@ -41,6 +44,8 @@ public class FileController {
     private ShareService shareService;
     @Autowired
     private FileService fileService;
+    @Autowired
+    private RedisService redisService;
 
     @ApiOperation("查询文件是否存在(token)")
     @GetMapping(value = "/isExist")
@@ -51,98 +56,113 @@ public class FileController {
         return Response.success().data(rFileService.isExist(hash, strategyDTO.getId()));
     }
 
-    @ApiOperation("查看文件列表(token)")
+    @ApiOperation("查看文件详情(token)")
     @GetMapping(value = "/queryFile")
     @Token
     public Response queryFile(@RequestParam("root") String root,
                               @RequestParam("url") String url) {
+
         AccountDTO accountDTO = SecurityUtil.getAccount();
+
         // 路径格式错误
         if (!MatchUtil.isPathMatches(url))
             throw new BusinessException(CommonErrorCode.E_600002);
-        // 分割路径和文件名
-        String path = url,
-               name = "";
-        if (!path.equals("/"))
-            name = path.substring(path.lastIndexOf('/') + 1);
-        path = path.substring(0, path.lastIndexOf('/'));
-        if (path.equals("")) path = "/";
-        VFileDTO vFileDTO = new VFileDTO();
-        if (!name.equals("")) { // 不是根目录
-            vFileDTO = vFileService.query(accountDTO.getId(), root, path, name);
-            // 文件不存在
-            if (vFileDTO == null)
-                throw new BusinessException(CommonErrorCode.E_600001);
+
+        List<String> split = Arrays.asList(url.split("/"));
+        Integer num = split.size() - 1;
+        // 找到最深的有缓存的目录
+        String path = "";
+        Long vFileId = null;
+        while (num >= 1) {
+            path = "/" + split.subList(1, num + 1)
+                              .stream()
+                              .collect(Collectors.joining("/"));
+            // 读取redis里缓存的ID
+            vFileId = redisService.getFileId(root, accountDTO.getId(), path);
+            if (vFileId != null) // 拿到缓存则跳出
+                break;
+            num --;
         }
-        if (name.equals("") || vFileDTO.getType().equals(0)) { // 文件夹
-            if (path.charAt(path.length() - 1) != '/') path += "/";
-            return Response.success().data(vFileService.queryBatch(accountDTO.getId(), root, path + name));
+
+        // 全路径无缓存
+        if (vFileId == null) {
+            vFileId = 0L;
+            path = "";
         }
-        else
-            return Response.success().data(vFileDTO);
+        num ++;
+        VFileDTO vFileDTO = null;
+        while (num <= split.size() - 1) {
+            String name = split.get(num);
+            vFileDTO = vFileService.query(accountDTO.getId(), root, vFileId, name);
+
+            vFileId = vFileDTO.getId();
+
+            path += "/" + name;
+            // 把路径与ID键值对写入redis
+            redisService.setFileId(root, accountDTO.getId(), path, vFileId);
+
+            // 文件类型不是目录
+            if (!vFileDTO.getType().equals(0)) {
+                if (num == split.size() - 1)
+                    break;
+                else
+                    throw new BusinessException(CommonErrorCode.E_600003);
+            }
+
+            num ++;
+        }
+
+        if (vFileDTO == null)
+            vFileDTO = vFileService.query(vFileId);
+
+        return Response.success().data(vFileDTO);
+    }
+
+    @ApiOperation("查看文件列表(token)")
+    @GetMapping(value = "/queryList")
+    @Token
+    public Response queryList(@RequestParam("root") String root,
+                              @RequestParam("parentId") Long parentId) {
+
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+        List<VFileDTO> vFileDTOs = vFileService.queryBatch(accountDTO.getId(), root, parentId);
+        return Response.success().data(vFileDTOs);
     }
 
     @ApiOperation("创建目录(token)")
     @PostMapping(value = "/mkdir")
     @Token
     public Response mkdir(@RequestParam("root") String root,
-                          @RequestParam("url") String url) {
+                          @RequestParam("parentId") Long parentId,
+                          @RequestParam("name") String name) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        // 路径格式错误
-        if (!MatchUtil.isPathMatches(url))
-            throw new BusinessException(CommonErrorCode.E_600002);
 
-        // 遍历创建目录
-        String[] dirs = url.split("/");
-        String path = "/";
         StrategyDTO strategyDTO = strategyService.query(root);
-        for (int i = 0; i < dirs.length; i ++) {
-            String name = dirs[i];
-            if (name.equals("")) continue;
-            if (!vFileService.isExist(accountDTO.getId(), root, path, name))
-                vFileService.create(new VFileDTO(null, 0, name, path, 0L, 0, LocalDateTime.now(), accountDTO.getId(), 0L, strategyDTO.getId()));
-            if (path.equals("/")) path = "";
-            path += "/" + name;
-        }
+        VFileDTO vFileDTO = new VFileDTO(null, 0, name, parentId, 0L, 0, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), 0L, strategyDTO.getId());
+        VFileDTO data = vFileService.create(vFileDTO);
 
-        return Response.success();
+        return Response.success().data(data);
     }
 
     @ApiOperation("上传文件(hash可选)(token)")
     @PostMapping(value = "/upload")
     @Token
     public Response upload(@RequestParam("root") String root,
+                           @RequestParam("parentId") Long parentId,
                            @RequestParam("file") MultipartFile file,
-                           @RequestParam(value = "hash", required = false) String hash,
-                           @RequestParam("path") String path) {
+                           @RequestParam(value = "hash", required = false) String hash) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        // 路径格式错误
-        if (!MatchUtil.isPathMatches(path))
-            throw new BusinessException(CommonErrorCode.E_600002);
-        // 分割路径和文件名
-        String name = "";
-        if (!path.equals("/"))
-            name = path.substring(path.lastIndexOf('/') + 1);
-        path = path.substring(0, path.lastIndexOf('/'));
-        if (path.equals("")) path = "/";
-        if (!name.equals("")) { // 不为根目录，检查目录是否存在
-            VFileDTO vFileDTO = vFileService.query(accountDTO.getId(), root, path, name);
-            if (vFileDTO == null || !vFileDTO.getType().equals(0))
-                throw new BusinessException(CommonErrorCode.E_600003);
-        }
-        if (!name.equals("")) {
-            if (!path.equals("/")) path += "/";
-            path += name;
-        }
-        name = file.getOriginalFilename();
+
+        String name = file.getOriginalFilename();
         // 文件名为空
         if (StringUtil.isBlank(name))
             throw new BusinessException(CommonErrorCode.E_600004);
+
         // 文件是否存在,存在则版本号+1
         Integer version = 1;
-        VFileDTO vFileDTO = vFileService.query(accountDTO.getId(), root, path, name);
-        if (vFileDTO != null)
-            version = vFileDTO.getVersion() + 1;
+        if (vFileService.isExist(accountDTO.getId(), root, parentId, name))
+            version = vFileService.query(accountDTO.getId(), root, parentId, name).getVersion() + 1;
+
         StrategyDTO strategyDTO = strategyService.query(root);
         // 存储文件
         RFileDTO rFileDTO = null;
@@ -155,10 +175,10 @@ public class FileController {
             rFileDTO = fileService.upload(file, strategyDTO);
         }
 
-        vFileDTO = new VFileDTO(null, 1, name, path, rFileDTO.getId(), version, LocalDateTime.now(), accountDTO.getId(), rFileDTO.getSize(), strategyDTO.getId());
-        vFileService.create(vFileDTO);
+        VFileDTO vFileDTO = new VFileDTO(null, 1, name, parentId, rFileDTO.getId(), version, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), rFileDTO.getSize(), strategyDTO.getId());
+        VFileDTO data = vFileService.create(vFileDTO);
 
-        return Response.success().msg("上传成功").data(vFileDTO);
+        return Response.success().msg("上传成功").data(data);
     }
 
     @ApiOperation("下载文件(token)")

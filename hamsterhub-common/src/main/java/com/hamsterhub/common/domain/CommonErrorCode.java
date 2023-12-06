@@ -67,6 +67,7 @@ public enum CommonErrorCode implements ErrorCode {
 	E_600010(600010,"该分享已过期"),
 	E_600011(600011,"分享ID不存在"),
 	E_600012(600012,"分享与用户不匹配"),
+	E_600013(600013,"父文件必须为目录"),
 
 	// 其它
 	E_NO_PERMISSION(999997, "访问权限不足"),

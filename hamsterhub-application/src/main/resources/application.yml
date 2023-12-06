@@ -12,6 +12,10 @@ spring:
     initialization-mode: always
     schema: classpath:schema.sql
     data: classpath:data.sql
+  redis:
+    host: localhost
+    port: 6379
+    password: 1329623049
   tomcat:
     max-http-form-post-size: 200MB
   servlet:

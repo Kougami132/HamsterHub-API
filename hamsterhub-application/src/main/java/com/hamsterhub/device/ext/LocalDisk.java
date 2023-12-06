@@ -35,7 +35,9 @@ public class LocalDisk extends Storage {
         if (!MatchUtil.isJson(device.getParam()))
             throw new BusinessException(CommonErrorCode.E_300005);
         JSONObject param = JSON.parseObject(device.getParam());
-        String path = param.getString("param");
+        String path = "";
+        if (param != null && param.containsKey("param"))
+            path = param.getString("param");
         return new LocalDisk(this.code, this.name, device, path);
     }
 
@@ -43,9 +45,7 @@ public class LocalDisk extends Storage {
     public String upload(MultipartFile file, String name) {
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("/yyyy/MM/dd"));
         File dir = new File(path + "uploads" + today);
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
+        if (!dir.exists()) dir.mkdirs();
         String hash = MD5Util.getMd5(file);
         String url = dir.getAbsolutePath() + File.separator + hash;
         try {
@@ -75,13 +75,15 @@ public class LocalDisk extends Storage {
 
     @Override
     public Long getTotalSize() {
-        File dir = new File("uploads");
+        File dir = new File(path + "uploads");
+        if (!dir.exists()) dir.mkdirs();
         return dir.getTotalSpace();
     }
 
     @Override
     public Long getUsableSize() {
-        File dir = new File("uploads");
+        File dir = new File(path + "uploads");
+        if (!dir.exists()) dir.mkdirs();
         return dir.getUsableSpace();
     }
 

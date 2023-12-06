@@ -22,8 +22,8 @@ public class VFile {
     @TableField("NAME")
     private String name;
 
-    @TableField("PATH")
-    private String path;
+    @TableField("PARENT_ID")
+    private Long parentId;
 
     @TableField("R_FILE_ID")
     private Long rFileId;
@@ -31,8 +31,11 @@ public class VFile {
     @TableField("VERSION")
     private Integer version;
 
-    @TableField("LAST_UPDATE")
-    private LocalDateTime lastUpdate;
+    @TableField("CREATED")
+    private LocalDateTime created;
+
+    @TableField("MODIFIED")
+    private LocalDateTime modified;
 
     @TableField("ACCOUNT_ID")
     private Long accountID;

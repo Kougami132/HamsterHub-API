@@ -24,8 +24,8 @@ public class VFileDTO {
     @ApiModelProperty(value = "文件名")
     private String name;
 
-    @ApiModelProperty(value = "虚拟文件路径")
-    private String path;
+    @ApiModelProperty(value = "父文件ID")
+    private Long parentId;
 
     @ApiModelProperty(value = "实际文件ID")
     private Long rFileId;
@@ -33,8 +33,11 @@ public class VFileDTO {
     @ApiModelProperty(value = "文件版本")
     private Integer version;
 
+    @ApiModelProperty(value = "文件创建时间")
+    private LocalDateTime created;
+
     @ApiModelProperty(value = "文件修改时间")
-    private LocalDateTime lastUpdate;
+    private LocalDateTime modified;
 
     @ApiModelProperty(value = "文件所有人ID")
     private Long accountID;
