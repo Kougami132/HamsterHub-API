@@ -44,7 +44,7 @@ public class DeviceController {
             throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
 
         List<DeviceDTO> data = deviceService.queryBatch();
-        return Response.success().data(data);
+        return Response.success().data(DeviceConvert.INSTANCE.dto2resBatch(data));
     }
 
     @ApiOperation("创建设备(admin)")
@@ -66,7 +66,7 @@ public class DeviceController {
             throw new BusinessException(CommonErrorCode.E_300006);
 
         DeviceDTO data = deviceService.create(deviceDTO);
-        return Response.success().data(data);
+        return Response.success().data(DeviceConvert.INSTANCE.dto2res(data));
     }
 
     @ApiOperation("修改设备(admin)")

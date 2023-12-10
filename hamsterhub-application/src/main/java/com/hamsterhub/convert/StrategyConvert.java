@@ -17,5 +17,7 @@ public interface StrategyConvert {
 
     List<StrategyDTO> vo2dtoBatch(List<StrategyVO> strategies);
 
+    StrategyResponse dto2res(StrategyDTO strategyDTO);
+
     List<StrategyResponse> dto2resBatch(List<StrategyDTO> strategyDTOs);
 }

@@ -1,5 +1,6 @@
 package com.hamsterhub.convert;
 
+import com.hamsterhub.response.DeviceResponse;
 import com.hamsterhub.service.dto.DeviceDTO;
 import com.hamsterhub.vo.DeviceVO;
 import org.mapstruct.Mapper;
@@ -15,4 +16,8 @@ public interface DeviceConvert {
     DeviceVO dto2vo(DeviceDTO deviceDTO);
 
     List<DeviceDTO> vo2dtoBatch(List<DeviceVO> devices);
+
+    DeviceResponse dto2res(DeviceDTO deviceDTO);
+
+    List<DeviceResponse> dto2resBatch(List<DeviceDTO> deviceDTOs);
 }

@@ -17,5 +17,5 @@ public class DeviceVO {
     private Integer type;
 
     @ApiModelProperty(value = "设备参数")
-    private String param;
+    private String param = "";
 }

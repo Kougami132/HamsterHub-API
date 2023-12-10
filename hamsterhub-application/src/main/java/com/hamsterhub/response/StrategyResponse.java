@@ -8,7 +8,7 @@ import java.util.List;
 @Data
 @ApiModel(value="StrategyResponse", description="存储策略返回数据")
 public class StrategyResponse {
-    private Long id;
+    private String id;
     private String name;
     private Integer type;
     private Integer mode;

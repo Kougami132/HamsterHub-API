@@ -67,7 +67,7 @@ public class StrategyController {
 
         List<StrategyResponse> data = StrategyConvert.INSTANCE.dto2resBatch(strategyService.queryBatch());
         for (StrategyResponse i: data)
-            i.setDeviceIds(deviceStrategyService.queryDeviceIds(i.getId()));
+            i.setDeviceIds(deviceStrategyService.queryDeviceIds(Long.parseLong(i.getId())));
         return Response.success().data(data);
     }
 
@@ -97,7 +97,7 @@ public class StrategyController {
         StrategyDTO data = strategyService.create(StrategyConvert.INSTANCE.vo2dto(strategyVO));
         for (Long i: strategyVO.getDeviceIds())
             deviceStrategyService.create(new DeviceStrategyDTO(i, data.getId()));
-        return Response.success().data(data);
+        return Response.success().data(StrategyConvert.INSTANCE.dto2res(data));
     }
 
     @ApiOperation("修改策略(admin)")
