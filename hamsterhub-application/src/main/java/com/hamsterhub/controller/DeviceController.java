@@ -50,9 +50,12 @@ public class DeviceController {
 
         List<DeviceDTO> data = deviceService.queryBatch();
         List<DeviceResponse> res = DeviceConvert.INSTANCE.dto2resBatch(data);
-        for (DeviceResponse i: res)
+        for (DeviceResponse i: res) {
             if (i.getConfigured())
                 i.setStrategyId(deviceStrategyService.queryStrategyId(Long.parseLong(i.getId())).toString());
+            Storage storage = storageService.getInstance(DeviceConvert.INSTANCE.res2dto(i));
+            i.setSize(new SizeResponse(storage.getTotalSize().toString(), storage.getUsableSize().toString()));
+        }
 
         return Response.success().data(res);
     }
@@ -134,7 +137,7 @@ public class DeviceController {
 
         DeviceDTO deviceDTO = deviceService.query(deviceId);
         Storage storage = storageService.getInstance(deviceDTO);
-        SizeResponse data = new SizeResponse(storage.getTotalSize(), storage.getUsableSize());
+        SizeResponse data = new SizeResponse(storage.getTotalSize().toString(), storage.getUsableSize().toString());
 
         return Response.success().data(data);
     }

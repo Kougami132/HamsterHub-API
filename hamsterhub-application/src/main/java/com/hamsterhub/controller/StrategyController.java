@@ -171,13 +171,14 @@ public class StrategyController {
     public Response queryStrategySize(@RequestParam("root") String root) {
         StrategyDTO strategyDTO = strategyService.query(root);
         List<Long> deviceIds = deviceStrategyService.queryDeviceIds(strategyDTO.getId());
-        SizeResponse data = new SizeResponse();
+        Long total = 0L, usable = 0L;
         for (Long i: deviceIds) {
             DeviceDTO deviceDTO = deviceService.query(i);
             Storage storage = storageService.getInstance(deviceDTO);
-            data.addTotal(storage.getTotalSize());
-            data.addUsable(storage.getUsableSize());
+            total += storage.getTotalSize();
+            usable += storage.getUsableSize();
         }
+        SizeResponse data = new SizeResponse(total.toString(), usable.toString());
         return Response.success().data(data);
     }
 

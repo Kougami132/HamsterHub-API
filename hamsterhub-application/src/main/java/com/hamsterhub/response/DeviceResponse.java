@@ -12,4 +12,5 @@ public class DeviceResponse {
     private String param;
     private Boolean configured;
     private String StrategyId = "0";
+    private SizeResponse size;
 }

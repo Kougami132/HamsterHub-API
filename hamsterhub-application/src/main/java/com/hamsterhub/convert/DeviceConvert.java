@@ -17,6 +17,7 @@ public interface DeviceConvert {
 
     List<DeviceDTO> vo2dtoBatch(List<DeviceVO> devices);
 
+    DeviceDTO res2dto(DeviceResponse deviceResponse);
     DeviceResponse dto2res(DeviceDTO deviceDTO);
 
     List<DeviceResponse> dto2resBatch(List<DeviceDTO> deviceDTOs);
