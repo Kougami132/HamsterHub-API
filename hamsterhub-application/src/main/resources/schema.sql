@@ -21,6 +21,7 @@ CREATE TABLE `device` (
                           `NAME` varchar(50) NOT NULL UNIQUE COMMENT '设备名称',
                           `TYPE` bigint(10) NOT NULL COMMENT '设备类型',
                           `PARAM` TEXT NOT NULL COMMENT '连接参数',
+                          `CONFIGURED` TINYINT(1) NOT NULL COMMENT '连接参数',
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 

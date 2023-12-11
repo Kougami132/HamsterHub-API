@@ -46,6 +46,7 @@ public class DeviceStrategyServiceImpl implements DeviceStrategyService {
         DeviceStrategy entity = DeviceStrategyConvert.INSTANCE.dto2entity(deviceStrategyDTO);
         entity.setId(null);
         deviceStrategyMapper.insert(entity);
+        deviceService.configured(entity.getDeviceId(), true);
         return DeviceStrategyConvert.INSTANCE.entity2dto(entity);
     }
 
@@ -59,6 +60,7 @@ public class DeviceStrategyServiceImpl implements DeviceStrategyService {
             throw new BusinessException(CommonErrorCode.E_400003);
 
         deviceStrategyMapper.delete(new LambdaQueryWrapper<DeviceStrategy>().eq(DeviceStrategy::getDeviceId, deviceId));
+        deviceService.configured(deviceId, false);
     }
 
     @Override
@@ -67,26 +69,10 @@ public class DeviceStrategyServiceImpl implements DeviceStrategyService {
         if (strategyId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
 
+        List<Long> deviceIds = this.queryDeviceIds(strategyId);
         deviceStrategyMapper.delete(new LambdaQueryWrapper<DeviceStrategy>().eq(DeviceStrategy::getStrategyId, strategyId));
-    }
-
-    @Override
-    public void update(DeviceStrategyDTO deviceStrategyDTO) throws BusinessException {
-        // 传入对象为空
-        if (deviceStrategyDTO == null)
-            throw new BusinessException(CommonErrorCode.E_100001);
-        // 设备不存在
-        if (!deviceService.isExist(deviceStrategyDTO.getDeviceId()))
-            throw new BusinessException(CommonErrorCode.E_300001);
-        // 存储策略不存在
-        if (!strategyService.isExist(deviceStrategyDTO.getStrategyId()))
-            throw new BusinessException(CommonErrorCode.E_400001);
-        // 设备已经配置过
-        if (this.isDeviceExist(deviceStrategyDTO.getDeviceId()) && !deviceStrategyMapper.selectOne(new LambdaQueryWrapper<DeviceStrategy>().eq(DeviceStrategy::getDeviceId, deviceStrategyDTO.getDeviceId())).getId().equals(deviceStrategyDTO.getId()))
-            throw new BusinessException(CommonErrorCode.E_300003);
-
-        DeviceStrategy entity = DeviceStrategyConvert.INSTANCE.dto2entity(deviceStrategyDTO);
-        deviceStrategyMapper.updateById(entity);
+        for (Long i: deviceIds)
+            deviceService.configured(i, false);
     }
 
     @Override

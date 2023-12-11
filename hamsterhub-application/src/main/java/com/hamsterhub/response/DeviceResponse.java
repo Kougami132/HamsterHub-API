@@ -10,4 +10,6 @@ public class DeviceResponse {
     private String name;
     private Integer type;
     private String param;
+    private Boolean configured;
+    private String StrategyId = "0";
 }

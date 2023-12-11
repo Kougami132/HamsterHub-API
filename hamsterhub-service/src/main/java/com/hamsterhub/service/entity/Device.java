@@ -24,4 +24,7 @@ public class Device implements Serializable {
 
     @TableField("PARAM")
     private String param;
+
+    @TableField("CONFIGURED")
+    private boolean configured = false;
 }

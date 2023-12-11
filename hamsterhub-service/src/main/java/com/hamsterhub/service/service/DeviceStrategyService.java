@@ -9,7 +9,6 @@ public interface DeviceStrategyService {
     DeviceStrategyDTO create(DeviceStrategyDTO deviceStrategyDTO) throws BusinessException;
     void deleteByDeviceId(Long deviceId) throws BusinessException;
     void deleteByStrategyId(Long strategyId) throws BusinessException;
-    void update(DeviceStrategyDTO deviceStrategyDTO) throws BusinessException;
     DeviceStrategyDTO query(Long deviceStrategyId) throws BusinessException;
     List<DeviceStrategyDTO> queryBatch() throws BusinessException;
     Long queryStrategyId(Long deviceId) throws BusinessException;

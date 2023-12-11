@@ -14,5 +14,5 @@ public class StrategyResponse {
     private Integer mode;
     private Integer permission;
     private String root;
-    private List<Long> deviceIds;
+    private List<String> deviceIds;
 }

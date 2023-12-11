@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -67,7 +68,9 @@ public class StrategyController {
 
         List<StrategyResponse> data = StrategyConvert.INSTANCE.dto2resBatch(strategyService.queryBatch());
         for (StrategyResponse i: data)
-            i.setDeviceIds(deviceStrategyService.queryDeviceIds(Long.parseLong(i.getId())));
+            i.setDeviceIds(deviceStrategyService.queryDeviceIds(Long.parseLong(i.getId())).stream()
+                                                                                          .map(Objects::toString)
+                                                                                          .collect(toList()));
         return Response.success().data(data);
     }
 
@@ -97,7 +100,12 @@ public class StrategyController {
         StrategyDTO data = strategyService.create(StrategyConvert.INSTANCE.vo2dto(strategyVO));
         for (Long i: strategyVO.getDeviceIds())
             deviceStrategyService.create(new DeviceStrategyDTO(i, data.getId()));
-        return Response.success().data(StrategyConvert.INSTANCE.dto2res(data));
+        StrategyResponse res = StrategyConvert.INSTANCE.dto2res(data);
+        res.setDeviceIds(strategyVO.getDeviceIds().stream()
+                                                  .map(Objects::toString)
+                                                  .collect(toList()));
+
+        return Response.success().data(res);
     }
 
     @ApiOperation("修改策略(admin)")

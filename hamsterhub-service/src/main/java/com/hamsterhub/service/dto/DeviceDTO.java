@@ -21,4 +21,7 @@ public class DeviceDTO {
     @ApiModelProperty(value = "参数")
     private String param;
 
+    @ApiModelProperty(value = "已配置")
+    private boolean configured;
+
 }

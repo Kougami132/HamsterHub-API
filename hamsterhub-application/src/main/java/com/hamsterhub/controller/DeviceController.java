@@ -5,12 +5,15 @@ import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.convert.DeviceConvert;
 import com.hamsterhub.device.Storage;
+import com.hamsterhub.response.DeviceResponse;
 import com.hamsterhub.response.SizeResponse;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.service.StorageService;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.dto.DeviceDTO;
+import com.hamsterhub.service.dto.DeviceStrategyDTO;
 import com.hamsterhub.service.service.DeviceService;
+import com.hamsterhub.service.service.DeviceStrategyService;
 import com.hamsterhub.util.SecurityUtil;
 import com.hamsterhub.vo.DeviceVO;
 import io.swagger.annotations.Api;
@@ -27,6 +30,8 @@ public class DeviceController {
     private StorageService storageService;
     @Autowired
     private DeviceService deviceService;
+    @Autowired
+    private DeviceStrategyService deviceStrategyService;
 
     @ApiOperation("设备类型")
     @GetMapping(value = "/deviceType")
@@ -44,7 +49,12 @@ public class DeviceController {
             throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
 
         List<DeviceDTO> data = deviceService.queryBatch();
-        return Response.success().data(DeviceConvert.INSTANCE.dto2resBatch(data));
+        List<DeviceResponse> res = DeviceConvert.INSTANCE.dto2resBatch(data);
+        for (DeviceResponse i: res)
+            if (i.getConfigured())
+                i.setStrategyId(deviceStrategyService.queryStrategyId(Long.parseLong(i.getId())).toString());
+
+        return Response.success().data(res);
     }
 
     @ApiOperation("创建设备(admin)")

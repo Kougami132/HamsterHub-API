@@ -83,4 +83,15 @@ public class DeviceServiceImpl implements DeviceService {
     public Boolean isExist(Long deviceId) throws BusinessException {
         return deviceMapper.selectCount(new LambdaQueryWrapper<Device>().eq(Device::getId, deviceId)) > 0;
     }
+
+    @Override
+    public void configured(Long deviceId, boolean conf) throws BusinessException {
+        // 存储设备不存在
+        if (!this.isExist(deviceId))
+            throw new BusinessException(CommonErrorCode.E_300001);
+
+        Device entity = deviceMapper.selectById(deviceId);
+        entity.setConfigured(conf);
+        deviceMapper.updateById(entity);
+    }
 }
