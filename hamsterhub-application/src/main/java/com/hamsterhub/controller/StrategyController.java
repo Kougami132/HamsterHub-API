@@ -136,8 +136,7 @@ public class StrategyController {
         for (Long i: strategyVO.getDeviceIds())
             if (!deviceIds.contains(i)) {
                 // 设备已绑定其他策略
-                Long strategyId = deviceStrategyService.queryStrategyId(i);
-                if (strategyId != strategyVO.getId())
+                if (deviceStrategyService.isDeviceExist(i))
                     throw new BusinessException(CommonErrorCode.E_300003);
 
                 deviceStrategyService.create(new DeviceStrategyDTO(strategyVO.getId(), i));
