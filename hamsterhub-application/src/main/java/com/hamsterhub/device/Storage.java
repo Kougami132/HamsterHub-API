@@ -1,16 +1,27 @@
 package com.hamsterhub.device;
 
+import com.hamsterhub.common.domain.BusinessException;
+import com.hamsterhub.common.domain.CommonErrorCode;
+import com.hamsterhub.common.util.MatchUtil;
 import com.hamsterhub.service.dto.DeviceDTO;
+import com.hamsterhub.service.entity.Device;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+@NoArgsConstructor
 @Data
 public class Storage {
     private Integer code;
     private String name;
     private DeviceDTO device;
 
-    // 返回绑定设备的实例
+    public Storage(DeviceDTO deviceDTO) {
+        // json格式校验
+        if (!MatchUtil.isJson(deviceDTO.getParam()))
+            throw new BusinessException(CommonErrorCode.E_300005);
+    }
+
     public Storage withDevice(DeviceDTO device) {
         return null;
     }
@@ -38,7 +49,7 @@ public class Storage {
         return null;
     }
 
-    public boolean verify() {
+    public boolean verify(DeviceDTO deviceDTO) {
         return true;
     }
 

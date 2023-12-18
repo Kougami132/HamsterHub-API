@@ -27,6 +27,9 @@ public class DeviceServiceImpl implements DeviceService {
         // 传入对象为空
         if (deviceDTO == null)
             throw new BusinessException(CommonErrorCode.E_100001);
+        // 设备名已存在
+        if (deviceMapper.selectCount(new LambdaQueryWrapper<Device>().eq(Device::getName, deviceDTO.getName())) > 0)
+            throw new BusinessException(CommonErrorCode.E_300002);
 
         Device entity = DeviceConvert.INSTANCE.dto2entity(deviceDTO);
         entity.setId(null);

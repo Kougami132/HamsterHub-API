@@ -11,7 +11,6 @@ import com.hamsterhub.response.Response;
 import com.hamsterhub.service.StorageService;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.dto.DeviceDTO;
-import com.hamsterhub.service.dto.DeviceStrategyDTO;
 import com.hamsterhub.service.service.DeviceService;
 import com.hamsterhub.service.service.DeviceStrategyService;
 import com.hamsterhub.util.SecurityUtil;
@@ -73,9 +72,8 @@ public class DeviceController {
             throw new BusinessException(CommonErrorCode.E_300004);
 
         DeviceDTO deviceDTO = DeviceConvert.INSTANCE.vo2dto(deviceVO);
-        Storage storage = storageService.getInstance(deviceDTO);
         // 连接测试
-        if (!storage.verify())
+        if (!storageService.verify(deviceDTO))
             throw new BusinessException(CommonErrorCode.E_300006);
 
         DeviceDTO data = deviceService.create(deviceDTO);
@@ -98,9 +96,8 @@ public class DeviceController {
             throw new BusinessException(CommonErrorCode.E_300004);
 
         DeviceDTO deviceDTO = DeviceConvert.INSTANCE.vo2dto(deviceVO);
-        Storage storage = storageService.getInstance(deviceDTO);
         // 连接测试
-        if (!storage.verify())
+        if (!storageService.verify(deviceDTO))
             throw new BusinessException(CommonErrorCode.E_300006);
 
         deviceService.update(deviceDTO);

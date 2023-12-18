@@ -44,4 +44,24 @@ public class RedisServiceImpl implements RedisService {
         String key = this.prefix + ":" + root + ":" + accountId + ":" + path;
         return redisTemplate.hasKey(key);
     }
+
+    @Override
+    public String getAliSession(Long deviceId) throws BusinessException {
+        String key = this.prefix + ":ali:" + deviceId;
+        String s = redisTemplate.opsForValue().get(key);
+        if (s == null) return null;
+        return s;
+    }
+
+    @Override
+    public void setAliSession(Long deviceId, String data) throws BusinessException {
+        String key = this.prefix + ":ali:" + deviceId;
+        redisTemplate.opsForValue().set(key, data);
+    }
+
+    @Override
+    public boolean isAliSessionExist(Long deviceId) throws BusinessException {
+        String key = this.prefix + ":ali:" + deviceId;
+        return redisTemplate.hasKey(key);
+    }
 }

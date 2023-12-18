@@ -41,4 +41,10 @@ public class StorageServiceImpl implements StorageService {
         return type < 0 || type >= this.getTypes().size();
     }
 
+    @Override
+    public Boolean verify(DeviceDTO deviceDTO) throws BusinessException {
+        Storage storage = storages.get(deviceDTO.getType());
+        return storage.verify(deviceDTO);
+    }
+
 }

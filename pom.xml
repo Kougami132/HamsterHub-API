@@ -121,6 +121,20 @@
                 <version>2.1.7.RELEASE</version>
             </dependency>
 
+            <!-- okhttp -->
+            <dependency>
+                <groupId>com.squareup.okhttp3</groupId>
+                <artifactId>okhttp</artifactId>
+                <version>3.6.0</version>
+            </dependency>
+
+            <!-- SECP256k1 -->
+            <dependency>
+                <groupId>org.web3j</groupId>
+                <artifactId>core</artifactId>
+                <version>4.8.4</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
