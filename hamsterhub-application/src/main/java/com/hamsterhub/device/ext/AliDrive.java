@@ -86,9 +86,9 @@ public class AliDrive extends Storage {
         try {
             JSONObject param = JSON.parseObject(this.device.getParam());
             this.refreshToken = param.getString("refreshToken");
-            this.queryToken(this.refreshToken);
-            this.getSession();
-            this.queryDriveId();
+            queryToken(this.refreshToken);
+            getSession();
+            queryDriveId();
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -112,14 +112,14 @@ public class AliDrive extends Storage {
         String[] folders = path.split("/");
         String parentFleId = "root";
         for (String folderName: folders)
-            parentFleId = this.mkdir(parentFleId, folderName);
+            parentFleId = mkdir(parentFleId, folderName);
 
 
-        List<String> fileInfo = this.createFile(parentFleId, file);
+        List<String> fileInfo = createFile(parentFleId, file);
         String fileId = fileInfo.get(0),
                 uploadId = fileInfo.get(1);
-        this.uploadPart(file, fileInfo.subList(2, fileInfo.size()));
-        this.uploadComplete(fileId, uploadId);
+        uploadPart(file, fileInfo.subList(2, fileInfo.size()));
+        uploadComplete(fileId, uploadId);
         return fileId;
     }
 
@@ -136,14 +136,14 @@ public class AliDrive extends Storage {
     @Override
     public Long getTotalSize() {
         if (this.total == null)
-            this.querySize();
+            querySize();
         return this.total;
     }
 
     @Override
     public Long getUsableSize() {
         if (this.usable == null)
-            this.querySize();
+            querySize();
         return this.usable;
     }
 
@@ -170,6 +170,9 @@ public class AliDrive extends Storage {
             this.publicKey = data.getString("publicKey");
             this.xDeviceId = data.getString("xDeviceId");
             this.signature = data.getString("signature");
+            this.headers.set("x-device-id", this.xDeviceId);
+            this.headers.set("x-signature", this.signature + "01");
+            renewSession();
         }
         else {
             createSession();
@@ -211,10 +214,18 @@ public class AliDrive extends Storage {
         this.headers.set("x-device-id", this.xDeviceId);
         this.headers.set("x-signature", this.signature + "01");
 
-        System.out.println("x-device-id: " + this.xDeviceId);
-        System.out.println("x-signature: " + this.signature);
-        System.out.println("privateKey: " + this.privateKey);
-        System.out.println("publicKey: " + this.publicKey);
+        HttpEntity<JSONObject> entity = new HttpEntity<>(body, this.headers);
+        restTemplate.postForObject(url, entity, JSONObject.class);
+    }
+
+    private void renewSession() {
+        String url = "https://api.aliyundrive.com/users/v1/users/device/create_session";
+
+        // body
+        JSONObject body = new JSONObject();
+        body.put("pubKey", "04" + this.publicKey);
+        body.put("deviceName", "HamsterHub");
+        body.put("modelName", "私人网盘");
 
         HttpEntity<JSONObject> entity = new HttpEntity<>(body, this.headers);
         restTemplate.postForObject(url, entity, JSONObject.class);
