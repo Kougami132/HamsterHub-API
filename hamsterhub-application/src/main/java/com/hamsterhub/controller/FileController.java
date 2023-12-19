@@ -5,7 +5,9 @@ import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MatchUtil;
 import com.hamsterhub.common.util.StringUtil;
+import com.hamsterhub.convert.VFileConvert;
 import com.hamsterhub.response.Response;
+import com.hamsterhub.response.VFileResponse;
 import com.hamsterhub.service.FileService;
 import com.hamsterhub.service.RedisService;
 import com.hamsterhub.service.dto.*;
@@ -115,7 +117,8 @@ public class FileController {
         if (vFileDTO == null)
             vFileDTO = vFileService.query(vFileId);
 
-        return Response.success().data(vFileDTO);
+        VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileDTO);
+        return Response.success().data(data);
     }
 
     @ApiOperation("查看文件列表(token)")
@@ -126,7 +129,8 @@ public class FileController {
 
         AccountDTO accountDTO = SecurityUtil.getAccount();
         List<VFileDTO> vFileDTOs = vFileService.queryBatch(accountDTO.getId(), root, parentId);
-        return Response.success().data(vFileDTOs);
+        List<VFileResponse> data = VFileConvert.INSTANCE.dto2resBatch(vFileDTOs);
+        return Response.success().data(data);
     }
 
     @ApiOperation("创建目录(token)")
@@ -139,7 +143,7 @@ public class FileController {
 
         StrategyDTO strategyDTO = strategyService.query(root);
         VFileDTO vFileDTO = new VFileDTO(null, 0, name, parentId, 0L, 0, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), 0L, strategyDTO.getId());
-        VFileDTO data = vFileService.create(vFileDTO);
+        VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileService.create(vFileDTO));
 
         return Response.success().data(data);
     }
@@ -176,7 +180,7 @@ public class FileController {
         }
 
         VFileDTO vFileDTO = new VFileDTO(null, 1, name, parentId, rFileDTO.getId(), version, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), rFileDTO.getSize(), strategyDTO.getId());
-        VFileDTO data = vFileService.create(vFileDTO);
+        VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileService.create(vFileDTO));
 
         return Response.success().msg("上传成功").data(data);
     }
@@ -241,7 +245,7 @@ public class FileController {
         List<Long> delete = vFileService.delete(vFileDTO.getId());
         for (Long i: delete)
             fileService.delete(rFileService.query(i));
-        return Response.success();
+        return Response.success().msg("文件删除成功");
     }
 
 }

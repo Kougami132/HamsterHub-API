@@ -145,7 +145,7 @@ public class StrategyController {
         for (Long i: deviceIds)
             if (!strategyVO.getDeviceIds().contains(i))
                 deviceStrategyService.deleteByDeviceId(i);
-        return Response.success();
+        return Response.success().msg("策略修改成功");
     }
 
     @ApiOperation("删除策略(admin)")
@@ -162,7 +162,7 @@ public class StrategyController {
 
         strategyService.delete(strategyId);
         deviceStrategyService.deleteByStrategyId(strategyId);
-        return Response.success();
+        return Response.success().msg("策略删除成功");
     }
 
     @ApiOperation("获取策略存储空间(token)")

@@ -4,7 +4,11 @@ import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.StringUtil;
+import com.hamsterhub.convert.ShareConvert;
+import com.hamsterhub.convert.VFileConvert;
 import com.hamsterhub.response.Response;
+import com.hamsterhub.response.ShareResponse;
+import com.hamsterhub.response.VFileResponse;
 import com.hamsterhub.service.FileService;
 import com.hamsterhub.service.dto.*;
 import com.hamsterhub.service.service.*;
@@ -76,7 +80,7 @@ public class ShareController {
         while (shareService.isExist(ticket))
             ticket = generateRandomString(10);
         ShareDTO shareDTO = new ShareDTO(null, type, ticket, vFileId, key, LocalDateTime.now().plusSeconds(expiry), accountDTO.getId());
-        ShareDTO data = shareService.create(shareDTO);
+        ShareResponse data = ShareConvert.INSTANCE.dto2res(shareService.create(shareDTO));
 
         return Response.success().data(data);
     }
@@ -87,7 +91,8 @@ public class ShareController {
     public Response queryShares() {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         List<ShareDTO> shareDTOs = shareService.queryBatch(accountDTO.getId());
-        return Response.success().data(shareDTOs);
+        List<ShareResponse> data = ShareConvert.INSTANCE.dto2resBatch(shareDTOs);
+        return Response.success().data(data);
     }
 
     @ApiOperation("获取分享文件")
@@ -114,7 +119,8 @@ public class ShareController {
                 throw new BusinessException(CommonErrorCode.E_600009);
 
         VFileDTO vFileDTO = vFileService.query(shareDTO.getVFileId());
-        return Response.success().data(vFileDTO);
+        VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileDTO);
+        return Response.success().data(data);
     }
 
     @ApiOperation("下载分享文件")
@@ -194,7 +200,7 @@ public class ShareController {
 
         shareService.delete(shareId);
 
-        return Response.success();
+        return Response.success().msg("分享取消成功");
     }
 
 

@@ -101,7 +101,7 @@ public class DeviceController {
             throw new BusinessException(CommonErrorCode.E_300006);
 
         deviceService.update(deviceDTO);
-        return Response.success();
+        return Response.success().msg("设备修改成功");
     }
 
     @ApiOperation("删除设备(admin)")
@@ -117,7 +117,7 @@ public class DeviceController {
             throw new BusinessException(CommonErrorCode.E_300001);
 
         deviceService.delete(deviceId);
-        return Response.success();
+        return Response.success().msg("设备删除成功");
     }
 
     @ApiOperation("获取设备存储空间(admin)")
