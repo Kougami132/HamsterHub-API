@@ -33,7 +33,7 @@ public class AccountController {
 
         AccountDTO accountDTO = AccountConvert.INSTANCE.vo2dto(accountVO);
         accountDTO.setType(0);
-        accountService.create(accountDTO);
+        accountDTO = accountService.create(accountDTO);
 
         String token = JwtUtil.createToken(accountDTO.getUsername());
         LoginResponse data = new LoginResponse(accountVO.getUsername(), token);

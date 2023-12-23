@@ -40,20 +40,15 @@ public class DeviceController {
 
     @ApiOperation("设备列表(admin)")
     @GetMapping(value = "/queryDevice")
-    @Token
+    @Token("1")
     public Response queryDevice() {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        // 权限不足
-        if (!accountDTO.isAdmin())
-            throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
-
         List<DeviceDTO> data = deviceService.queryBatch();
         List<DeviceResponse> res = DeviceConvert.INSTANCE.dto2resBatch(data);
         for (DeviceResponse i: res) {
             if (i.getConfigured())
                 i.setStrategyId(deviceStrategyService.queryStrategyId(Long.parseLong(i.getId())).toString());
             Storage storage = storageService.getInstance(DeviceConvert.INSTANCE.res2dto(i));
-            i.setSize(new SizeResponse(storage.getTotalSize().toString(), storage.getUsableSize().toString()));
+            i.setSize(new SizeResponse(storage.getTotalSize(), storage.getUsableSize()));
         }
 
         return Response.success().data(res);
@@ -61,12 +56,8 @@ public class DeviceController {
 
     @ApiOperation("创建设备(admin)")
     @PostMapping(value = "/createDevice")
-    @Token
+    @Token("1")
     public Response createDevice(@RequestBody DeviceVO deviceVO) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        // 权限不足
-        if (!accountDTO.isAdmin())
-            throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
         // 不存在该设备类型编号
         if (storageService.isTypeExist(deviceVO.getType()))
             throw new BusinessException(CommonErrorCode.E_300004);
@@ -82,12 +73,8 @@ public class DeviceController {
 
     @ApiOperation("修改设备(admin)")
     @PostMapping(value = "/modifyDevice")
-    @Token
+    @Token("1")
     public Response modifyDevice(@RequestBody DeviceVO deviceVO) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        // 权限不足
-        if (!accountDTO.isAdmin())
-            throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
         // 设备不存在
         if (!deviceService.isExist(deviceVO.getId()))
             throw new BusinessException(CommonErrorCode.E_300001);
@@ -106,37 +93,14 @@ public class DeviceController {
 
     @ApiOperation("删除设备(admin)")
     @PostMapping(value = "/deleteDevice")
-    @Token
+    @Token("1")
     public Response deleteDevice(@RequestParam("deviceId") Long deviceId) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        // 权限不足
-        if (!accountDTO.isAdmin())
-            throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
         // 设备不存在
         if (!deviceService.isExist(deviceId))
             throw new BusinessException(CommonErrorCode.E_300001);
 
         deviceService.delete(deviceId);
         return Response.success().msg("设备删除成功");
-    }
-
-    @ApiOperation("获取设备存储空间(admin)")
-    @GetMapping(value = "/queryDeviceSize")
-    @Token
-    public Response queryDeviceSize(@RequestParam("deviceId") Long deviceId) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        // 权限不足
-        if (!accountDTO.isAdmin())
-            throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
-        // 设备不存在
-        if (!deviceService.isExist(deviceId))
-            throw new BusinessException(CommonErrorCode.E_300001);
-
-        DeviceDTO deviceDTO = deviceService.query(deviceId);
-        Storage storage = storageService.getInstance(deviceDTO);
-        SizeResponse data = new SizeResponse(storage.getTotalSize().toString(), storage.getUsableSize().toString());
-
-        return Response.success().data(data);
     }
 
 }

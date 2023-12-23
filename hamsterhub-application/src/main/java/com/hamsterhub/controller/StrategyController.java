@@ -23,6 +23,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
@@ -61,27 +62,36 @@ public class StrategyController {
     @GetMapping(value = "/queryStrategy")
     @Token
     public Response queryStrategy() {
-//        AccountDTO accountDTO = SecurityUtil.getAccount();
-//        // 权限不足
-//        if (!accountDTO.isAdmin())
-//            throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
+        AccountDTO accountDTO = SecurityUtil.getAccount();
 
-        List<StrategyResponse> data = StrategyConvert.INSTANCE.dto2resBatch(strategyService.queryBatch());
-        for (StrategyResponse i: data)
-            i.setDeviceIds(deviceStrategyService.queryDeviceIds(Long.parseLong(i.getId())).stream()
-                                                                                          .map(Objects::toString)
-                                                                                          .collect(toList()));
+        List<StrategyResponse> data = new ArrayList<>();
+        List<StrategyDTO> strategyDTOs = strategyService.queryBatch();
+        for (StrategyDTO i: strategyDTOs) {
+            StrategyResponse strategyResponse = StrategyConvert.INSTANCE.dto2res(i);
+            strategyResponse.setPermissions(separatePermission(i.getPermission()));
+            if (accountDTO.isAdmin() || strategyResponse.getPermissions().contains(accountDTO.getType())) {
+                strategyResponse.setDeviceIds(deviceStrategyService.queryDeviceIds(i.getId()).stream()
+                        .map(Objects::toString)
+                        .collect(toList()));
+                Long total = 0L, usable = 0L;
+                for (String j: strategyResponse.getDeviceIds()) {
+                    DeviceDTO deviceDTO = deviceService.query(Long.parseLong(j));
+                    Storage storage = storageService.getInstance(deviceDTO);
+                    total += storage.getTotalSize();
+                    usable += storage.getUsableSize();
+                }
+                strategyResponse.setSize(new SizeResponse(total, usable));
+                data.add(strategyResponse);
+            }
+        }
+
         return Response.success().data(data);
     }
 
     @ApiOperation("创建策略(admin)")
     @PostMapping(value = "/createStrategy")
-    @Token
+    @Token("1")
     public Response createStrategy(@RequestBody StrategyVO strategyVO) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        // 权限不足
-        if (!accountDTO.isAdmin())
-            throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
         // 不存在该策略类型
         if (strategyVO.getType() < 0 || strategyVO.getType() >= TYPE.size())
             throw new BusinessException(CommonErrorCode.E_400004);
@@ -97,25 +107,24 @@ public class StrategyController {
             if (deviceStrategyService.isDeviceExist(i))
                 throw new BusinessException(CommonErrorCode.E_300003);
 
-        StrategyDTO data = strategyService.create(StrategyConvert.INSTANCE.vo2dto(strategyVO));
+        StrategyDTO strategyDTO = StrategyConvert.INSTANCE.vo2dto(strategyVO);
+        strategyDTO.setPermission(mergePermission(strategyVO.getPermissions()));
+        StrategyDTO data = strategyService.create(strategyDTO);
         for (Long i: strategyVO.getDeviceIds())
             deviceStrategyService.create(new DeviceStrategyDTO(i, data.getId()));
         StrategyResponse res = StrategyConvert.INSTANCE.dto2res(data);
         res.setDeviceIds(strategyVO.getDeviceIds().stream()
                                                   .map(Objects::toString)
                                                   .collect(toList()));
+        res.setPermissions(strategyVO.getPermissions());
 
         return Response.success().data(res);
     }
 
     @ApiOperation("修改策略(admin)")
     @PostMapping(value = "/modifyStrategy")
-    @Token
+    @Token("1")
     public Response modifyStrategy(@RequestBody StrategyVO strategyVO) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        // 权限不足
-        if (!accountDTO.isAdmin())
-            throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
         // 策略不存在
         if (!strategyService.isExist(strategyVO.getId()))
             throw new BusinessException(CommonErrorCode.E_400001);
@@ -130,7 +139,9 @@ public class StrategyController {
             if (!deviceService.isExist(i))
                 throw new BusinessException(CommonErrorCode.E_300001);
 
-        strategyService.update(StrategyConvert.INSTANCE.vo2dto(strategyVO));
+        StrategyDTO strategyDTO = StrategyConvert.INSTANCE.vo2dto(strategyVO);
+        strategyDTO.setPermission(mergePermission(strategyVO.getPermissions()));
+        strategyService.update(strategyDTO);
         // 获取策略已绑定的设备，多的新增，少的删除
         List<Long> deviceIds = deviceStrategyService.queryDeviceIds(strategyVO.getId());
         for (Long i: strategyVO.getDeviceIds())
@@ -150,12 +161,8 @@ public class StrategyController {
 
     @ApiOperation("删除策略(admin)")
     @PostMapping(value = "/deleteStrategy")
-    @Token
+    @Token("1")
     public Response deleteStrategy(@RequestParam("strategyId") Long strategyId) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        // 权限不足
-        if (!accountDTO.isAdmin())
-            throw new BusinessException(CommonErrorCode.E_NO_PERMISSION);
         // 策略不存在
         if (!strategyService.isExist(strategyId))
             throw new BusinessException(CommonErrorCode.E_400001);
@@ -165,21 +172,30 @@ public class StrategyController {
         return Response.success().msg("策略删除成功");
     }
 
-    @ApiOperation("获取策略存储空间(token)")
-    @GetMapping(value = "/queryStrategySize")
-    @Token
-    public Response queryStrategySize(@RequestParam("root") String root) {
-        StrategyDTO strategyDTO = strategyService.query(root);
-        List<Long> deviceIds = deviceStrategyService.queryDeviceIds(strategyDTO.getId());
-        Long total = 0L, usable = 0L;
-        for (Long i: deviceIds) {
-            DeviceDTO deviceDTO = deviceService.query(i);
-            Storage storage = storageService.getInstance(deviceDTO);
-            total += storage.getTotalSize();
-            usable += storage.getUsableSize();
+    private Integer mergePermission(List<Integer> permission) {
+        // 清除重复项
+        permission = permission.stream()
+                .distinct()
+                .collect(toList());
+
+        int res = 0;
+        for (int i: permission)
+            res += 1 << i;
+        return res;
+    }
+    private List<Integer> separatePermission(Integer permission) {
+        List<Integer> res = new ArrayList<>();
+        Integer count = 0;
+        while (permission > 0) {
+            if (permission % 2 == 1)
+                res.add(count);
+            count++;
+            permission >>= 1;
         }
-        SizeResponse data = new SizeResponse(total.toString(), usable.toString());
-        return Response.success().data(data);
+        return res;
+    }
+    private Boolean hasPermission(List<Integer> permission, Integer type) {
+        return permission.contains(type);
     }
 
 }

@@ -22,7 +22,7 @@ public class StrategyVO {
     private Integer mode;
 
     @ApiModelProperty(value = "权限")
-    private Integer permission;
+    private List<Integer> permissions;
 
     @ApiModelProperty(value = "虚拟根目录")
     private String root;

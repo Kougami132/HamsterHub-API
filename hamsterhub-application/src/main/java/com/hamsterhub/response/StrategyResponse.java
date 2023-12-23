@@ -12,7 +12,8 @@ public class StrategyResponse {
     private String name;
     private Integer type;
     private Integer mode;
-    private Integer permission;
+    private List<Integer> permissions;
     private String root;
     private List<String> deviceIds;
+    private SizeResponse size;
 }

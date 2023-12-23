@@ -16,7 +16,7 @@ public class SecurityUtil {
         if (servletRequestAttributes != null) {
             HttpServletRequest request = servletRequestAttributes.getRequest();
 
-            String token = request.getHeader("token");
+            String token = request.getHeader("Authorization").replace("Bearer ", "");
             String username = JwtUtil.getUsername(token);
             AccountService accountService = ApplicationContextHelper.getBean(AccountService.class);
             return accountService.query(username);

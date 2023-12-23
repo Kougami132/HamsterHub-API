@@ -12,4 +12,8 @@ import lombok.NoArgsConstructor;
 public class SizeResponse {
     private String total;
     private String usable;
+    public SizeResponse(Long total, Long usable) {
+        this.total = total.toString();
+        this.usable = usable.toString();
+    }
 }
