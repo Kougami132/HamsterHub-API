@@ -1,6 +1,7 @@
 package com.hamsterhub.service.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MatchUtil;
@@ -46,6 +47,29 @@ public class VFileServiceImpl implements VFileService {
             if (!this.query(vFileDTO.getParentId()).getType().equals(0))
                 throw new BusinessException(CommonErrorCode.E_600013);
         }
+
+        VFile entity = VFileConvert.INSTANCE.dto2entity(vFileDTO);
+        entity.setId(null);
+        vFileMapper.insert(entity);
+        return VFileConvert.INSTANCE.entity2dto(entity);
+    }
+
+    @Override
+    public VFileDTO createDir(VFileDTO vFileDTO) throws BusinessException {
+        // 存储策略不存在
+        if (!strategyService.isExist(vFileDTO.getStrategyId()))
+            throw new BusinessException(CommonErrorCode.E_400001);
+        if (!vFileDTO.getParentId().equals(0L)) { // 不是根目录
+            // 父目录不存在
+            if (!this.isExist(vFileDTO.getParentId()))
+                throw new BusinessException(CommonErrorCode.E_600003);
+            // 父文件不为目录
+            if (!this.query(vFileDTO.getParentId()).getType().equals(0))
+                throw new BusinessException(CommonErrorCode.E_600013);
+        }
+        // 目录已存在
+        if (vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getParentId, vFileDTO.getParentId()).eq(VFile::getName, vFileDTO.getName())) > 0)
+            throw new BusinessException(CommonErrorCode.E_600014);
 
         VFile entity = VFileConvert.INSTANCE.dto2entity(vFileDTO);
         entity.setId(null);
@@ -143,10 +167,41 @@ public class VFileServiceImpl implements VFileService {
         // 用户不存在
         if (!accountService.isExist(accountId))
             throw new BusinessException(CommonErrorCode.E_200013);
+        // 目录不存在
+        if (parentId != 0 && !this.isExist(parentId))
+            throw new BusinessException(CommonErrorCode.E_600001);
 
         StrategyDTO strategyDTO = strategyService.query(root);
         List<VFile> entities = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId));
         return VFileConvert.INSTANCE.entity2dtoBatch(entities);
+    }
+
+    @Override
+    public List<VFileDTO> queryBatch(Long accountId, String root, Long parentId, Integer page, Integer limit) throws BusinessException {
+        // 用户不存在
+        if (!accountService.isExist(accountId))
+            throw new BusinessException(CommonErrorCode.E_200013);
+        // 目录不存在
+        if (parentId != 0 && !this.isExist(parentId))
+            throw new BusinessException(CommonErrorCode.E_600001);
+
+        StrategyDTO strategyDTO = strategyService.query(root);
+
+        Page<VFile> rowPage = new Page(page, limit);
+        List<VFile> entities = vFileMapper.selectPage(rowPage, new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId)).getRecords();
+        return VFileConvert.INSTANCE.entity2dtoBatch(entities);
+    }
+
+    @Override
+    public Integer queryCount(Long vFileId) throws BusinessException {
+        // 目录不存在
+        if (vFileId != 0 && !this.isExist(vFileId))
+            throw new BusinessException(CommonErrorCode.E_600001);
+        VFile entity = vFileMapper.selectById(vFileId);
+        // 文件不是目录
+        if (!entity.getType().equals(0))
+            throw new BusinessException(CommonErrorCode.E_600003);
+        return vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getParentId, vFileId));
     }
 
     @Override

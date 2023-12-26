@@ -118,6 +118,11 @@ public class FileController {
             vFileDTO = vFileService.query(vFileId);
 
         VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileDTO);
+
+        // 是目录则把文件数存入size字段
+        if (data.getType().equals(0))
+            data.setSize(vFileService.queryCount(vFileDTO.getId()).toString());
+
         return Response.success().data(data);
     }
 
@@ -125,10 +130,19 @@ public class FileController {
     @GetMapping(value = "/queryList")
     @Token
     public Response queryList(@RequestParam("root") String root,
-                              @RequestParam("parentId") Long parentId) {
+                              @RequestParam("parentId") Long parentId,
+                              @RequestParam(value = "page", required = false) Integer page,
+                              @RequestParam(value = "limit", required = false) Integer limit) {
+        if (limit == null)
+            limit = 10;
 
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        List<VFileDTO> vFileDTOs = vFileService.queryBatch(accountDTO.getId(), root, parentId);
+        List<VFileDTO> vFileDTOs;
+        if (page == null) // 未分页
+            vFileDTOs = vFileService.queryBatch(accountDTO.getId(), root, parentId);
+        else
+            vFileDTOs = vFileService.queryBatch(accountDTO.getId(), root, parentId, page, limit);
+
         List<VFileResponse> data = VFileConvert.INSTANCE.dto2resBatch(vFileDTOs);
         return Response.success().data(data);
     }
@@ -143,9 +157,16 @@ public class FileController {
 
         StrategyDTO strategyDTO = strategyService.query(root);
         VFileDTO vFileDTO = new VFileDTO(null, 0, name, parentId, 0L, 0, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), 0L, strategyDTO.getId());
-        VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileService.create(vFileDTO));
+        VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileService.createDir(vFileDTO));
 
         return Response.success().data(data);
+    }
+
+    @ApiOperation("查询目录内文件数(token)")
+    @GetMapping(value = "/queryFileCount")
+    @Token
+    public Response queryFileCount(@RequestParam("fileId") Long fileId) {
+        return Response.success().data(vFileService.queryCount(fileId));
     }
 
     @ApiOperation("上传文件(hash可选)(token)")

@@ -12,11 +12,11 @@ public class VFileResponse {
     private Integer type;
     private String name;
     private String parentId;
-    private String rFileId;
+//    private String rFileId;
     private Integer version;
     private LocalDateTime created;
     private LocalDateTime modified;
-    private String accountID;
+//    private String accountID;
     private String size;
-    private String strategyId;
+//    private String strategyId;
 }
