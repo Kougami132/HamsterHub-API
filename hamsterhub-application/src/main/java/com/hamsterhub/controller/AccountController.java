@@ -17,13 +17,26 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
+
 
 @RestController
 @Api(tags = "用户 数据接口")
 public class AccountController {
 
+    private List<String> TYPE = Stream.of("管理员", "普通用户").collect(toList());
+
     @Autowired
     private AccountService accountService;
+
+    @ApiOperation("用户类型")
+    @GetMapping(value = "/accountType")
+    public Response strategyType() {
+        return Response.success().data(TYPE);
+    }
 
     @ApiOperation("注册账号")
     @PostMapping(value = "/registerAccount")

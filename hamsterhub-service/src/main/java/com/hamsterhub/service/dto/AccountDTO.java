@@ -26,7 +26,7 @@ public class AccountDTO implements Serializable {
     private String email;
 
     public boolean isAdmin() {
-        return this.type.equals(1);
+        return this.type.equals(0);
     }
 
 }
