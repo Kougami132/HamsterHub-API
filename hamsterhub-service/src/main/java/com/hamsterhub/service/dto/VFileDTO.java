@@ -48,4 +48,7 @@ public class VFileDTO {
     @ApiModelProperty(value = "存储策略ID")
     private Long strategyId;
 
+    public Boolean isDir() {
+        return this.type.equals(0);
+    }
 }

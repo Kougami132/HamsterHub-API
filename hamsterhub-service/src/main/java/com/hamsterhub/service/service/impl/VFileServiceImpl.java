@@ -87,8 +87,11 @@ public class VFileServiceImpl implements VFileService {
         if (!this.isExist(vFileId))
             throw new BusinessException(CommonErrorCode.E_600001);
 
+        VFileDTO vFileDTO = this.query(vFileId);
+        List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, vFileDTO.getAccountID()).eq(VFile::getStrategyId, vFileDTO.getStrategyId()).eq(VFile::getParentId, vFileDTO.getParentId()).eq(VFile::getName, vFileDTO.getName()));
         List<Long> result = new ArrayList<>();
-        this.rm(result, vFileId);
+        for (VFile i: vFiles)
+            this.rm(result, i.getId());
         return result;
     }
 
@@ -128,7 +131,25 @@ public class VFileServiceImpl implements VFileService {
     }
 
     @Override
-    public VFileDTO query(Long accountId, String root, Long parentId, String name) throws BusinessException {
+    public List<VFileDTO> query(Long accountId, Long strategyId, Long parentId, String name) throws BusinessException {
+        // 传入对象为空
+        if (accountId == null)
+            throw new BusinessException(CommonErrorCode.E_100001);
+        // 用户不存在
+        if (!accountService.isExist(accountId))
+            throw new BusinessException(CommonErrorCode.E_200013);
+        // 文件不存在
+        if (!this.isExist(accountId, strategyId, parentId, name))
+            throw new BusinessException(CommonErrorCode.E_600001);
+
+        // 取出版本最新的VFile
+        List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyId).eq(VFile::getParentId, parentId).eq(VFile::getName, name));
+        vFiles.sort((o1, o2) -> o2.getVersion() - o1.getVersion());
+        return VFileConvert.INSTANCE.entity2dtoBatch(vFiles);
+    }
+
+    @Override
+    public List<VFileDTO> query(Long accountId, String root, Long parentId, String name) throws BusinessException {
         // 传入对象为空
         if (accountId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
@@ -143,23 +164,7 @@ public class VFileServiceImpl implements VFileService {
         // 取出版本最新的VFile
         List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId).eq(VFile::getName, name));
         vFiles.sort((o1, o2) -> o2.getVersion() - o1.getVersion());
-        return VFileConvert.INSTANCE.entity2dto(vFiles.get(0));
-    }
-
-    @Override
-    public List<Long> deleteBatch(Long accountId, List<Long> vFileIds) throws BusinessException {
-        // 传入对象为空
-        if (accountId == null || vFileIds == null)
-            throw new BusinessException(CommonErrorCode.E_100001);
-        // 用户不存在
-        if (!accountService.isExist(accountId))
-            throw new BusinessException(CommonErrorCode.E_200013);
-
-        List<Long> result = new ArrayList<>();
-        for (Long vFileId: vFileIds)
-            if (vFileMapper.selectOne(new LambdaQueryWrapper<VFile>().eq(VFile::getId, vFileId)).getAccountID().equals(accountId))
-                this.rm(result, vFileId);
-        return result;
+        return VFileConvert.INSTANCE.entity2dtoBatch(vFiles);
     }
 
     @Override

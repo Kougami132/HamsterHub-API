@@ -95,7 +95,7 @@ public class FileController {
         VFileDTO vFileDTO = null;
         while (num <= split.size() - 1) {
             String name = split.get(num);
-            vFileDTO = vFileService.query(accountDTO.getId(), root, vFileId, name);
+            vFileDTO = vFileService.query(accountDTO.getId(), root, vFileId, name).get(0);
 
             vFileId = vFileDTO.getId();
 
@@ -187,7 +187,7 @@ public class FileController {
         // 文件是否存在,存在则版本号+1
         Integer version = 1;
         if (vFileService.isExist(accountDTO.getId(), root, parentId, name))
-            version = vFileService.query(accountDTO.getId(), root, parentId, name).getVersion() + 1;
+            version = vFileService.query(accountDTO.getId(), root, parentId, name).size() + 1;
 
         StrategyDTO strategyDTO = strategyService.query(root);
         // 存储文件
@@ -283,6 +283,33 @@ public class FileController {
 
         vFileService.rename(vFileId, name);
         return Response.success().msg("重命名成功");
+    }
+
+    @ApiOperation("移动文件(token)")
+    @PostMapping(value = "/move")
+    @Token
+    public Response move(@RequestParam("vFileId") Long vFileId,
+                         @RequestParam("parentId") Long parentId) {
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+        VFileDTO vFileDTO = vFileService.query(vFileId);
+        // 文件与用户不匹配
+        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
+            throw new BusinessException(CommonErrorCode.E_600005);
+
+        // 目标文件不为目录
+        if (!vFileService.query(parentId).isDir())
+            throw new BusinessException(CommonErrorCode.E_600013);
+        // 目标目录已存在同名文件
+        if (vFileService.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), parentId, vFileDTO.getName()))
+            throw new BusinessException(CommonErrorCode.E_600016);
+
+        List<VFileDTO> vFileDTOs = vFileService.query(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), vFileDTO.getParentId(), vFileDTO.getName());
+        for (VFileDTO i: vFileDTOs) {
+            i.setParentId(parentId);
+            vFileService.update(i);
+        }
+
+        return Response.success().msg("移动成功");
     }
 
 }
