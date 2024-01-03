@@ -17,5 +17,7 @@ public interface VFileService {
     List<VFileDTO> queryBatch(Long accountId, String root, Long parentId, Integer page, Integer limit) throws BusinessException;
     Integer queryCount(Long vFileId) throws BusinessException;
     Boolean isExist(Long vFileId) throws BusinessException;
+    Boolean isExist(Long accountId, Long strategyId, Long parentId, String name) throws BusinessException;
     Boolean isExist(Long accountId, String root, Long parentId, String name) throws BusinessException;
+    void rename(Long vFileId, String newName) throws BusinessException;
 }

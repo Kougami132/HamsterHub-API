@@ -1,6 +1,7 @@
 package com.hamsterhub.service.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
@@ -139,8 +140,10 @@ public class VFileServiceImpl implements VFileService {
             throw new BusinessException(CommonErrorCode.E_600001);
 
         StrategyDTO strategyDTO = strategyService.query(root);
-        VFile entity = vFileMapper.selectOne(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId).eq(VFile::getName, name));
-        return VFileConvert.INSTANCE.entity2dto(entity);
+        // 取出版本最新的VFile
+        List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId).eq(VFile::getName, name));
+        vFiles.sort((o1, o2) -> o2.getVersion() - o1.getVersion());
+        return VFileConvert.INSTANCE.entity2dto(vFiles.get(0));
     }
 
     @Override
@@ -210,9 +213,29 @@ public class VFileServiceImpl implements VFileService {
     }
 
     @Override
+    public Boolean isExist(Long accountId, Long strategyId, Long parentId, String name) throws BusinessException {
+        return vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyId).eq(VFile::getParentId, parentId).eq(VFile::getName, name)) > 0;
+    }
+
+    @Override
     public Boolean isExist(Long accountId, String root, Long parentId, String name) throws BusinessException {
         StrategyDTO strategyDTO = strategyService.query(root);
         return vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId).eq(VFile::getName, name)) > 0;
+    }
+
+    @Override
+    public void rename(Long vFileId, String newName) throws BusinessException {
+        // 文件不存在
+        if (!this.isExist(vFileId))
+            throw new BusinessException(CommonErrorCode.E_600001);
+        VFileDTO vFileDTO = this.query(vFileId);
+        // 新文件名已存在
+        if (this.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), vFileDTO.getParentId(), newName))
+            throw new BusinessException(CommonErrorCode.E_600015);
+
+        // 所有版本的VFile都重命名
+        LambdaUpdateWrapper<VFile> updateWrapper = new LambdaUpdateWrapper<VFile>().eq(VFile::getAccountID, vFileDTO.getAccountID()).eq(VFile::getStrategyId, vFileDTO.getStrategyId()).eq(VFile::getParentId, vFileDTO.getParentId()).eq(VFile::getName, vFileDTO.getName()).set(VFile::getName, newName);
+        vFileMapper.update(null, updateWrapper);
     }
 
     public void rm(List<Long> result, Long vFileId) {

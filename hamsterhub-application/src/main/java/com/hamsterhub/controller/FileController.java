@@ -183,6 +183,7 @@ public class FileController {
         if (StringUtil.isBlank(name))
             throw new BusinessException(CommonErrorCode.E_600004);
 
+        // 覆盖
         // 文件是否存在,存在则版本号+1
         Integer version = 1;
         if (vFileService.isExist(accountDTO.getId(), root, parentId, name))
@@ -267,6 +268,21 @@ public class FileController {
         for (Long i: delete)
             fileService.delete(rFileService.query(i));
         return Response.success().msg("文件删除成功");
+    }
+
+    @ApiOperation("重命名文件(token)")
+    @PostMapping(value = "/rename")
+    @Token
+    public Response rename(@RequestParam("vFileId") Long vFileId,
+                           @RequestParam("name") String name) {
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+        VFileDTO vFileDTO = vFileService.query(vFileId);
+        // 文件与用户不匹配
+        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
+            throw new BusinessException(CommonErrorCode.E_600005);
+
+        vFileService.rename(vFileId, name);
+        return Response.success().msg("重命名成功");
     }
 
 }
