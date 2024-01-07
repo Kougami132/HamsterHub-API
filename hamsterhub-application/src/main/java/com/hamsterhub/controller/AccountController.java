@@ -45,7 +45,7 @@ public class AccountController {
         accountVO.setUsername(accountVO.getUsername().toLowerCase());
 
         AccountDTO accountDTO = AccountConvert.INSTANCE.vo2dto(accountVO);
-        accountDTO.setType(0);
+        accountDTO.setType(1);
         accountDTO = accountService.create(accountDTO);
 
         String token = JwtUtil.createToken(accountDTO.getUsername());

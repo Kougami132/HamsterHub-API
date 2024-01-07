@@ -90,7 +90,7 @@ public class StrategyController {
 
     @ApiOperation("创建策略(admin)")
     @PostMapping(value = "/createStrategy")
-    @Token("1")
+    @Token("0")
     public Response createStrategy(@RequestBody StrategyVO strategyVO) {
         // 不存在该策略类型
         if (strategyVO.getType() < 0 || strategyVO.getType() >= TYPE.size())
@@ -123,7 +123,7 @@ public class StrategyController {
 
     @ApiOperation("修改策略(admin)")
     @PostMapping(value = "/modifyStrategy")
-    @Token("1")
+    @Token("0")
     public Response modifyStrategy(@RequestBody StrategyVO strategyVO) {
         // 策略不存在
         if (!strategyService.isExist(strategyVO.getId()))
@@ -161,7 +161,7 @@ public class StrategyController {
 
     @ApiOperation("删除策略(admin)")
     @PostMapping(value = "/deleteStrategy")
-    @Token("1")
+    @Token("0")
     public Response deleteStrategy(@RequestParam("strategyId") Long strategyId) {
         // 策略不存在
         if (!strategyService.isExist(strategyId))

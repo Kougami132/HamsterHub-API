@@ -40,7 +40,7 @@ public class DeviceController {
 
     @ApiOperation("设备列表(admin)")
     @GetMapping(value = "/queryDevice")
-    @Token("1")
+    @Token("0")
     public Response queryDevice() {
         List<DeviceDTO> data = deviceService.queryBatch();
         List<DeviceResponse> res = DeviceConvert.INSTANCE.dto2resBatch(data);
@@ -56,7 +56,7 @@ public class DeviceController {
 
     @ApiOperation("创建设备(admin)")
     @PostMapping(value = "/createDevice")
-    @Token("1")
+    @Token("0")
     public Response createDevice(@RequestBody DeviceVO deviceVO) {
         // 不存在该设备类型编号
         if (storageService.isTypeExist(deviceVO.getType()))
@@ -73,7 +73,7 @@ public class DeviceController {
 
     @ApiOperation("修改设备(admin)")
     @PostMapping(value = "/modifyDevice")
-    @Token("1")
+    @Token("0")
     public Response modifyDevice(@RequestBody DeviceVO deviceVO) {
         // 设备不存在
         if (!deviceService.isExist(deviceVO.getId()))
@@ -93,7 +93,7 @@ public class DeviceController {
 
     @ApiOperation("删除设备(admin)")
     @PostMapping(value = "/deleteDevice")
-    @Token("1")
+    @Token("0")
     public Response deleteDevice(@RequestParam("deviceId") Long deviceId) {
         // 设备不存在
         if (!deviceService.isExist(deviceId))
