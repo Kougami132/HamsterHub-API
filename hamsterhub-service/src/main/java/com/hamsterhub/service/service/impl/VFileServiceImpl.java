@@ -248,7 +248,7 @@ public class VFileServiceImpl implements VFileService {
         if (entity.getType().equals(0)) { //文件夹
             Long accountId = entity.getAccountID();
             Long parentId = entity.getParentId();
-            List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).like(VFile::getParentId, parentId));
+            List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).like(VFile::getParentId, vFileId));
             for (VFile vfile: vFiles)
                 rm(result, vfile.getId());
         }
