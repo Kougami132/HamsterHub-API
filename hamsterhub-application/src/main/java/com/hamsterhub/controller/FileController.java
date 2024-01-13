@@ -265,8 +265,10 @@ public class FileController {
             throw new BusinessException(CommonErrorCode.E_600005);
 
         List<Long> delete = vFileService.delete(vFileDTO.getId());
-        for (Long i: delete)
+        for (Long i: delete) {
             fileService.delete(rFileService.query(i));
+            rFileService.delete(i);
+        }
         return Response.success().msg("文件删除成功");
     }
 

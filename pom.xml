@@ -128,7 +128,7 @@
                 <version>3.6.0</version>
             </dependency>
 
-            <!-- SECP256k1 -->
+            <!-- 加密 -->
             <dependency>
                 <groupId>org.web3j</groupId>
                 <artifactId>core</artifactId>

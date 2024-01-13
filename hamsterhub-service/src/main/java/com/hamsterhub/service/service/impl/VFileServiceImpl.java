@@ -255,6 +255,6 @@ public class VFileServiceImpl implements VFileService {
         vFileMapper.deleteById(vFileId);
         // 删除实际文件，条件：文件为文件类型且无相同rFile指向
         if (entity.getType().equals(1) && vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getRFileId, entity.getRFileId())) == 0)
-            result.add(vFileId);
+            result.add(entity.getRFileId());
     }
 }

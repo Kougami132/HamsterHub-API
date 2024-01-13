@@ -104,7 +104,7 @@
             <artifactId>okhttp</artifactId>
         </dependency>
 
-        <!-- SECP256k1加密 -->
+        <!-- 加密 -->
         <dependency>
             <groupId>org.web3j</groupId>
             <artifactId>core</artifactId>
