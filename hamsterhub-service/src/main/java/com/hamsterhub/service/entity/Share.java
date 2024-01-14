@@ -25,10 +25,10 @@ public class Share {
     @TableField("V_FILE_ID")
     private Long vFileId;
 
-    @TableField("KEY")
+    @TableField("`KEY`")
     private String key;
 
-    @TableField("EXPIRY")
+    @TableField("`EXPIRY`")
     private LocalDateTime expiry;
 
     @TableField("ACCOUNT_ID")
