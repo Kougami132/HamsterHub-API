@@ -207,10 +207,10 @@ public class FileController {
         return Response.success().msg("上传成功").data(data);
     }
 
-    @ApiOperation("下载文件(token)")
-    @GetMapping(value = "/download")
+    @ApiOperation("获取文件直链(token)")
+    @GetMapping(value = "/getDownloadUrl")
     @Token
-    public Response download(@RequestParam("vFileId") Long vFileId,
+    public Response getDownloadUrl(@RequestParam("vFileId") Long vFileId,
                              HttpServletResponse response) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         VFileDTO vFileDTO = vFileService.query(vFileId);
@@ -219,39 +219,56 @@ public class FileController {
             throw new BusinessException(CommonErrorCode.E_600005);
         RFileDTO rFileDTO = rFileService.query(vFileDTO.getRFileId());
         DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
+        String url;
+
+        if (deviceDTO.getType().equals(0)) // 本地硬盘
+            url = String.format("/download?rFileId=%s&fileName=%s", rFileDTO.getId(), vFileDTO.getName());
+        else // 网盘
+            url = fileService.download(rFileDTO);
+        return Response.success().data(url);
+    }
+
+    @ApiOperation("下载文件")
+    @GetMapping(value = "/download")
+    public void download(@RequestParam("rFileId") Long rFileId,
+                             @RequestParam("fileName") String fileName,
+                             HttpServletResponse response) {
+        RFileDTO rFileDTO = rFileService.query(rFileId);
+        DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
+
+        // 本地不存在此文件
+        if (!deviceDTO.getType().equals(0))
+            throw new BusinessException(CommonErrorCode.E_500001);
+
         String result = fileService.download(rFileDTO);
+        // 返回文件
+        try {
+            File file = new File(result);
+            // 将文件写入输入流
+            FileInputStream fileInputStream = new FileInputStream(file);
+            InputStream fis = new BufferedInputStream(fileInputStream);
+            byte[] buffer = new byte[fis.available()];
+            fis.read(buffer);
+            fis.close();
 
-        if (deviceDTO.getType() != 0) // 非本地硬盘，返回直链
-            return Response.success().data(result);
-        else // 设备本地硬盘，返回文件
-            try {
-                File file = new File(result);
-                // 将文件写入输入流
-                FileInputStream fileInputStream = new FileInputStream(file);
-                InputStream fis = new BufferedInputStream(fileInputStream);
-                byte[] buffer = new byte[fis.available()];
-                fis.read(buffer);
-                fis.close();
-
-                // 清空response
-                response.reset();
-                // 设置response的Header
-                response.setCharacterEncoding("UTF-8");
-                //Content-Disposition的作用：告知浏览器以何种方式显示响应返回的文件，用浏览器打开还是以附件的形式下载到本地保存
-                //attachment表示以附件方式下载   inline表示在线打开   "Content-Disposition: inline; filename=文件名.mp3"
-                // filename表示文件的默认名称，因为网络传输只支持URL编码的相关支付，因此需要将文件名URL编码后进行传输,前端收到后需要反编码才能获取到真正的名称
-                response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(vFileDTO.getName(), "UTF-8"));
-                // 告知浏览器文件的大小
-                response.addHeader("Content-Length", "" + file.length());
-                OutputStream outputStream = new BufferedOutputStream(response.getOutputStream());
-                response.setContentType("application/octet-stream");
-                outputStream.write(buffer);
-                outputStream.flush();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        return Response.success();
+            // 清空response
+            response.reset();
+            // 设置response的Header
+            response.setCharacterEncoding("UTF-8");
+            //Content-Disposition的作用：告知浏览器以何种方式显示响应返回的文件，用浏览器打开还是以附件的形式下载到本地保存
+            //attachment表示以附件方式下载   inline表示在线打开   "Content-Disposition: inline; filename=文件名.mp3"
+            // filename表示文件的默认名称，因为网络传输只支持URL编码的相关支付，因此需要将文件名URL编码后进行传输,前端收到后需要反编码才能获取到真正的名称
+            response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
+            // 告知浏览器文件的大小
+            response.addHeader("Content-Length", "" + file.length());
+            OutputStream outputStream = new BufferedOutputStream(response.getOutputStream());
+            response.setContentType("application/octet-stream");
+            outputStream.write(buffer);
+            outputStream.flush();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @ApiOperation("删除文件(token)")
