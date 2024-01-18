@@ -89,10 +89,12 @@ public class AliDrive extends Storage {
             queryToken(this.refreshToken);
             getSession();
             queryDriveId();
+            this.device.setConfigured(true);
         }
         catch (Exception e) {
             e.printStackTrace();
-            throw new BusinessException(CommonErrorCode.E_300006);
+//            throw new BusinessException(CommonErrorCode.E_300006);
+            this.device.setConfigured(false);
         }
     }
 
@@ -152,7 +154,7 @@ public class AliDrive extends Storage {
         try {
             JSONObject param = JSON.parseObject(deviceDTO.getParam());
             String refreshToken = param.getString("refreshToken");
-            this.queryToken(refreshToken);
+            queryToken(refreshToken);
             return true;
         }
         catch (Exception e) {

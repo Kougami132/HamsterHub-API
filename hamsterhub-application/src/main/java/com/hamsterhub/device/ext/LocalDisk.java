@@ -30,6 +30,8 @@ public class LocalDisk extends Storage {
         JSONObject param = JSON.parseObject(deviceDTO.getParam());
         if (param != null)
             this.path = param.getString("param");
+
+        this.device.setConnected(true);
     }
 
     @Override

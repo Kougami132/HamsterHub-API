@@ -11,6 +11,7 @@ public class DeviceResponse {
     private Integer type;
     private String param;
     private Boolean configured;
+    private Boolean connected;
     private String StrategyId = "0";
     private SizeResponse size;
 }

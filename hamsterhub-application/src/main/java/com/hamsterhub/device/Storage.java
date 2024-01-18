@@ -53,4 +53,7 @@ public class Storage {
         return true;
     }
 
+    public boolean isConnected() {
+        return this.device.isConnected();
+    }
 }

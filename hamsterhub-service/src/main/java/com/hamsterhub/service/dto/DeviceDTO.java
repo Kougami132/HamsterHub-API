@@ -24,4 +24,7 @@ public class DeviceDTO {
     @ApiModelProperty(value = "已配置")
     private boolean configured;
 
+    @ApiModelProperty(value = "已连接")
+    private boolean connected;
+
 }
