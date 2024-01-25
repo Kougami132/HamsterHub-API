@@ -71,6 +71,15 @@ CREATE TABLE `v_file` (
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
+DROP TABLE IF EXISTS `file_link`;
+CREATE TABLE `file_link` (
+                          `ID` bigint(20) NOT NULL COMMENT '主键',
+                          `TICKET` varchar(50) NOT NULL UNIQUE COMMENT '分享码',
+                          `R_FILE_ID` bigint(20) NOT NULL COMMENT '实际文件id',
+                          `EXPIRY` DATETIME NOT NULL COMMENT '过期时间',
+                          PRIMARY KEY (`ID`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
 DROP TABLE IF EXISTS `share`;
 CREATE TABLE `share` (
                           `ID` bigint(20) NOT NULL COMMENT '主键',

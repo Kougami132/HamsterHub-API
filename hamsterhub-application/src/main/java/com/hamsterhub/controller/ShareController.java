@@ -43,19 +43,6 @@ public class ShareController {
     @Autowired
     private FileService fileService;
 
-    private static String generateRandomString(int length) {
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        StringBuilder randomString = new StringBuilder();
-
-        Random random = new Random();
-        for (int i = 0; i < length; i++) {
-            int index = random.nextInt(characters.length());
-            randomString.append(characters.charAt(index));
-        }
-
-        return randomString.toString();
-    }
-
     @ApiOperation("分享文件(token)")
     @PostMapping(value = "/shareFile")
     @Token
@@ -76,9 +63,11 @@ public class ShareController {
         if (!StringUtil.isBlank(key))
             type = 1;
 
-        String ticket = generateRandomString(10);
-        while (shareService.isExist(ticket))
-            ticket = generateRandomString(10);
+        String ticket;
+        do {
+            ticket = StringUtil.generateRandomString(10);
+        } while (shareService.isExist(ticket));
+
         ShareDTO shareDTO = new ShareDTO(null, type, ticket, vFileId, key, LocalDateTime.now().plusSeconds(expiry), accountDTO.getId());
         ShareResponse data = ShareConvert.INSTANCE.dto2res(shareService.create(shareDTO));
 

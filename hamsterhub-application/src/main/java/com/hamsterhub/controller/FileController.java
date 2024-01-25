@@ -45,6 +45,8 @@ public class FileController {
     @Autowired
     private ShareService shareService;
     @Autowired
+    private FileLinkService fileLinkService;
+    @Autowired
     private FileService fileService;
     @Autowired
     private RedisService redisService;
@@ -221,8 +223,32 @@ public class FileController {
         DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
         String url;
 
-        if (deviceDTO.getType().equals(0)) // 本地硬盘
-            url = String.format("/download?rFileId=%s&fileName=%s", rFileDTO.getId(), vFileDTO.getName());
+        if (deviceDTO.getType().equals(0)) {// 本地硬盘
+            FileLinkDTO fileLinkDTO;
+            String ticket;
+            if (fileLinkService.isExist(rFileDTO.getId())) { // 文件直链已存在
+                fileLinkDTO = fileLinkService.query(rFileDTO.getId());
+                if (fileLinkDTO.getExpiry().isBefore(LocalDateTime.now())) { // 直链已过期
+                    do {
+                        fileLinkDTO.setTicket(StringUtil.generateRandomString(10));
+                    }
+                    while (fileLinkService.isExist(fileLinkDTO.getTicket()));
+                }
+                fileLinkDTO.setExpiry(LocalDateTime.now().plusMinutes(10));
+                fileLinkService.update(fileLinkDTO);
+            }
+            else {
+                do {
+                    ticket = StringUtil.generateRandomString(10);
+                }
+                while (fileLinkService.isExist(ticket));
+
+                fileLinkDTO = new FileLinkDTO(ticket, rFileDTO.getId(), LocalDateTime.now().plusMinutes(10));
+                fileLinkService.create(fileLinkDTO);
+            }
+
+            url = String.format("/download?ticket=%s&fileName=%s", fileLinkDTO.getTicket(), vFileDTO.getName());
+        }
         else // 网盘
             url = fileService.download(rFileDTO);
         return Response.success().data(url);
@@ -230,10 +256,14 @@ public class FileController {
 
     @ApiOperation("下载文件")
     @GetMapping(value = "/download")
-    public void download(@RequestParam("rFileId") Long rFileId,
+    public void download(@RequestParam("ticket") String ticket,
                              @RequestParam("fileName") String fileName,
                              HttpServletResponse response) {
-        RFileDTO rFileDTO = rFileService.query(rFileId);
+        FileLinkDTO fileLinkDTO = fileLinkService.query(ticket);
+        // 直链已过期
+        if (fileLinkDTO.getExpiry().isBefore(LocalDateTime.now()))
+            throw new BusinessException(CommonErrorCode.E_600018);
+        RFileDTO rFileDTO = rFileService.query(fileLinkDTO.getRFileId());
         DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
 
         // 本地不存在此文件

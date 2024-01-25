@@ -4,6 +4,7 @@ package com.hamsterhub.common.util;
 import java.io.File;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -354,6 +355,19 @@ public class StringUtil {
 			}
 		}
 		return checkFlag;
+	}
+
+	public static String generateRandomString(int length) {
+		String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+		StringBuilder randomString = new StringBuilder();
+
+		Random random = new Random();
+		for (int i = 0; i < length; i++) {
+			int index = random.nextInt(characters.length());
+			randomString.append(characters.charAt(index));
+		}
+
+		return randomString.toString();
 	}
 
 }
