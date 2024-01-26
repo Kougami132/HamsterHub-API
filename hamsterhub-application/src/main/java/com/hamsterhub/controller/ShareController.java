@@ -129,13 +129,14 @@ public class ShareController {
             throw new BusinessException(CommonErrorCode.E_600010);
 
         // 需要提取码
-        if (shareDTO.getType().equals(1))
+        if (shareDTO.getType().equals(1)) {
             // 提取码为空
             if (StringUtil.isBlank(key))
                 throw new BusinessException(CommonErrorCode.E_600008);
-        // 提取码错误
-        if (!key.equals(shareDTO.getKey()))
-            throw new BusinessException(CommonErrorCode.E_600009);
+            // 提取码错误
+            if (!key.equals(shareDTO.getKey()))
+                throw new BusinessException(CommonErrorCode.E_600009);
+        }
 
         VFileDTO vFileDTO = vFileService.query(shareDTO.getVFileId());
         RFileDTO rFileDTO = rFileService.query(vFileDTO.getRFileId());
