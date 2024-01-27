@@ -163,10 +163,7 @@ public class AliDrive extends Storage {
         }
     }
 
-    @Override
-    public boolean isConnected() {
-        return this.device.isConnected();
-    }
+
 
     private void getSession() {
         if (redisService.isAliSessionExist(this.device.getId())) {
