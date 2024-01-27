@@ -86,4 +86,13 @@ public class LocalDisk extends Storage {
         return dir.getUsableSpace();
     }
 
+    @Override
+    public boolean verify(DeviceDTO deviceDTO) {
+        return super.verify(deviceDTO);
+    }
+
+    @Override
+    public boolean isConnected() {
+        return this.device.isConnected();
+    }
 }

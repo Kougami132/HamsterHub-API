@@ -48,7 +48,8 @@ public class DeviceController {
             if (i.getConfigured())
                 i.setStrategyId(deviceStrategyService.queryStrategyId(Long.parseLong(i.getId())).toString());
             Storage storage = storageService.getInstance(DeviceConvert.INSTANCE.res2dto(i));
-            if (storage.isConnected())
+            i.setConnected(storage.isConnected());
+            if (i.getConnected())
                 i.setSize(new SizeResponse(storage.getTotalSize(), storage.getUsableSize()));
         }
 
