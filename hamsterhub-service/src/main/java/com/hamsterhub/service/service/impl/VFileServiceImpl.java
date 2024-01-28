@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -209,7 +210,13 @@ public class VFileServiceImpl implements VFileService {
         // 文件不是目录
         if (!entity.getType().equals(0))
             throw new BusinessException(CommonErrorCode.E_600003);
-        return vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getParentId, vFileId));
+        // 去重
+        List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getParentId, vFileId));
+        List<String> names = vFiles.stream()
+                                    .map(VFile::getName)
+                                    .distinct()
+                                    .collect(Collectors.toList());
+        return names.size();
     }
 
     @Override
