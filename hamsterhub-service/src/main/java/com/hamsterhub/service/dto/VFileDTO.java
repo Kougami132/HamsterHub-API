@@ -48,6 +48,9 @@ public class VFileDTO {
     @ApiModelProperty(value = "存储策略ID")
     private Long strategyId;
 
+    @ApiModelProperty(value = "分享类型")
+    private Integer shareType;
+
     public Boolean isDir() {
         return this.type.equals(0);
     }

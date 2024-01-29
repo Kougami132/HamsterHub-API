@@ -108,10 +108,10 @@ public class VFileServiceImpl implements VFileService {
         if (!strategyService.isExist(vFileDTO.getStrategyId()))
             throw new BusinessException(CommonErrorCode.E_400001);
         // 父目录不存在
-        if (!this.isExist(vFileDTO.getParentId()))
+        if (!vFileDTO.getParentId().equals(0L) && !this.isExist(vFileDTO.getParentId()))
             throw new BusinessException(CommonErrorCode.E_600003);
         // 父文件不为目录
-        if (!this.query(vFileDTO.getParentId()).getType().equals(0))
+        if (!vFileDTO.getParentId().equals(0L) && !this.query(vFileDTO.getParentId()).getType().equals(0))
             throw new BusinessException(CommonErrorCode.E_600013);
 
         VFile entity = VFileConvert.INSTANCE.dto2entity(vFileDTO);
@@ -169,6 +169,35 @@ public class VFileServiceImpl implements VFileService {
     }
 
     @Override
+    public List<VFileDTO> queryBatch(Long parentId) throws BusinessException {
+        // 目录不存在
+        if (parentId != 0 && !this.isExist(parentId))
+            throw new BusinessException(CommonErrorCode.E_600001);
+        VFile entity = vFileMapper.selectById(parentId);
+        // 文件不是目录
+        if (!entity.getType().equals(0))
+            throw new BusinessException(CommonErrorCode.E_600003);
+
+        List<VFile> entities = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getParentId, parentId));
+        return VFileConvert.INSTANCE.entity2dtoBatch(entities);
+    }
+
+    @Override
+    public List<VFileDTO> queryBatch(Long parentId, Integer page, Integer limit) throws BusinessException {
+        // 目录不存在
+        if (parentId != 0 && !this.isExist(parentId))
+            throw new BusinessException(CommonErrorCode.E_600001);
+        VFile entity = vFileMapper.selectById(parentId);
+        // 文件不是目录
+        if (!entity.getType().equals(0))
+            throw new BusinessException(CommonErrorCode.E_600003);
+
+        Page<VFile> rowPage = new Page(page, limit);
+        List<VFile> entities = vFileMapper.selectPage(rowPage, new LambdaQueryWrapper<VFile>().eq(VFile::getParentId, parentId)).getRecords();
+        return VFileConvert.INSTANCE.entity2dtoBatch(entities);
+    }
+
+    @Override
     public List<VFileDTO> queryBatch(Long accountId, String root, Long parentId) throws BusinessException {
         // 传入对象为空
         if (accountId == null)
@@ -179,6 +208,10 @@ public class VFileServiceImpl implements VFileService {
         // 目录不存在
         if (parentId != 0 && !this.isExist(parentId))
             throw new BusinessException(CommonErrorCode.E_600001);
+        VFile entity = vFileMapper.selectById(parentId);
+        // 文件不是目录
+        if (!parentId.equals(0L) && !entity.getType().equals(0))
+            throw new BusinessException(CommonErrorCode.E_600003);
 
         StrategyDTO strategyDTO = strategyService.query(root);
         List<VFile> entities = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId));
@@ -193,6 +226,10 @@ public class VFileServiceImpl implements VFileService {
         // 目录不存在
         if (parentId != 0 && !this.isExist(parentId))
             throw new BusinessException(CommonErrorCode.E_600001);
+        VFile entity = vFileMapper.selectById(parentId);
+        // 文件不是目录
+        if (!parentId.equals(0L) && !entity.getType().equals(0))
+            throw new BusinessException(CommonErrorCode.E_600003);
 
         StrategyDTO strategyDTO = strategyService.query(root);
 
@@ -210,13 +247,13 @@ public class VFileServiceImpl implements VFileService {
         // 文件不是目录
         if (!entity.getType().equals(0))
             throw new BusinessException(CommonErrorCode.E_600003);
-        // 去重
         List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getParentId, vFileId));
-        List<String> names = vFiles.stream()
-                                    .map(VFile::getName)
-                                    .distinct()
-                                    .collect(Collectors.toList());
-        return names.size();
+//        // 去重
+//        List<String> names = vFiles.stream()
+//                                    .map(VFile::getName)
+//                                    .distinct()
+//                                    .collect(Collectors.toList());
+        return vFiles.size();
     }
 
     @Override
@@ -248,6 +285,24 @@ public class VFileServiceImpl implements VFileService {
         // 所有版本的VFile都重命名
         LambdaUpdateWrapper<VFile> updateWrapper = new LambdaUpdateWrapper<VFile>().eq(VFile::getAccountID, vFileDTO.getAccountID()).eq(VFile::getStrategyId, vFileDTO.getStrategyId()).eq(VFile::getParentId, vFileDTO.getParentId()).eq(VFile::getName, vFileDTO.getName()).set(VFile::getName, newName);
         vFileMapper.update(null, updateWrapper);
+    }
+
+    @Override
+    public Long isShared(Long vFileId) throws BusinessException {
+        // 文件不存在
+        if (!this.isExist(vFileId))
+            throw new BusinessException(CommonErrorCode.E_600001);
+
+        VFile vFile = vFileMapper.selectById(vFileId);
+        while (vFile.getShareType().equals(0)) {
+            if (vFile.getParentId().equals(0)) // 父节点为根目录
+                return 0L;
+            vFile = vFileMapper.selectById(vFile.getParentId());
+        }
+        if (vFile.getShareType().equals(1))
+            return vFile.getId();
+        else
+            return 0L;
     }
 
     public void rm(List<Long> result, Long vFileId) {

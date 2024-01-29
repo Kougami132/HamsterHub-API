@@ -74,6 +74,7 @@ public enum CommonErrorCode implements ErrorCode {
 	E_600017(600017,"直链不存在"),
 	E_600018(600018,"直链已过期"),
 	E_600019(600019,"ticket已存在"),
+	E_600020(600020,"ticket与vFileId不匹配"),
 
 	// 网盘连接异常编码 700
 	E_700001(700001,"阿里云盘签名计算错误"),

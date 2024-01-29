@@ -45,4 +45,7 @@ public class VFile {
 
     @TableField("STRATEGY_ID")
     private Long strategyId;
+
+    @TableField("SHARE_TYPE")
+    private Integer shareType;
 }

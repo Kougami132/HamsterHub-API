@@ -68,6 +68,7 @@ CREATE TABLE `v_file` (
                           `ACCOUNT_ID` bigint(20) NOT NULL COMMENT '用户ID',
                           `SIZE` bigint(20) NOT NULL COMMENT '文件大小',
                           `STRATEGY_ID` bigint(20) NOT NULL COMMENT '存储策略ID',
+                          `SHARE_TYPE` bigint(10) NOT NULL COMMENT '分享类型,0继承,1分享,2不分享',
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
@@ -86,7 +87,7 @@ CREATE TABLE `share` (
                           `TYPE` bigint(10) NOT NULL COMMENT '分享类型(公开、私有)',
                           `TICKET` varchar(50) NOT NULL UNIQUE COMMENT '分享码',
                           `V_FILE_ID` bigint(20) NOT NULL UNIQUE COMMENT '虚拟文件id',
-                          `KEY` varchar(50) NOT NULL COMMENT '提取码',
+                          `KEY` varchar(50) NULL COMMENT '提取码',
                           `EXPIRY` DATETIME NOT NULL COMMENT '分享过期时间',
                           `ACCOUNT_ID` bigint(20) NOT NULL COMMENT '用户ID',
                           PRIMARY KEY (`ID`) USING BTREE

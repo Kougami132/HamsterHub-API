@@ -65,7 +65,6 @@ public class FileController {
     @Token
     public Response queryFile(@RequestParam("root") String root,
                               @RequestParam("url") String url) {
-
         AccountDTO accountDTO = SecurityUtil.getAccount();
 
         // 路径格式错误
@@ -158,7 +157,7 @@ public class FileController {
         AccountDTO accountDTO = SecurityUtil.getAccount();
 
         StrategyDTO strategyDTO = strategyService.query(root);
-        VFileDTO vFileDTO = new VFileDTO(null, 0, name, parentId, 0L, 0, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), 0L, strategyDTO.getId());
+        VFileDTO vFileDTO = new VFileDTO(null, 0, name, parentId, 0L, 0, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), 0L, strategyDTO.getId(), 0);
         VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileService.createDir(vFileDTO));
 
         return Response.success().data(data);
@@ -203,7 +202,7 @@ public class FileController {
             rFileDTO = fileService.upload(file, strategyDTO);
         }
 
-        VFileDTO vFileDTO = new VFileDTO(null, 1, name, parentId, rFileDTO.getId(), version, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), rFileDTO.getSize(), strategyDTO.getId());
+        VFileDTO vFileDTO = new VFileDTO(null, 1, name, parentId, rFileDTO.getId(), version, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), rFileDTO.getSize(), strategyDTO.getId(), 0);
         VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileService.create(vFileDTO));
 
         return Response.success().msg("上传成功").data(data);
@@ -221,8 +220,8 @@ public class FileController {
             throw new BusinessException(CommonErrorCode.E_600005);
         RFileDTO rFileDTO = rFileService.query(vFileDTO.getRFileId());
         DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
-        String url;
 
+        String url;
         if (deviceDTO.getType().equals(0)) {// 本地硬盘
             FileLinkDTO fileLinkDTO;
             String ticket;

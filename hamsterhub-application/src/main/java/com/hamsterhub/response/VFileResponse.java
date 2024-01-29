@@ -19,4 +19,5 @@ public class VFileResponse {
 //    private String accountID;
     private String size;
 //    private String strategyId;
+    private Integer shareType;
 }
