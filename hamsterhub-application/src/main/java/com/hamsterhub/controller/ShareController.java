@@ -62,10 +62,10 @@ public class ShareController {
 
         // 0: 无需提取码 1: 需要提取码
         Integer type = 0;
-        if (!StringUtil.isBlank(key)) {
+        if (!StringUtil.isBlank(key))
             type = 1;
+        else
             key = "";
-        }
 
         String ticket;
         do {
