@@ -68,7 +68,7 @@ CREATE TABLE `v_file` (
                           `ACCOUNT_ID` bigint(20) NOT NULL COMMENT '用户ID',
                           `SIZE` bigint(20) NOT NULL COMMENT '文件大小',
                           `STRATEGY_ID` bigint(20) NOT NULL COMMENT '存储策略ID',
-                          `SHARE_TYPE` bigint(10) NOT NULL COMMENT '分享类型,0继承,1分享,2不分享',
+                          `SHARE_TYPE` bigint(10) NOT NULL DEFAULT '0' COMMENT '分享类型,0继承,1分享,2不分享',
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
