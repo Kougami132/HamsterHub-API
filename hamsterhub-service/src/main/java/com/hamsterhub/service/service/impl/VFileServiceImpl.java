@@ -289,18 +289,14 @@ public class VFileServiceImpl implements VFileService {
 
     @Override
     public Long isShared(Long vFileId) throws BusinessException {
-        // 文件不存在
-        if (!this.isExist(vFileId))
-            throw new BusinessException(CommonErrorCode.E_600001);
-
-        VFile vFile = vFileMapper.selectById(vFileId);
-        while (vFile.getShareType().equals(0)) {
-            if (vFile.getParentId().equals(0)) // 父节点为根目录
+        VFileDTO vFileDTO = this.query(vFileId);
+        while (vFileDTO.getShareType().equals(0)) {
+            if (vFileDTO.getParentId().equals(0)) // 父节点为根目录
                 return 0L;
-            vFile = vFileMapper.selectById(vFile.getParentId());
+            vFileDTO = this.query(vFileDTO.getParentId());
         }
-        if (vFile.getShareType().equals(1))
-            return vFile.getId();
+        if (vFileDTO.getShareType().equals(1))
+            return vFileDTO.getId();
         else
             return 0L;
     }
