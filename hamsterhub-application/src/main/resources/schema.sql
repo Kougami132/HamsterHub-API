@@ -10,7 +10,7 @@ CREATE TABLE `account` (
                            `ID` bigint(20) NOT NULL COMMENT '主键',
                            `USERNAME` varchar(50) NOT NULL COMMENT '用户名',
                            `PASSWORD` varchar(50) NOT NULL COMMENT '密码',
-                           `TYPE` bigint(10) NOT NULL COMMENT '用户类型',
+                           `TYPE` bigint(10) NOT NULL DEFAULT '1' COMMENT '用户类型',
                            `EMAIL` varchar(50) NULL COMMENT '邮箱',
                            PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
@@ -62,13 +62,13 @@ CREATE TABLE `v_file` (
                           `NAME` varchar(50) NOT NULL COMMENT '文件名',
                           `PARENT_ID` bigint(20) NOT NULL COMMENT '父文件id',
                           `R_FILE_ID` bigint(20) NOT NULL COMMENT '实际文件id',
-                          `VERSION` bigint(20) NOT NULL COMMENT '文件版本',
+                          `VERSION` bigint(20) NOT NULL DEFAULT '1' COMMENT '文件版本',
                           `CREATED` DATETIME NOT NULL COMMENT '文件创建时间',
                           `MODIFIED` DATETIME NOT NULL COMMENT '文件最后修改时间',
                           `ACCOUNT_ID` bigint(20) NOT NULL COMMENT '用户ID',
                           `SIZE` bigint(20) NOT NULL COMMENT '文件大小',
                           `STRATEGY_ID` bigint(20) NOT NULL COMMENT '存储策略ID',
-                          `SHARE_TYPE` bigint(10) NOT NULL COMMENT '分享类型,0继承,1分享,2不分享',
+                          `SHARE_TYPE` bigint(10) NOT NULL DEFAULT '0' COMMENT '分享类型,0继承,1分享,2不分享',
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
