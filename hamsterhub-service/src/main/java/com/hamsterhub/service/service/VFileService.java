@@ -22,5 +22,5 @@ public interface VFileService {
     Boolean isExist(Long accountId, Long strategyId, Long parentId, String name) throws BusinessException;
     Boolean isExist(Long accountId, String root, Long parentId, String name) throws BusinessException;
     void rename(Long vFileId, String newName) throws BusinessException;
-    Long isShared(Long vFileId) throws BusinessException;
+    Long getShareParent(Long vFileId) throws BusinessException;
 }

@@ -288,7 +288,7 @@ public class VFileServiceImpl implements VFileService {
     }
 
     @Override
-    public Long isShared(Long vFileId) throws BusinessException {
+    public Long getShareParent(Long vFileId) throws BusinessException {
         VFileDTO vFileDTO = this.query(vFileId);
         while (vFileDTO.getShareType().equals(0)) {
             if (vFileDTO.getParentId().equals(0)) // 父节点为根目录
@@ -297,7 +297,9 @@ public class VFileServiceImpl implements VFileService {
         }
         if (vFileDTO.getShareType().equals(1))
             return vFileDTO.getId();
-        else
+        else if (vFileDTO.getShareType().equals(2)) {
+            return 2L;
+        } else
             return 0L;
     }
 

@@ -57,7 +57,8 @@ public class ShareController {
         if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
             throw new BusinessException(CommonErrorCode.E_600005);
         // 该文件正在分享
-        if (shareService.isExistByVFileId(vFileId))
+        Long shareParent = vFileService.getShareParent(vFileId);
+        if (!shareParent.equals(0L) && !shareParent.equals(2L))
             throw new BusinessException(CommonErrorCode.E_600006);
 
         // 0: 无需提取码 1: 需要提取码
@@ -85,6 +86,42 @@ public class ShareController {
         vFileService.update(vFileDTO);
 
         return Response.success().data(data);
+    }
+
+    @ApiOperation("隐藏文件(token)")
+    @PostMapping(value = "/hide")
+    @Token
+    public Response hide(@RequestParam("vFileId") Long vFileId) {
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+        VFileDTO vFileDTO = vFileService.query(vFileId);
+        // 文件与用户不匹配
+        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
+            throw new BusinessException(CommonErrorCode.E_600005);
+        // 该文件正在分享
+        if (shareService.isExistByVFileId(vFileId))
+            throw new BusinessException(CommonErrorCode.E_600021);
+
+        vFileDTO.setShareType(2);
+        vFileService.update(vFileDTO);
+        return Response.success().msg("隐藏成功");
+    }
+
+    @ApiOperation("显示文件(token)")
+    @PostMapping(value = "/show")
+    @Token
+    public Response show(@RequestParam("vFileId") Long vFileId) {
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+        VFileDTO vFileDTO = vFileService.query(vFileId);
+        // 文件与用户不匹配
+        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
+            throw new BusinessException(CommonErrorCode.E_600005);
+        // 该文件正在分享
+        if (shareService.isExistByVFileId(vFileId))
+            throw new BusinessException(CommonErrorCode.E_600021);
+
+        vFileDTO.setShareType(0);
+        vFileService.update(vFileDTO);
+        return Response.success().msg("显示成功");
     }
 
     @ApiOperation("取消分享文件(token)")
@@ -147,8 +184,8 @@ public class ShareController {
             vFileId = shareDTO.getVFileId();
 
         // vFileId与ticket不匹配
-        Long rootFileId = vFileService.isShared(vFileId);
-        if (!rootFileId.equals(shareDTO.getVFileId()))
+        Long shareParent = vFileService.getShareParent(vFileId);
+        if (!shareParent.equals(shareDTO.getVFileId()))
             throw new BusinessException(CommonErrorCode.E_600020);
 
         VFileDTO vFileDTO = vFileService.query(vFileId);
@@ -192,8 +229,8 @@ public class ShareController {
             limit = 10;
 
         // vFileId与ticket不匹配
-        Long rootFileId = vFileService.isShared(parentId);
-        if (!rootFileId.equals(shareDTO.getVFileId()))
+        Long shareParent = vFileService.getShareParent(parentId);
+        if (!shareParent.equals(shareDTO.getVFileId()))
             throw new BusinessException(CommonErrorCode.E_600020);
 
         List<VFileDTO> vFileDTOs;
