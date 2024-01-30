@@ -291,7 +291,7 @@ public class VFileServiceImpl implements VFileService {
     public Long getShareParent(Long vFileId) throws BusinessException {
         VFileDTO vFileDTO = this.query(vFileId);
         while (vFileDTO.getShareType().equals(0)) {
-            if (vFileDTO.getParentId().equals(0)) // 父节点为根目录
+            if (vFileDTO.getParentId().equals(0L)) // 父节点为根目录
                 return 0L;
             vFileDTO = this.query(vFileDTO.getParentId());
         }
