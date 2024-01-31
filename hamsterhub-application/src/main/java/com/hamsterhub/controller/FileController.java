@@ -450,16 +450,34 @@ public class FileController {
                          @RequestParam("parentId") Long parentId) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         VFileDTO vFileDTO = vFileService.query(vFileId);
+        VFileDTO vParentDTO;
+        if (parentId.equals(0L)) {
+            vParentDTO = VFileDTO.rootFileDTO();
+            vParentDTO.setAccountID(accountDTO.getId());
+            vParentDTO.setStrategyId(vFileDTO.getStrategyId());
+        }
+        else
+            vParentDTO = vFileService.query(parentId);
         // 文件与用户不匹配
         if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
             throw new BusinessException(CommonErrorCode.E_600005);
 
         // 目标文件不为目录
-        if (!vFileService.query(parentId).isDir())
+        if (!vParentDTO.isDir())
             throw new BusinessException(CommonErrorCode.E_600013);
+        // 文件与目标目录不属于同策略
+        if (!vFileDTO.getStrategyId().equals(vParentDTO.getStrategyId()))
+            throw new BusinessException(CommonErrorCode.E_600022);
         // 目标目录已存在同名文件
         if (vFileService.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), parentId, vFileDTO.getName()))
             throw new BusinessException(CommonErrorCode.E_600016);
+        // 目标目录是文件的子目录
+        VFileDTO tmpVFileDTO = vParentDTO;
+        while (!tmpVFileDTO.getId().equals(0L)) {
+            if (tmpVFileDTO.getId().equals(vParentDTO.getId()))
+                throw new BusinessException(CommonErrorCode.E_600023);
+            tmpVFileDTO = vFileService.query(tmpVFileDTO.getParentId());
+        }
 
         List<VFileDTO> vFileDTOs = vFileService.query(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), vFileDTO.getParentId(), vFileDTO.getName());
         for (VFileDTO i: vFileDTOs) {

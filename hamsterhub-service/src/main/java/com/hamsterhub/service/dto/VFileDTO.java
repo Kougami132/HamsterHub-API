@@ -54,4 +54,12 @@ public class VFileDTO {
     public Boolean isDir() {
         return this.type.equals(0);
     }
+
+    public static VFileDTO rootFileDTO() {
+        VFileDTO vFileDTO = new VFileDTO();
+        vFileDTO.setId(0L);
+        vFileDTO.setParentId(0L);
+        vFileDTO.setType(0);
+        return vFileDTO;
+    }
 }
