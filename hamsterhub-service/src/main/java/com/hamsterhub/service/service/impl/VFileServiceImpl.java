@@ -70,7 +70,7 @@ public class VFileServiceImpl implements VFileService {
                 throw new BusinessException(CommonErrorCode.E_600013);
         }
         // 目录已存在
-        if (vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getParentId, vFileDTO.getParentId()).eq(VFile::getName, vFileDTO.getName())) > 0)
+        if (vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getStrategyId, vFileDTO.getStrategyId()).eq(VFile::getParentId, vFileDTO.getParentId()).eq(VFile::getName, vFileDTO.getName())) > 0)
             throw new BusinessException(CommonErrorCode.E_600014);
 
         VFile entity = VFileConvert.INSTANCE.dto2entity(vFileDTO);
