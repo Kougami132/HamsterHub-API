@@ -121,8 +121,11 @@ public class FileController {
             num ++;
         }
 
-        if (vFileDTO == null)
+        if (vFileDTO == null) {
             vFileDTO = vFileService.query(vFileId);
+            vFileDTOs = vFileService.query(accountDTO.getId(), vFileDTO.getStrategyId(), vFileDTO.getParentId(), vFileDTO.getName());
+        }
+
 
         VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileDTO);
 
