@@ -29,6 +29,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -97,9 +98,11 @@ public class FileController {
         }
         num ++;
         VFileDTO vFileDTO = null;
+        List<VFileDTO> vFileDTOs = null;
         while (num <= split.size() - 1) {
             String name = split.get(num);
-            vFileDTO = vFileService.query(accountDTO.getId(), root, vFileId, name).get(0);
+            vFileDTOs = vFileService.query(accountDTO.getId(), root, vFileId, name);
+            vFileDTO = vFileDTOs.get(0);
 
             vFileId = vFileDTO.getId();
 
@@ -127,7 +130,12 @@ public class FileController {
         if (data.getType().equals(0))
             data.setSize(vFileService.queryCount(vFileDTO.getId()).toString());
 
-        return Response.success().data(data);
+        List<VFileResponse> dataList = new ArrayList<>();
+        if (vFileDTO.getVersion().equals(1))
+            dataList.add(data);
+        else
+            dataList = VFileConvert.INSTANCE.dto2resBatch(vFileDTOs);
+        return Response.success().data(dataList);
     }
 
     @ApiOperation("查看文件列表(token)")
