@@ -6,16 +6,16 @@ server:
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/hamster_db?useSSL=false&autoReconnect=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
-    username: root
-    password: 1329623049
-#    initialization-mode: always
+    url: jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/hamster_db?createDatabaseIfNotExist=true&autoReconnect=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: ${MYSQL_USERNAME}
+    password: ${MYSQL_PASSWORD}
+    initialization-mode: always
     schema: classpath:schema.sql
     data: classpath:data.sql
   redis:
-    host: localhost
-    port: 6379
-    password: 1329623049
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
   tomcat:
     max-http-form-post-size: 200MB
   servlet:

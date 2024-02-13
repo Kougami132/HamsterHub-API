@@ -1,0 +1,50 @@
+version: '3'
+services:
+  api:
+    image: kougami132/hamsterhub-api
+    container_name: hh-api
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    volumes:
+      - ./uploads:/app/uploads
+    environment:
+      - MYSQL_HOST=mysql
+      - MYSQL_PORT=3306
+      - MYSQL_USERNAME=root
+      - MYSQL_PASSWORD=1329623049
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=1329623049
+    depends_on:
+      - mysql
+      - redis
+
+  mysql:
+    image: mysql:8.0.33
+    container_name: hh-mysql
+    restart: unless-stopped
+    expose:
+      - '3306'
+    volumes:
+      - ./data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=1329623049
+      - TZ=Asia/Shanghai
+
+  redis:
+    image: redis:6.0
+    container_name: hh-redis
+    restart: unless-stopped
+    expose:
+      - '6379'
+    volumes:
+      - ./redis/data:/data
+      - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis/logs:/logs
+    command:
+      redis-server /usr/local/etc/redis/redis.conf --requirepass 1329623049
+
+networks:
+  default:
+    name: network_hh

@@ -5,8 +5,8 @@ USE hamster_db;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-DROP TABLE IF EXISTS `account`;
-CREATE TABLE `account` (
+# DROP TABLE IF EXISTS `account`;
+CREATE TABLE IF NOT EXISTS `account` (
                            `ID` bigint(20) NOT NULL COMMENT '主键',
                            `USERNAME` varchar(50) NOT NULL COMMENT '用户名',
                            `PASSWORD` varchar(50) NOT NULL COMMENT '密码',
@@ -15,8 +15,8 @@ CREATE TABLE `account` (
                            PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-DROP TABLE IF EXISTS `device`;
-CREATE TABLE `device` (
+# DROP TABLE IF EXISTS `device`;
+CREATE TABLE IF NOT EXISTS `device` (
                           `ID` bigint(20) NOT NULL COMMENT '主键',
                           `NAME` varchar(50) NOT NULL UNIQUE COMMENT '设备名称',
                           `TYPE` bigint(10) NOT NULL COMMENT '设备类型',
@@ -25,8 +25,8 @@ CREATE TABLE `device` (
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-DROP TABLE IF EXISTS `strategy`;
-CREATE TABLE `strategy` (
+# DROP TABLE IF EXISTS `strategy`;
+CREATE TABLE IF NOT EXISTS `strategy` (
                             `ID` bigint(20) NOT NULL COMMENT '主键',
                             `NAME` varchar(50) NOT NULL UNIQUE COMMENT '配置名称',
                             `TYPE` bigint(10) NOT NULL COMMENT '存储策略（聚合、备份）',
@@ -36,16 +36,16 @@ CREATE TABLE `strategy` (
                             PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-DROP TABLE IF EXISTS `device_strategy`;
-CREATE TABLE `device_strategy` (
+# DROP TABLE IF EXISTS `device_strategy`;
+CREATE TABLE IF NOT EXISTS `device_strategy` (
                                    `ID` bigint(20) NOT NULL COMMENT '主键',
                                    `DEVICE_ID` bigint(20) NOT NULL UNIQUE COMMENT '设备ID',
                                    `STRATEGY_ID` bigint(20) NOT NULL COMMENT '存储策略ID',
                                    PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-DROP TABLE IF EXISTS `r_file`;
-CREATE TABLE `r_file` (
+# DROP TABLE IF EXISTS `r_file`;
+CREATE TABLE IF NOT EXISTS `r_file` (
                           `ID` bigint(20) NOT NULL COMMENT '主键',
                           `NAME` varchar(50) NOT NULL COMMENT '文件名',
                           `HASH` varchar(50) NOT NULL COMMENT '文件hash',
@@ -55,8 +55,8 @@ CREATE TABLE `r_file` (
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-DROP TABLE IF EXISTS `v_file`;
-CREATE TABLE `v_file` (
+# DROP TABLE IF EXISTS `v_file`;
+CREATE TABLE IF NOT EXISTS `v_file` (
                           `ID` bigint(20) NOT NULL COMMENT '主键',
                           `TYPE` bigint(10) NOT NULL COMMENT '文件类型',
                           `NAME` varchar(50) NOT NULL COMMENT '文件名',
@@ -72,8 +72,8 @@ CREATE TABLE `v_file` (
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-DROP TABLE IF EXISTS `file_link`;
-CREATE TABLE `file_link` (
+# DROP TABLE IF EXISTS `file_link`;
+CREATE TABLE IF NOT EXISTS `file_link` (
                           `ID` bigint(20) NOT NULL COMMENT '主键',
                           `TICKET` varchar(50) NOT NULL UNIQUE COMMENT '分享码',
                           `R_FILE_ID` bigint(20) NOT NULL COMMENT '实际文件id',
@@ -81,8 +81,8 @@ CREATE TABLE `file_link` (
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-DROP TABLE IF EXISTS `share`;
-CREATE TABLE `share` (
+# DROP TABLE IF EXISTS `share`;
+CREATE TABLE IF NOT EXISTS `share` (
                           `ID` bigint(20) NOT NULL COMMENT '主键',
                           `TYPE` bigint(10) NOT NULL COMMENT '分享类型(公开、私有)',
                           `TICKET` varchar(50) NOT NULL UNIQUE COMMENT '分享码',
