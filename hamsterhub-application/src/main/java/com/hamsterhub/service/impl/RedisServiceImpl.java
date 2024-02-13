@@ -19,6 +19,30 @@ public class RedisServiceImpl implements RedisService {
     private RedisTemplate<String, String> redisTemplate;
 
     @Override
+    public void addToken(Long accountId, String token) throws BusinessException {
+        String key = this.prefix + ":token:" + accountId;
+        redisTemplate.opsForSet().add(key, token);
+    }
+
+    @Override
+    public Boolean checkToken(Long accountId, String token) throws BusinessException {
+        String key = this.prefix + ":token:" + accountId;
+        return redisTemplate.opsForSet().isMember(key, token);
+    }
+
+    @Override
+    public void delToken(Long accountId, String token) throws BusinessException {
+        String key = this.prefix + ":token:" + accountId;
+        redisTemplate.opsForSet().remove(key, token);
+    }
+
+    @Override
+    public void delAllToken(Long accountId) throws BusinessException {
+        String key = this.prefix + ":token:" + accountId;
+        redisTemplate.delete(key);
+    }
+
+    @Override
     public Long getFileId(String root, Long accountId, String path) throws BusinessException {
         String key = this.prefix + ":" + root + ":" + accountId + ":" + path;
         String s = redisTemplate.opsForValue().get(key);

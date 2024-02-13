@@ -4,6 +4,7 @@ import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.JwtUtil;
+import com.hamsterhub.service.RedisService;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,8 @@ public class TokenInterceptor extends HandlerInterceptorAdapter {
 
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private RedisService redisService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -35,17 +38,19 @@ public class TokenInterceptor extends HandlerInterceptorAdapter {
         // 验证token
         if (request.getHeaders("Authorization").hasMoreElements()) {
             String token = request.getHeader("Authorization").replace("Bearer ", "");
-            if (JwtUtil.checkToken(token)) {
-                // 判断权限
+            if (JwtUtil.checkToken(token)) { // 检查JWT
                 String username = JwtUtil.getUsername(token);
                 AccountDTO accountDTO = accountService.query(username);
-                String type = accountDTO.getType().toString();
-                String[] groups = annotation.value().split(" ");
-                if (groups[0].equals("") || accountDTO.isAdmin())
-                    return true;
-                for (String i: groups)
-                    if (i.equals(type))
+                if (redisService.checkToken(accountDTO.getId(), token)) { // 检查token白名单
+                    // 判断权限
+                    String type = accountDTO.getType().toString();
+                    String[] groups = annotation.value().split(" ");
+                    if (groups[0].equals("") || accountDTO.isAdmin())
                         return true;
+                    for (String i: groups)
+                        if (i.equals(type))
+                            return true;
+                }
             }
         }
 

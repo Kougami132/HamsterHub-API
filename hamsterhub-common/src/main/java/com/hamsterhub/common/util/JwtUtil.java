@@ -10,16 +10,15 @@ import java.util.UUID;
 
 public class JwtUtil {
     private static String secretKey = "j132o132k132e132r";
-    private static Long expiryTime = 1000L * 60 * 60 * 24 * 30;
 
-    public static String createToken(String username) {
+    public static String createToken(Long accountId, String username, Integer expiryDay) {
         JwtBuilder jwtBuilder = Jwts.builder();
         String token = jwtBuilder
                 .setHeaderParam("typ", "JWT")
                 .setHeaderParam("alg", "HS256")
                 .claim("username", username)
                 .setSubject("token")
-                .setExpiration(new Date(System.currentTimeMillis() + expiryTime))
+                .setExpiration(new Date(System.currentTimeMillis() + 1000L * 60 * 60 * 24 * expiryDay))
                 .setId(UUID.randomUUID().toString())
                 .signWith(SignatureAlgorithm.HS256, secretKey)
                 .compact();

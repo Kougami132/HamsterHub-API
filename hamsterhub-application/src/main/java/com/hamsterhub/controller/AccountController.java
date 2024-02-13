@@ -8,6 +8,7 @@ import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.convert.AccountConvert;
 import com.hamsterhub.response.LoginResponse;
 import com.hamsterhub.response.Response;
+import com.hamsterhub.service.RedisService;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.service.AccountService;
 import com.hamsterhub.util.SecurityUtil;
@@ -16,7 +17,9 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.web3j.abi.datatypes.Bool;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -31,6 +34,8 @@ public class AccountController {
 
     @Autowired
     private AccountService accountService;
+    @Autowired
+    private RedisService redisService;
 
     @ApiOperation("用户类型")
     @GetMapping(value = "/accountType")
@@ -48,7 +53,8 @@ public class AccountController {
         accountDTO.setType(1);
         accountDTO = accountService.create(accountDTO);
 
-        String token = JwtUtil.createToken(accountDTO.getUsername());
+        String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), 1);
+        redisService.addToken(accountDTO.getId(), token);
         LoginResponse data = new LoginResponse(accountVO.getUsername(), token);
         return Response.success().msg("注册成功").data(data);
     }
@@ -56,7 +62,8 @@ public class AccountController {
     @ApiOperation("登录账号")
     @PostMapping(value = "/loginAccount")
     public Response LoginAccount(@RequestParam("username") String username,
-                                 @RequestParam("password") String password) {
+                                 @RequestParam("password") String password,
+                                 @RequestParam(value = "lasting", required = false) Boolean lasting) {
         // 统一小写
         username = username.toLowerCase();
 
@@ -65,7 +72,12 @@ public class AccountController {
         if (!accountDTO.getPassword().equals(MD5Util.getMd5(password)))
             throw new BusinessException(CommonErrorCode.E_200016);
 
-        String token = JwtUtil.createToken(accountDTO.getUsername());
+        Integer expiryDay;
+        if (Boolean.TRUE.equals(lasting)) expiryDay = 30;
+        else expiryDay = 1;
+        String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), expiryDay);
+        redisService.addToken(accountDTO.getId(), token);
+
         LoginResponse data = new LoginResponse(accountDTO.getUsername(), token);
         return Response.success().msg("登录成功").data(data);
     }
@@ -82,20 +94,41 @@ public class AccountController {
 
         accountDTO.setPassword(MD5Util.getMd5(newPassword));
         accountService.update(accountDTO);
-        return Response.success().msg("密码修改成功");
+
+        // 清空token
+        redisService.delAllToken(accountDTO.getId());
+        String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), 7);
+        redisService.addToken(accountDTO.getId(), token);
+
+        return Response.success().msg("密码修改成功").data(token);
+    }
+
+    @ApiOperation("注销(token)")
+    @PostMapping(value = "/logout")
+    @Token
+    public Response logout(HttpServletRequest request) {
+        String token = request.getHeader("Authorization").replace("Bearer ", "");
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+        redisService.delToken(accountDTO.getId(), token);
+        return Response.success().msg("注销成功");
     }
 
     @ApiOperation("校验Token")
     @GetMapping(value = "/checkToken")
-    public Boolean checkToken(@RequestParam("token") String token) {
-        return JwtUtil.checkToken(token);
+    @Token
+    public Response checkToken() {
+        return Response.success();
     }
 
     @ApiOperation("刷新Token")
     @GetMapping(value = "/refreshToken")
-    public Response refreshToken(@RequestParam("token") String token) {
+    @Token
+    public Response refreshToken(HttpServletRequest request) {
+        String oldToken = request.getHeader("Authorization").replace("Bearer ", "");
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        String newToken = JwtUtil.createToken(accountDTO.getUsername());
+        String newToken = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), 7);
+        redisService.delToken(accountDTO.getId(), oldToken);
+        redisService.addToken(accountDTO.getId(), newToken);
         LoginResponse data = new LoginResponse(accountDTO.getUsername(), newToken);
         return Response.success().data(data);
     }
