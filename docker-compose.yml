@@ -12,10 +12,10 @@ services:
       - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
       - MYSQL_USERNAME=root
-      - MYSQL_PASSWORD=1329623049
+      - MYSQL_PASSWORD=<PASSWORD> # 自行修改密码
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - REDIS_PASSWORD=1329623049
+      - REDIS_PASSWORD=<PASSWORD> # 自行修改密码
     depends_on:
       - mysql
       - redis
@@ -29,7 +29,7 @@ services:
     volumes:
       - ./data:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=1329623049
+      - MYSQL_ROOT_PASSWORD=<PASSWORD> # 需和上面的MYSQL_PASSWORD一致
       - TZ=Asia/Shanghai
 
   redis:
@@ -43,7 +43,7 @@ services:
       - ./redis/redis.conf:/usr/local/etc/redis/redis.conf
       - ./redis/logs:/logs
     command:
-      redis-server /usr/local/etc/redis/redis.conf --requirepass 1329623049
+      redis-server /usr/local/etc/redis/redis.conf --requirepass <PASSWORD> # 需和上面的REDIS_PASSWORD一致
 
 networks:
   default:
