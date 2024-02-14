@@ -510,13 +510,11 @@ public class FileController {
         return Response.success().msg("上传成功");
     }
 
-    @ApiOperation("上传头像(token)")
+    @ApiOperation("上传头像")
     @GetMapping(value = "/queryAvatar")
-    @Token
-    public void queryAvatar(HttpServletResponse response) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-
-        String imageUrl = fileService.queryAvatar(accountDTO.getId());
+    public void queryAvatar(@RequestParam("accountId") Long accountId,
+                            HttpServletResponse response) {
+        String imageUrl = fileService.queryAvatar(accountId);
 
         FileInputStream in = null;
         OutputStream out = null;
