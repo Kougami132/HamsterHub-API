@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.lang.model.element.AnnotationValueVisitor;
 import java.io.File;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
@@ -106,8 +107,22 @@ public class FileServiceImpl implements FileService {
         storage.delete(rFileDTO.getPath());
     }
 
+    // 初始化
+    private static void initAvatar() {
+        File dir = new File("avatars");
+        if (!dir.exists()) dir.mkdirs();
+        File source = new File("assets/default.png");
+        File dest = new File("avatars/default.png");
+        if (!dest.exists())
+            try {
+                Files.copy(source.toPath(), dest.toPath());
+            } catch (Exception e) {
+                throw new BusinessException(CommonErrorCode.E_500007);
+            }
+    }
+
     // 获取文件后缀
-    public static String getFileExtension(MultipartFile file) {
+    private static String getFileExtension(MultipartFile file) {
         // 获取文件名
         String fileName = file.getOriginalFilename();
 
@@ -120,7 +135,7 @@ public class FileServiceImpl implements FileService {
     }
 
     // 寻找头像文件
-    public static String findAvatar(Long id) {
+    private static String findAvatar(Long id) {
         List<String> imageTypes = Stream.of("png", "jpg").collect(toList());
 
         // 构建文件对象
@@ -141,6 +156,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public void uploadAvatar(Long accountId, MultipartFile file) throws BusinessException {
+        initAvatar();
         String extension = getFileExtension(file);
         // 头像已存在则删除
         String avatar = findAvatar(accountId);
@@ -159,6 +175,7 @@ public class FileServiceImpl implements FileService {
 
     @Override
     public String queryAvatar(Long accountId) throws BusinessException {
+        initAvatar();
         return "avatars/" + findAvatar(accountId);
     }
 
