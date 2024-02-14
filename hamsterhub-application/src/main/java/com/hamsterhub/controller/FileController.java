@@ -28,11 +28,16 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLEncoder;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @RestController
 @Api(tags = "文件传输 数据接口")
@@ -198,6 +203,11 @@ public class FileController {
         if (StringUtil.isBlank(name))
             throw new BusinessException(CommonErrorCode.E_600004);
 
+        // 文件大小校验
+        double imageSize = (double) file.getSize() / 1024 / 1024;
+        if (imageSize > 200)
+            throw new BusinessException(CommonErrorCode.E_500005);
+
         // 覆盖
         // 文件是否存在,存在则版本号+1
         Integer version = 1;
@@ -225,8 +235,7 @@ public class FileController {
     @ApiOperation("获取文件直链(token)")
     @GetMapping(value = "/getDownloadUrl")
     @Token
-    public Response getDownloadUrl(@RequestParam("vFileId") Long vFileId,
-                             HttpServletResponse response) {
+    public Response getDownloadUrl(@RequestParam("vFileId") Long vFileId) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         VFileDTO vFileDTO = vFileService.query(vFileId);
         // 文件与用户不匹配
@@ -285,53 +294,26 @@ public class FileController {
             throw new BusinessException(CommonErrorCode.E_500001);
 
         String result = fileService.download(rFileDTO);
-        // 返回文件
-//        try {
-//            File file = new File(result);
-//            // 将文件写入输入流
-//            FileInputStream fileInputStream = new FileInputStream(file);
-//            InputStream fis = new BufferedInputStream(fileInputStream);
-//            byte[] buffer = new byte[fis.available()];
-//            fis.read(buffer);
-//            fis.close();
-//
-//            // 清空response
-//            response.reset();
-//            // 设置response的Header
-//            response.setCharacterEncoding("UTF-8");
-//            //Content-Disposition的作用：告知浏览器以何种方式显示响应返回的文件，用浏览器打开还是以附件的形式下载到本地保存
-//            //attachment表示以附件方式下载   inline表示在线打开   "Content-Disposition: inline; filename=文件名.mp3"
-//            // filename表示文件的默认名称，因为网络传输只支持URL编码的相关支付，因此需要将文件名URL编码后进行传输,前端收到后需要反编码才能获取到真正的名称
-//            response.addHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
-//            // 告知浏览器文件的大小
-//            response.addHeader("Content-Length", "" + file.length());
-//            OutputStream outputStream = new BufferedOutputStream(response.getOutputStream());
-//            response.setContentType("application/octet-stream");
-//            outputStream.write(buffer);
-//            outputStream.flush();
-//        }
-//        catch (Exception e) {
-//            e.printStackTrace();
-//        }
 
+        // 返回文件 断点续传
         RandomAccessFile targetFile = null;
         OutputStream outputStream = null;
         try {
             outputStream = response.getOutputStream();
             response.reset();
-            //获取请求头中Range的值
+            // 获取请求头中Range的值
             String rangeString = request.getHeader(HttpHeaders.RANGE);
 
-            //打开文件
+            // 打开文件
             File file = new File(result);
             if (file.exists()) {
-                //使用RandomAccessFile读取文件
+                // 使用RandomAccessFile读取文件
                 targetFile = new RandomAccessFile(file, "r");
                 long fileLength = targetFile.length();
                 long requestSize = (int) fileLength;
-                //分段下载视频
+                // 分段下载视频
                 if (StringUtils.hasText(rangeString)) {
-                    //从Range中提取需要获取数据的开始和结束位置
+                    // 从Range中提取需要获取数据的开始和结束位置
                     long requestStart = 0, requestEnd = 0;
                     String[] ranges = rangeString.split("=");
                     if (ranges.length > 1) {
@@ -342,7 +324,7 @@ public class FileController {
                     }
                     if (requestEnd != 0 && requestEnd > requestStart)
                         requestSize = requestEnd - requestStart + 1;
-                    //根据协议设置请求头
+                    // 根据协议设置请求头
                     response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
                     response.setHeader(HttpHeaders.CONTENT_TYPE, "video/mp4");
                     if (!StringUtils.hasText(rangeString))
@@ -360,19 +342,19 @@ public class FileController {
                             response.setHeader(HttpHeaders.CONTENT_RANGE, "bytes " + requestStart + "-" + (fileLength - 1) + "/" + fileLength);
                         }
                     }
-                    //断点传输下载视频返回206
+                    // 断点传输下载视频返回206
                     response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
                     //设置targetFile，从自定义位置开始读取数据
                     targetFile.seek(requestStart);
                 }
                 else {
-                    //如果Range为空则下载整个视频
+                    // 如果Range为空则下载整个视频
                     response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
-                    //设置文件长度
+                    // 设置文件长度
                     response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileLength));
                 }
 
-                //从磁盘读取数据流返回
+                // 从磁盘读取数据流返回
                 byte[] cache = new byte[4096];
                 try {
                     while (requestSize > 0) {
@@ -389,7 +371,7 @@ public class FileController {
                 }
                 catch (IOException e) {
                     // tomcat原话。写操作IO异常几乎总是由于客户端主动关闭连接导致，所以直接吃掉异常打日志
-                    //比如使用video播放视频时经常会发送Range为0- 的范围只是为了获取视频大小，之后就中断连接了
+                    // 比如使用video播放视频时经常会发送Range为0- 的范围只是为了获取视频大小，之后就中断连接了
                     System.out.println(e.getMessage());
                 }
             }
@@ -497,6 +479,69 @@ public class FileController {
         }
 
         return Response.success().msg("移动成功");
+    }
+
+    @ApiOperation("上传头像(token)")
+    @PostMapping(value = "/uploadAvatar")
+    @Token
+    public Response uploadAvatar(@RequestParam("file") MultipartFile file) {
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+
+        // 格式校验
+        List<String> uploadImageTypes = Stream.of("image/png", "image/jpeg").collect(toList());
+        String fileType = file.getContentType();
+        boolean flag = false;
+        for (String type : uploadImageTypes) {
+            if (fileType.equals(type)) {
+                flag = true;
+                break;
+            }
+        }
+        if (!flag)
+            throw new BusinessException(CommonErrorCode.E_500004);
+
+        // 文件大小校验
+        double imageSize = (double) file.getSize() / 1024 / 1024;
+        if (imageSize > 2)
+            throw new BusinessException(CommonErrorCode.E_500005);
+
+        fileService.uploadAvatar(accountDTO.getId(), file);
+
+        return Response.success().msg("上传成功");
+    }
+
+    @ApiOperation("上传头像(token)")
+    @GetMapping(value = "/queryAvatar")
+    @Token
+    public void queryAvatar(HttpServletResponse response) {
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+
+        String imageUrl = fileService.queryAvatar(accountDTO.getId());
+
+        FileInputStream in = null;
+        OutputStream out = null;
+        try {
+            File file = new File(imageUrl);
+            in = new FileInputStream(imageUrl);
+            int i = in.available();
+            byte[] buffer = new byte[i];
+            in.read(buffer);
+            //设置输出流内容格式为图片格式
+            response.setContentType("image/jpeg");
+            //response的响应的编码方式为utf-8
+            response.setCharacterEncoding("utf-8");
+            out = response.getOutputStream();
+            out.write(buffer);
+        } catch (Exception e) {
+            throw new BusinessException(CommonErrorCode.E_NETWORK_ERROR);
+        } finally {
+            try {
+                in.close();
+                out.close();
+            } catch (IOException e) {
+                throw new BusinessException(CommonErrorCode.E_NETWORK_ERROR);
+            }
+        }
     }
 
 }

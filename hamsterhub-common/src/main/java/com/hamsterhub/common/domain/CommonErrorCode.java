@@ -53,6 +53,9 @@ public enum CommonErrorCode implements ErrorCode {
 	E_500001(500001,"文件不存在(r)"),
 	E_500002(500002,"相同hash值的文件已存在"),
 	E_500003(500003,"hash值为空"),
+	E_500004(500004,"图片格式错误"),
+	E_500005(500005,"文件过大"),
+	E_500006(500006,"上传失败"),
 
 	// 虚拟文件异常编码 600
 	E_600001(600001,"文件不存在(v)"),
@@ -84,6 +87,7 @@ public enum CommonErrorCode implements ErrorCode {
 	E_700002(700002,"阿里云盘文件上传出错"),
 
 	// 其它
+	E_NETWORK_ERROR(999996, "网络错误"),
 	E_NO_PERMISSION(999997, "访问权限不足"),
 	E_NO_AUTHORITY(999998,"未登录或登录信息已过期"),
 	/**

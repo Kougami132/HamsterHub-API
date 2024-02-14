@@ -17,8 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.lang.model.element.AnnotationValueVisitor;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Stream;
+
+import static java.util.stream.Collectors.toList;
 
 @Service
 public class FileServiceImpl implements FileService {
@@ -99,6 +104,62 @@ public class FileServiceImpl implements FileService {
         DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
         Storage storage = storageService.getInstance(deviceDTO);
         storage.delete(rFileDTO.getPath());
+    }
+
+    // 获取文件后缀
+    public static String getFileExtension(MultipartFile file) {
+        // 获取文件名
+        String fileName = file.getOriginalFilename();
+
+        // 获取文件后缀
+        if (fileName != null && fileName.lastIndexOf(".") != -1) {
+            return fileName.substring(fileName.lastIndexOf(".") + 1);
+        } else {
+            return ""; // 没有后缀名
+        }
+    }
+
+    // 寻找头像文件
+    public static String findAvatar(Long id) {
+        List<String> imageTypes = Stream.of("png", "jpg").collect(toList());
+
+        // 构建文件对象
+        File folder = new File("avatars");
+
+        // 遍历文件夹中的文件
+        File[] files = folder.listFiles();
+        if (files != null)
+            for (File file : files)
+                for (String type: imageTypes)
+                    if (file.isFile() && (file.getName().equalsIgnoreCase(String.format("%s.%s", id, type))))
+                        return file.getName();
+
+
+        // 如果没有找到匹配的文件，则返回默认图片
+        return "default.png";
+    }
+
+    @Override
+    public void uploadAvatar(Long accountId, MultipartFile file) throws BusinessException {
+        String extension = getFileExtension(file);
+        // 头像已存在则删除
+        String avatar = findAvatar(accountId);
+        if (!avatar.equals("default.jpg"))
+            new File("avatars/" + avatar).delete();
+        String imageUrl = String.format("%s/avatars/%s.%s", System.getProperty("user.dir"), accountId, extension);
+        File imageFile = new File(imageUrl);
+        try {
+            file.transferTo(imageFile);
+        } catch (Exception e) {
+            throw new BusinessException(CommonErrorCode.E_500006);
+        }
+    }
+
+
+
+    @Override
+    public String queryAvatar(Long accountId) throws BusinessException {
+        return "avatars/" + findAvatar(accountId);
     }
 
 }
