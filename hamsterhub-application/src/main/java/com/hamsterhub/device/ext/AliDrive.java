@@ -89,12 +89,12 @@ public class AliDrive extends Storage {
             queryToken(this.refreshToken);
             getSession();
             queryDriveId();
-            this.device.setConfigured(true);
+            this.device.setConnected(true);
         }
         catch (Exception e) {
             e.printStackTrace();
 //            throw new BusinessException(CommonErrorCode.E_300006);
-            this.device.setConfigured(false);
+            this.device.setConnected(false);
         }
     }
 
