@@ -12,5 +12,6 @@ public interface DeviceService {
     DeviceDTO query(Long deviceId) throws BusinessException;
     List<DeviceDTO> queryBatch() throws BusinessException;
     Boolean isExist(Long deviceId) throws BusinessException;
+    Boolean isLocalExist(String path) throws BusinessException;
     void configured(Long deviceId, boolean conf) throws BusinessException;
 }
