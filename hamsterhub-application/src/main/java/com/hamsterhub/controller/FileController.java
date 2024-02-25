@@ -467,7 +467,7 @@ public class FileController {
         // 目标目录是文件的子目录
         VFileDTO tmpVFileDTO = vParentDTO;
         while (!tmpVFileDTO.getId().equals(0L)) {
-            if (tmpVFileDTO.getId().equals(vParentDTO.getId()))
+            if (tmpVFileDTO.getId().equals(vFileDTO.getId()))
                 throw new BusinessException(CommonErrorCode.E_600023);
             tmpVFileDTO = vFileService.query(tmpVFileDTO.getParentId());
         }
