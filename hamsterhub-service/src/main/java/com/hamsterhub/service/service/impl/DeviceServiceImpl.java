@@ -31,7 +31,7 @@ public class DeviceServiceImpl implements DeviceService {
         if (deviceMapper.selectCount(new LambdaQueryWrapper<Device>().eq(Device::getName, deviceDTO.getName())) > 0)
             throw new BusinessException(CommonErrorCode.E_300002);
         // 该本地目录已存在设备
-        if (this.isLocalExist(deviceDTO.getParam()))
+        if (deviceMapper.selectCount(new LambdaQueryWrapper<Device>().eq(Device::getParam, deviceDTO.getParam())) > 0)
             throw new BusinessException(CommonErrorCode.E_300008);
 
         Device entity = DeviceConvert.INSTANCE.dto2entity(deviceDTO);
@@ -61,8 +61,9 @@ public class DeviceServiceImpl implements DeviceService {
         Wrapper exist = new LambdaQueryWrapper<Device>().eq(Device::getName, deviceDTO.getName());
         if (deviceMapper.selectCount(exist) > 0 && !deviceMapper.selectOne(exist).getId().equals(deviceDTO.getId()))
             throw new BusinessException(CommonErrorCode.E_300002);
+        exist = new LambdaQueryWrapper<Device>().eq(Device::getParam, deviceDTO.getParam());
         // 该本地目录已存在设备
-        if (this.isLocalExist(deviceDTO.getParam()))
+        if (deviceMapper.selectCount(exist) > 0 && !deviceMapper.selectOne(exist).getId().equals(deviceDTO.getId()))
             throw new BusinessException(CommonErrorCode.E_300008);
 
         Device entity = DeviceConvert.INSTANCE.dto2entity(deviceDTO);
@@ -91,11 +92,6 @@ public class DeviceServiceImpl implements DeviceService {
     @Override
     public Boolean isExist(Long deviceId) throws BusinessException {
         return deviceMapper.selectCount(new LambdaQueryWrapper<Device>().eq(Device::getId, deviceId)) > 0;
-    }
-
-    @Override
-    public Boolean isLocalExist(String path) throws BusinessException {
-        return deviceMapper.selectCount(new LambdaQueryWrapper<Device>().eq(Device::getParam, path)) > 0;
     }
 
     @Override
