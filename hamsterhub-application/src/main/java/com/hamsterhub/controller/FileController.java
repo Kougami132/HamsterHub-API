@@ -413,6 +413,9 @@ public class FileController {
         if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
             throw new BusinessException(CommonErrorCode.E_600005);
 
+        // 删除缓存
+        redisService.delFileId(strategyService.query(vFileDTO.getStrategyId()).getRoot(), accountDTO.getId(), vFileId);
+
         List<Long> delete = vFileService.delete(vFileDTO.getId());
         for (Long i: delete) {
             fileService.delete(rFileService.query(i));
@@ -510,7 +513,7 @@ public class FileController {
         return Response.success().msg("上传成功");
     }
 
-    @ApiOperation("上传头像")
+    @ApiOperation("获取头像")
     @GetMapping(value = "/queryAvatar")
     public void queryAvatar(@RequestParam("accountId") Long accountId,
                             HttpServletResponse response) {

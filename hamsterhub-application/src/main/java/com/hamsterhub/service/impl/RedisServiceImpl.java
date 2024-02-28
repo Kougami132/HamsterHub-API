@@ -64,6 +64,18 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
+    public void delFileId(String root, Long accountId, Long fileId) throws BusinessException {
+        Set<String> keys = redisTemplate.keys(this.prefix + ":" + root + ":" + accountId + ":*");
+        for (String key: keys) {
+            String value = redisTemplate.opsForValue().get(key);
+            if (value != null && value.equals(fileId.toString())) {
+                redisTemplate.delete(key);
+                return;
+            }
+        }
+    }
+
+    @Override
     public boolean isPathExist(String root, Long accountId, String path) throws BusinessException {
         String key = this.prefix + ":" + root + ":" + accountId + ":" + path;
         return redisTemplate.hasKey(key);
