@@ -37,8 +37,15 @@ public class RFileServiceImpl implements RFileService {
         if (StringUtil.isBlank(rFileDTO.getHash()))
             throw new BusinessException(CommonErrorCode.E_500003);
         // 相同hash值文件已存在
-        if (rFileMapper.selectCount(new LambdaQueryWrapper<RFile>().eq(RFile::getHash, rFileDTO.getHash())) > 0)
-            throw new BusinessException(CommonErrorCode.E_500002);
+        LambdaQueryWrapper<RFile> wrapper = new LambdaQueryWrapper<RFile>().eq(RFile::getHash, rFileDTO.getHash());
+        if (rFileMapper.selectCount(wrapper) > 0) {
+            // 同hash值文件是否在同一策略
+            Long strategyId = deviceStrategyService.queryStrategyId(rFileDTO.getDeviceId());
+            List<RFile> rFiles = rFileMapper.selectList(wrapper);
+            for (RFile rFile: rFiles)
+                if (deviceStrategyService.queryStrategyId(rFile.getDeviceId()).equals(strategyId))
+                    throw new BusinessException(CommonErrorCode.E_500002);
+        }
         // 设备不存在
         if (!deviceService.isExist(rFileDTO.getDeviceId()))
             throw new BusinessException(CommonErrorCode.E_300001);
