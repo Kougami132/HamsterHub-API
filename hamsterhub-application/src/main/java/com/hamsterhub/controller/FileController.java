@@ -468,11 +468,10 @@ public class FileController {
         if (vFileService.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), parentId, vFileDTO.getName()))
             throw new BusinessException(CommonErrorCode.E_600016);
         // 目标目录是文件的子目录
-        VFileDTO tmpVFileDTO = vParentDTO;
-        while (!tmpVFileDTO.getId().equals(0L)) {
-            if (tmpVFileDTO.getId().equals(vFileDTO.getId()))
+        while (!vParentDTO.getId().equals(0L) && !vParentDTO.getParentId().equals(0L)) {
+            if (vParentDTO.getParentId().equals(vFileDTO.getId()))
                 throw new BusinessException(CommonErrorCode.E_600023);
-            tmpVFileDTO = vFileService.query(tmpVFileDTO.getParentId());
+            vParentDTO = vFileService.query(vParentDTO.getParentId());
         }
 
         List<VFileDTO> vFileDTOs = vFileService.query(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), vFileDTO.getParentId(), vFileDTO.getName());
