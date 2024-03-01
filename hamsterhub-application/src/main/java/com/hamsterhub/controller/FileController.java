@@ -481,6 +481,9 @@ public class FileController {
             vFileService.update(i);
         }
 
+        // 移动后需要把原来路径的缓存删除
+        redisService.delFileId(strategyService.query(vFileDTO.getStrategyId()).getRoot(), accountDTO.getId(), vFileId);
+
         return Response.success().msg("移动成功");
     }
 
