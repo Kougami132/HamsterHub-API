@@ -69,7 +69,8 @@ public class RedisServiceImpl implements RedisService {
         for (String key: keys) {
             String value = redisTemplate.opsForValue().get(key);
             if (value != null && value.equals(fileId.toString())) {
-                redisTemplate.delete(key);
+                Set<String> deleteKeys = redisTemplate.keys(key + "*");
+                redisTemplate.delete(deleteKeys);
                 return;
             }
         }

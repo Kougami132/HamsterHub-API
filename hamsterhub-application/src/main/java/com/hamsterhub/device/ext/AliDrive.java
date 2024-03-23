@@ -137,15 +137,25 @@ public class AliDrive extends Storage {
 
     @Override
     public Long getTotalSize() {
-        if (this.total == null)
-            querySize();
+        try {
+            if (this.total == null)
+                querySize();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         return this.total;
     }
 
     @Override
     public Long getUsableSize() {
-        if (this.usable == null)
-            querySize();
+        try {
+            if (this.usable == null)
+                querySize();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
         return this.usable;
     }
 
