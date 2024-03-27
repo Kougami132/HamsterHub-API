@@ -64,8 +64,8 @@ public class AliDrive extends Storage {
     private String refreshToken;
     private String token;
     private String userId;
-    private Long total;
-    private Long usable;
+    private Long total = 0L;
+    private Long usable = 0L;
     private String driveId;
     private long partSize = 1024 * 1024 * 5;
 
@@ -138,7 +138,7 @@ public class AliDrive extends Storage {
     @Override
     public Long getTotalSize() {
         try {
-            if (this.total == null)
+            if (this.total.equals(0L))
                 querySize();
         }
         catch (Exception e) {
@@ -150,7 +150,7 @@ public class AliDrive extends Storage {
     @Override
     public Long getUsableSize() {
         try {
-            if (this.usable == null)
+            if (this.usable.equals(0L))
                 querySize();
         }
         catch (Exception e) {
