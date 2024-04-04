@@ -73,14 +73,7 @@ public class StrategyController {
                 strategyResponse.setDeviceIds(deviceStrategyService.queryDeviceIds(i.getId()).stream()
                         .map(Objects::toString)
                         .collect(toList()));
-                Long total = 0L, usable = 0L;
-                for (String j: strategyResponse.getDeviceIds()) {
-                    DeviceDTO deviceDTO = deviceService.query(Long.parseLong(j));
-                    Storage storage = storageService.getInstance(deviceDTO);
-                    total += storage.getTotalSize();
-                    usable += storage.getUsableSize();
-                }
-                strategyResponse.setSize(new SizeResponse(total, usable));
+
                 data.add(strategyResponse);
             }
         }
@@ -194,8 +187,33 @@ public class StrategyController {
         }
         return res;
     }
+
     private Boolean hasPermission(List<Integer> permission, Integer type) {
         return permission.contains(type);
+    }
+
+    @ApiOperation("策略容量(admin)")
+    @GetMapping(value = "/queryStrategySize")
+    public Response queryStrategySize(@RequestParam("strategyId") Long strategyId) {
+        // 策略不存在
+        if (!strategyService.isExist(strategyId))
+            throw new BusinessException(CommonErrorCode.E_400001);
+
+        StrategyDTO strategyDTO = strategyService.query(strategyId);
+        List<Long> deviceIds = deviceStrategyService.queryDeviceIds(strategyDTO.getId());
+
+        Long total = 0L, usable = 0L;
+        for (Long deviceId: deviceIds) {
+            DeviceDTO deviceDTO = deviceService.query(deviceId);
+            Storage storage = storageService.getInstance(deviceDTO);
+            // 设备连接失败
+            if (!deviceDTO.isConnected())
+                throw new BusinessException(CommonErrorCode.E_300006);
+            total += storage.getTotalSize();
+            usable += storage.getUsableSize();
+        }
+        SizeResponse size = new SizeResponse(total, usable);
+        return Response.success().data(size);
     }
 
 }

@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(value = Exception.class)
     @ResponseBody
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+    @ResponseStatus(HttpStatus.OK)
     public RestErrorResponse processException(HttpServletRequest request, HttpServletResponse response, Exception e) {
         if (e instanceof BusinessException) {
             LOGGER.info(e.getMessage(), e);

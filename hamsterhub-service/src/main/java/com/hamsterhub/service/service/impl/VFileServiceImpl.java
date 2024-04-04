@@ -132,6 +132,26 @@ public class VFileServiceImpl implements VFileService {
     }
 
     @Override
+    public VFileDTO query(Long strategyId, Long parentId, String name) throws BusinessException {
+        // 传入对象为空
+        if (parentId == null)
+            throw new BusinessException(CommonErrorCode.E_100001);
+        // 文件不存在
+        if (!this.isExist(parentId))
+            throw new BusinessException(CommonErrorCode.E_600001);
+        VFile parent = vFileMapper.selectById(parentId);
+        // 文件不是目录
+        if (!parent.getType().equals(0))
+            throw new BusinessException(CommonErrorCode.E_600003);
+
+        // 文件不存在
+        if (vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getStrategyId, strategyId).eq(VFile::getParentId, parent).eq(VFile::getName, name)) == 0)
+            throw new BusinessException(CommonErrorCode.E_600001);
+        VFile vFile = vFileMapper.selectOne(new LambdaQueryWrapper<VFile>().eq(VFile::getStrategyId, strategyId).eq(VFile::getParentId, parent).eq(VFile::getName, name));
+        return VFileConvert.INSTANCE.entity2dto(vFile);
+    }
+
+    @Override
     public List<VFileDTO> query(Long accountId, Long strategyId, Long parentId, String name) throws BusinessException {
         // 传入对象为空
         if (accountId == null)

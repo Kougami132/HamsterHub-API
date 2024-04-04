@@ -44,14 +44,9 @@ public class DeviceController {
     public Response queryDevice() {
         List<DeviceDTO> data = deviceService.queryBatch();
         List<DeviceResponse> res = DeviceConvert.INSTANCE.dto2resBatch(data);
-        for (DeviceResponse i: res) {
+        for (DeviceResponse i: res)
             if (i.getConfigured())
                 i.setStrategyId(deviceStrategyService.queryStrategyId(Long.parseLong(i.getId())).toString());
-            Storage storage = storageService.getInstance(DeviceConvert.INSTANCE.res2dto(i));
-            i.setConnected(storage.isConnected());
-            if (i.getConnected())
-                i.setSize(new SizeResponse(storage.getTotalSize(), storage.getUsableSize()));
-        }
 
         return Response.success().data(res);
     }
@@ -103,6 +98,23 @@ public class DeviceController {
 
         deviceService.delete(deviceId);
         return Response.success().msg("设备删除成功");
+    }
+
+    @ApiOperation("设备容量(admin)")
+    @GetMapping(value = "/queryDeviceSize")
+    @Token("0")
+    public Response queryDeviceSize(@RequestParam("deviceId") Long deviceId) {
+        // 设备不存在
+        if (!deviceService.isExist(deviceId))
+            throw new BusinessException(CommonErrorCode.E_300001);
+
+        DeviceDTO deviceDTO = deviceService.query(deviceId);
+        Storage storage = storageService.getInstance(deviceDTO);
+        // 设备连接失败
+        if (!deviceDTO.isConnected())
+            throw new BusinessException(CommonErrorCode.E_300006);
+        SizeResponse size = new SizeResponse(storage.getTotalSize(), storage.getUsableSize());
+        return Response.success().data(size);
     }
 
 }

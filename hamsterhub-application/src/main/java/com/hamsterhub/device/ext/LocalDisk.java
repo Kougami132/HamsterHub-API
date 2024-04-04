@@ -25,6 +25,7 @@ public class LocalDisk extends Storage {
     private String path = "";
 
     public LocalDisk(DeviceDTO deviceDTO) {
+        super(deviceDTO);
         this.device = deviceDTO;
 
         JSONObject param = JSON.parseObject(deviceDTO.getParam());

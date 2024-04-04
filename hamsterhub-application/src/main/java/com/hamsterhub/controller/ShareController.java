@@ -157,7 +157,7 @@ public class ShareController {
 
     @ApiOperation("获取分享文件")
     @GetMapping(value = "/queryShareFile")
-    public Response queryShare(@RequestParam("ticket") String ticket,
+    public Response queryShareFile(@RequestParam("ticket") String ticket,
                                @RequestParam(value = "key", required = false) String key,
                                @RequestParam(value = "vFileId", required = false) Long vFileId) {
         // 分享码不存在
@@ -189,6 +189,48 @@ public class ShareController {
             throw new BusinessException(CommonErrorCode.E_600020);
 
         VFileDTO vFileDTO = vFileService.query(vFileId);
+        VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileDTO);
+
+        // 是目录则把文件数存入size字段
+        if (data.getType().equals(0))
+            data.setSize(vFileService.queryCount(vFileDTO.getId()).toString());
+
+        return Response.success().data(data);
+    }
+
+    @ApiOperation("获取分享文件")
+    @GetMapping(value = "/searchShareFile")
+    public Response searchShareFile(@RequestParam("ticket") String ticket,
+                                   @RequestParam(value = "key", required = false) String key,
+                                   @RequestParam("parentId") Long parentId,
+                                    @RequestParam("name") String name) {
+        // 分享码不存在
+        if (!shareService.isExist(ticket))
+            throw new BusinessException(CommonErrorCode.E_600007);
+
+        ShareDTO shareDTO = shareService.query(ticket);
+
+        // 文件分享已过期
+        if (shareDTO.getExpiry().isBefore(LocalDateTime.now()))
+            throw new BusinessException(CommonErrorCode.E_600010);
+
+        // 需要提取码
+        if (shareDTO.getType().equals(1)) {
+            // 提取码为空
+            if (StringUtil.isBlank(key))
+                throw new BusinessException(CommonErrorCode.E_600008);
+            // 提取码错误
+            if (!key.equals(shareDTO.getKey()))
+                throw new BusinessException(CommonErrorCode.E_600009);
+        }
+
+        // parentId与ticket不匹配
+        Long shareParentId = vFileService.getShareParent(parentId);
+        if (!shareParentId.equals(shareDTO.getVFileId()))
+            throw new BusinessException(CommonErrorCode.E_600020);
+        VFileDTO shareParent = vFileService.query(shareParentId);
+
+        VFileDTO vFileDTO = vFileService.query(shareParent.getStrategyId(), parentId, name);
         VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileDTO);
 
         // 是目录则把文件数存入size字段
