@@ -145,9 +145,9 @@ public class VFileServiceImpl implements VFileService {
             throw new BusinessException(CommonErrorCode.E_600003);
 
         // 文件不存在
-        if (vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getStrategyId, strategyId).eq(VFile::getParentId, parent).eq(VFile::getName, name)) == 0)
+        if (vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getStrategyId, strategyId).eq(VFile::getParentId, parentId).eq(VFile::getName, name)) == 0)
             throw new BusinessException(CommonErrorCode.E_600001);
-        VFile vFile = vFileMapper.selectOne(new LambdaQueryWrapper<VFile>().eq(VFile::getStrategyId, strategyId).eq(VFile::getParentId, parent).eq(VFile::getName, name));
+        VFile vFile = vFileMapper.selectOne(new LambdaQueryWrapper<VFile>().eq(VFile::getStrategyId, strategyId).eq(VFile::getParentId, parentId).eq(VFile::getName, name));
         return VFileConvert.INSTANCE.entity2dto(vFile);
     }
 
