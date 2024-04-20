@@ -31,9 +31,7 @@ import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -414,6 +412,62 @@ public class FileController {
 
         vFileService.rename(vFileId, name);
         return Response.success().msg("重命名成功");
+    }
+
+    @ApiOperation("复制文件(token)")
+    @PostMapping(value = "/copy")
+    @Token
+    public Response copy(@RequestParam("vFileId") Long vFileId,
+                         @RequestParam("parentId") Long parentId) {
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+        VFileDTO vFileDTO = vFileService.query(vFileId);
+        VFileDTO vParentDTO;
+        if (parentId.equals(0L)) {
+            vParentDTO = VFileDTO.rootFileDTO();
+            vParentDTO.setAccountID(accountDTO.getId());
+            vParentDTO.setStrategyId(vFileDTO.getStrategyId());
+        }
+        else
+            vParentDTO = vFileService.query(parentId);
+
+        // 文件与用户不匹配
+        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
+            throw new BusinessException(CommonErrorCode.E_600005);
+
+        // 目标文件不为目录
+        if (!vParentDTO.isDir())
+            throw new BusinessException(CommonErrorCode.E_600013);
+        // 文件与目标目录不属于同策略
+        if (!vFileDTO.getStrategyId().equals(vParentDTO.getStrategyId()))
+            throw new BusinessException(CommonErrorCode.E_600022);
+        // 目标目录已存在同名文件
+        if (vFileService.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), parentId, vFileDTO.getName()))
+            throw new BusinessException(CommonErrorCode.E_600016);
+        // 目标目录是文件的子目录
+        while (!vParentDTO.getId().equals(0L) && !vParentDTO.getParentId().equals(0L)) {
+            if (vParentDTO.getParentId().equals(vFileDTO.getId()))
+                throw new BusinessException(CommonErrorCode.E_600023);
+            vParentDTO = vFileService.query(vParentDTO.getParentId());
+        }
+
+        // BFS复制文件
+        Queue<VFileDTO> queue = new LinkedList<>();
+        Map<Long, Long> map =  new HashMap<>();
+        queue.offer(vFileDTO);
+        map.put(vFileDTO.getParentId(), parentId);
+        while (!queue.isEmpty()) {
+            VFileDTO cur = queue.poll();
+            if (cur.isDir()) {
+                List<VFileDTO> vFileDTOs = vFileService.queryBatch(cur.getAccountID(), cur.getStrategyId(), cur.getId());
+                for (VFileDTO i: vFileDTOs)
+                    queue.offer(i);
+            }
+            cur.setParentId(map.get(cur.getParentId()));
+            VFileDTO newVFileDTO = vFileService.create(cur);
+            map.put(cur.getId(), newVFileDTO.getId());
+        }
+
+        return Response.success().msg("复制成功");
     }
 
     @ApiOperation("移动文件(token)")

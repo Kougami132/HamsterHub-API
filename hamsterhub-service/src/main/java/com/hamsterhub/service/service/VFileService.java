@@ -16,6 +16,7 @@ public interface VFileService {
     List<VFileDTO> query(Long accountId, String root, Long parentId, String name) throws BusinessException;
     List<VFileDTO> queryBatch(Long parentId) throws BusinessException; // 分享用，id不为0
     List<VFileDTO> queryBatch(Long parentId, Integer page, Integer limit) throws BusinessException; // 分享用，id不为0
+    List<VFileDTO> queryBatch(Long accountId, Long strategyId, Long parentId) throws BusinessException;
     List<VFileDTO> queryBatch(Long accountId, String root, Long parentId) throws BusinessException;
     List<VFileDTO> queryBatch(Long accountId, String root, Long parentId, Integer page, Integer limit) throws BusinessException;
     Integer queryCount(Long vFileId) throws BusinessException;
