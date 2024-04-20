@@ -1,11 +1,14 @@
 package com.hamsterhub.service.impl;
 
 import com.hamsterhub.common.domain.BusinessException;
+import com.hamsterhub.common.util.JwtUtil;
 import com.hamsterhub.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -19,27 +22,17 @@ public class RedisServiceImpl implements RedisService {
     private RedisTemplate<String, String> redisTemplate;
 
     @Override
-    public void addToken(Long accountId, String token) throws BusinessException {
-        String key = this.prefix + ":token:" + accountId;
-        redisTemplate.opsForSet().add(key, token);
+    public void addTokenBlacklist(String token) throws BusinessException {
+        String signature = token.substring(token.lastIndexOf('.') + 1);
+        String key = this.prefix + ":jwt:blacklist:" + signature;
+        redisTemplate.opsForValue().set(key, "1", Duration.between(LocalDateTime.now(), JwtUtil.getExpiryTime(token)).toMinutes(), TimeUnit.MINUTES);
     }
 
     @Override
-    public Boolean checkToken(Long accountId, String token) throws BusinessException {
-        String key = this.prefix + ":token:" + accountId;
-        return redisTemplate.opsForSet().isMember(key, token);
-    }
-
-    @Override
-    public void delToken(Long accountId, String token) throws BusinessException {
-        String key = this.prefix + ":token:" + accountId;
-        redisTemplate.opsForSet().remove(key, token);
-    }
-
-    @Override
-    public void delAllToken(Long accountId) throws BusinessException {
-        String key = this.prefix + ":token:" + accountId;
-        redisTemplate.delete(key);
+    public Boolean checkToken(String token) throws BusinessException {
+        String signature = token.substring(token.lastIndexOf('.') + 1);
+        String key = this.prefix + ":jwt:blacklist:" + signature;
+        return redisTemplate.hasKey(key);
     }
 
     @Override

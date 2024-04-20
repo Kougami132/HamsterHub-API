@@ -20,6 +20,8 @@ import org.springframework.web.bind.annotation.*;
 import org.web3j.abi.datatypes.Bool;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -50,11 +52,11 @@ public class AccountController {
         accountVO.setUsername(accountVO.getUsername().toLowerCase());
 
         AccountDTO accountDTO = AccountConvert.INSTANCE.vo2dto(accountVO);
+        accountDTO.setPassModified(LocalDateTime.now());
         accountDTO.setType(1);
         accountDTO = accountService.create(accountDTO);
 
         String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), 1);
-        redisService.addToken(accountDTO.getId(), token);
         LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountVO.getUsername(), token);
         return Response.success().msg("注册成功").data(data);
     }
@@ -76,7 +78,6 @@ public class AccountController {
         if (Boolean.TRUE.equals(lasting)) expiryDay = 30;
         else expiryDay = 1;
         String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), expiryDay);
-        redisService.addToken(accountDTO.getId(), token);
 
         LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountDTO.getUsername(), token);
         return Response.success().msg("登录成功").data(data);
@@ -86,19 +87,21 @@ public class AccountController {
     @PostMapping(value = "/changePassword")
     @Token
     public Response ChangePassword(@RequestParam("oldPassword") String oldPassword,
-                                   @RequestParam("newPassword") String newPassword) {
+                                   @RequestParam("newPassword") String newPassword,
+                                   HttpServletRequest request) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         // 密码错误
         if (!accountDTO.getPassword().equals(MD5Util.getMd5(oldPassword)))
             throw new BusinessException(CommonErrorCode.E_200016);
 
         accountDTO.setPassword(MD5Util.getMd5(newPassword));
+        accountDTO.setPassModified(LocalDateTime.now());
         accountService.update(accountDTO);
 
-        // 清空token
-        redisService.delAllToken(accountDTO.getId());
-        String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), 7);
-        redisService.addToken(accountDTO.getId(), token);
+        // 更换token
+        String oldToken = request.getHeader("Authorization").replace("Bearer ", "");
+        long expiryDay = Duration.between(JwtUtil.getExpiryTime(oldToken), LocalDateTime.now()).toDays() + 1;
+        String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), (int)expiryDay);
 
         return Response.success().msg("密码修改成功").data(token);
     }
@@ -108,8 +111,7 @@ public class AccountController {
     @Token
     public Response logout(HttpServletRequest request) {
         String token = request.getHeader("Authorization").replace("Bearer ", "");
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        redisService.delToken(accountDTO.getId(), token);
+        redisService.addTokenBlacklist(token);
         return Response.success().msg("注销成功");
     }
 
@@ -127,8 +129,7 @@ public class AccountController {
         String oldToken = request.getHeader("Authorization").replace("Bearer ", "");
         AccountDTO accountDTO = SecurityUtil.getAccount();
         String newToken = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), 7);
-        redisService.delToken(accountDTO.getId(), oldToken);
-        redisService.addToken(accountDTO.getId(), newToken);
+        redisService.addTokenBlacklist(oldToken);
         LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountDTO.getUsername(), newToken);
         return Response.success().data(data);
     }

@@ -16,12 +16,27 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 @Transactional
 public class AccountServiceImpl implements AccountService {
 
     @Autowired
     private AccountMapper accountMapper;
+
+    @Override
+    public void init() throws BusinessException {
+        if (!this.isExist(0L)) {
+            Account admin = new Account();
+            admin.setId(0L);
+            admin.setUsername("admin");
+            admin.setPassword(MD5Util.getMd5("admin132"));
+            admin.setPassModified(LocalDateTime.now());
+            admin.setType(0);
+            accountMapper.insert(admin);
+        }
+    }
 
     @Override
     public AccountDTO create(AccountDTO accountDTO) throws BusinessException {
@@ -125,15 +140,5 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Boolean isExist(String username) throws BusinessException {
         return accountMapper.selectCount(new LambdaQueryWrapper<Account>().eq(Account::getUsername, username)) > 0;
-    }
-
-    @Override
-    public Boolean isAdmin(Long accountId) throws BusinessException {
-        return accountMapper.selectOne(new LambdaQueryWrapper<Account>().eq(Account::getId, accountId)).getType().equals(1);
-    }
-
-    @Override
-    public Boolean isAdmin(String username) throws BusinessException {
-        return accountMapper.selectOne(new LambdaQueryWrapper<Account>().eq(Account::getUsername, username)).getType().equals(1);
     }
 }

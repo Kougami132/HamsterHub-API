@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 @Data
 @TableName("account")
@@ -22,8 +23,14 @@ public class Account implements Serializable {
     @TableField("PASSWORD")
     private String password;
 
+    @TableField("PASS_MODIFIED")
+    private LocalDateTime passModified;
+
     @TableField("TYPE")
     private Integer type;
+
+    @TableField("PHONE")
+    private Integer phone;
 
     @TableField("EMAIL")
     private String email;

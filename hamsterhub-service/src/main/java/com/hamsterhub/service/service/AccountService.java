@@ -4,6 +4,7 @@ import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.service.dto.AccountDTO;
 
 public interface AccountService {
+    void init() throws BusinessException;
     AccountDTO create(AccountDTO accountDTO) throws BusinessException;
     void delete(Long accountId) throws BusinessException;
     void update(AccountDTO accountDTO) throws BusinessException;
@@ -11,6 +12,4 @@ public interface AccountService {
     AccountDTO query(String username) throws BusinessException;
     Boolean isExist(Long accountId) throws BusinessException;
     Boolean isExist(String username) throws BusinessException;
-    Boolean isAdmin(Long accountId) throws BusinessException;;
-    Boolean isAdmin(String username) throws BusinessException;
 }

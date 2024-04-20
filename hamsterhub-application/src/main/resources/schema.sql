@@ -10,7 +10,9 @@ CREATE TABLE IF NOT EXISTS `account` (
                            `ID` bigint(20) NOT NULL COMMENT '主键',
                            `USERNAME` varchar(50) NOT NULL COMMENT '用户名',
                            `PASSWORD` varchar(50) NOT NULL COMMENT '密码',
+                           `PASS_MODIFIED` DATETIME NOT NULL COMMENT '密码最后修改时间',
                            `TYPE` bigint(10) NOT NULL DEFAULT '1' COMMENT '用户类型',
+                           `PHONE` bigint(10) NULL COMMENT '手机号',
                            `EMAIL` varchar(50) NULL COMMENT '邮箱',
                            PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;

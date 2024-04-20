@@ -14,6 +14,7 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.time.LocalDateTime;
 
 @Component
 public class TokenInterceptor extends HandlerInterceptorAdapter {
@@ -41,15 +42,17 @@ public class TokenInterceptor extends HandlerInterceptorAdapter {
             if (JwtUtil.checkToken(token)) { // 检查JWT
                 String username = JwtUtil.getUsername(token);
                 AccountDTO accountDTO = accountService.query(username);
-                if (redisService.checkToken(accountDTO.getId(), token)) { // 检查token白名单
-                    // 判断权限
-                    String type = accountDTO.getType().toString();
-                    String[] groups = annotation.value().split(" ");
-                    if (groups[0].equals("") || accountDTO.isAdmin())
-                        return true;
-                    for (String i: groups)
-                        if (i.equals(type))
+                if (!redisService.checkToken(token)) { // 检查token黑名单
+                    if (JwtUtil.getCreateTime(token).isAfter(accountDTO.getPassModified())) { // 检查token生成时间
+                        // 判断权限
+                        String type = accountDTO.getType().toString();
+                        String[] groups = annotation.value().split(" ");
+                        if (groups[0].equals("") || accountDTO.isAdmin())
                             return true;
+                        for (String i: groups)
+                            if (i.equals(type))
+                                return true;
+                    }
                 }
             }
         }

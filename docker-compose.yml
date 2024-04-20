@@ -31,6 +31,8 @@ services:
       - ./data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=<PASSWORD> # 需和上面的MYSQL_PASSWORD一致
+      - SET_CONTAINER_TIMEZONE=true
+      - CONTAINER_TIMEZONE=Asia/Shanghai
       - TZ=Asia/Shanghai
 
   redis:

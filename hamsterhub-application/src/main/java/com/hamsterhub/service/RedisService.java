@@ -2,11 +2,11 @@ package com.hamsterhub.service;
 
 import com.hamsterhub.common.domain.BusinessException;
 
+import java.time.LocalDateTime;
+
 public interface RedisService {
-    void addToken(Long accountId, String token) throws BusinessException;
-    Boolean checkToken(Long accountId, String token) throws BusinessException;
-    void delToken(Long accountId, String token) throws BusinessException;
-    void delAllToken(Long accountId) throws BusinessException;
+    void addTokenBlacklist(String token) throws BusinessException;
+    Boolean checkToken(String token) throws BusinessException;
     Long getFileId(String root, Long accountId, String path) throws BusinessException;
     void setFileId(String root, Long accountId, String path, Long fileId) throws BusinessException;
     void delFileId(String root, Long accountId, String path) throws BusinessException;
