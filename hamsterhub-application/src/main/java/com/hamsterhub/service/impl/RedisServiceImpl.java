@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -33,6 +35,46 @@ public class RedisServiceImpl implements RedisService {
         String signature = token.substring(token.lastIndexOf('.') + 1);
         String key = this.prefix + ":jwt:blacklist:" + signature;
         return redisTemplate.hasKey(key);
+    }
+
+    @Override
+    public void setPhoneCode(Long phone, String code) throws BusinessException {
+        String key = this.prefix + ":code:phone:" + phone;
+        redisTemplate.opsForValue().set(key, code, 2, TimeUnit.MINUTES);
+    }
+
+    @Override
+    public String getPhoneCode(Long phone) throws BusinessException {
+        String key = this.prefix + ":code:phone:" + phone;
+        String s = redisTemplate.opsForValue().get(key);
+        if (s == null) return null;
+        return s;
+    }
+
+    @Override
+    public void phoneCount(Long phone) throws BusinessException {
+        String key = this.prefix + ":limit:phone:" + phone;
+        String s = redisTemplate.opsForValue().get(key);
+        int count = 0;
+        if (s != null) count = Integer.valueOf(s);
+        redisTemplate.opsForValue().set(key, String.valueOf(count + 1), getRemainSecondsOneDay(), TimeUnit.SECONDS);
+    }
+
+    public static long getRemainSecondsOneDay() {
+        long cur = System.currentTimeMillis() / 1000;
+        int hour = 60 * 60;
+        cur += hour * 8;
+        cur %= hour * 24;
+        return hour * 24 - cur;
+    }
+
+    @Override
+    public boolean isPhoneLimited(Long phone) throws BusinessException {
+        String key = this.prefix + ":limit:phone:" + phone;
+        String s = redisTemplate.opsForValue().get(key);
+        int count = 0;
+        if (s != null) count = Integer.valueOf(s);
+        return count >= 3;
     }
 
     @Override

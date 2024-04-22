@@ -28,3 +28,18 @@ mybatis-plus:
     use-generated-keys: true
     default-executor-type: REUSE
     use-actual-param-name: true
+
+sms:
+  ali:
+    accessKeyId: ${ACCESS_KEY_ID:}
+    accessKeySecret: ${ACCESS_KEY_SECRET:}
+    sysRegionId: ${SYS_REGION_ID:cn-hangzhou}
+    signName: ${SIGN_NAME:扣噶米点西恩}
+    templateCode: ${TEMPLATE_CODE:SMS_282905496}
+  tencent:
+    secretId: ${SECRET_ID:}
+    secretKey: ${SECRET_KEY:}
+    region: ${REGION:ap-guangzhou}
+    sdkAppId: ${SDK_APP_ID:1400904738}
+    signName: ${SIGN_NAME:kougamiCn网}
+    templateId: ${TEMPLATE_ID:2134000}

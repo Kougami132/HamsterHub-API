@@ -30,16 +30,17 @@ public class AccountDTO implements Serializable {
     private Integer type;
 
     @ApiModelProperty(value = "手机号")
-    private Integer phone;
+    private Long phone;
 
     @ApiModelProperty(value = "邮箱")
     private String email;
 
-    public AccountDTO(String username, String password, Integer type) {
+    public AccountDTO(String username, String password, Integer type, Long phone) {
         this.username = username;
         this.password = password;
         this.passModified = LocalDateTime.now();
         this.type = type;
+        this.phone = phone;
     }
 
     public boolean isAdmin() {

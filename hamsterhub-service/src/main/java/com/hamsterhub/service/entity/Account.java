@@ -30,7 +30,7 @@ public class Account implements Serializable {
     private Integer type;
 
     @TableField("PHONE")
-    private Integer phone;
+    private Long phone;
 
     @TableField("EMAIL")
     private String email;

@@ -5,19 +5,16 @@ import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.JwtUtil;
 import com.hamsterhub.common.util.MD5Util;
-import com.hamsterhub.convert.AccountConvert;
 import com.hamsterhub.response.LoginResponse;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.service.RedisService;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.service.AccountService;
 import com.hamsterhub.util.SecurityUtil;
-import com.hamsterhub.vo.AccountVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import org.web3j.abi.datatypes.Bool;
 
 import javax.servlet.http.HttpServletRequest;
 import java.time.Duration;
@@ -47,17 +44,23 @@ public class AccountController {
 
     @ApiOperation("注册账号")
     @PostMapping(value = "/registerAccount")
-    public Response registerAccount(@RequestBody AccountVO accountVO) {
+    public Response registerAccount(@RequestParam("username") String username,
+                                    @RequestParam("password") String password,
+                                    @RequestParam("phone") Long phone,
+                                    @RequestParam("code") String code) {
         // 统一小写
-        accountVO.setUsername(accountVO.getUsername().toLowerCase());
+        username = username.toLowerCase();
 
-        AccountDTO accountDTO = AccountConvert.INSTANCE.vo2dto(accountVO);
-        accountDTO.setPassModified(LocalDateTime.now());
-        accountDTO.setType(1);
+        // 手机验证码校验
+        String phoneCode = redisService.getPhoneCode(phone);
+        if (phoneCode == null || !phoneCode.equals(code))
+            throw new BusinessException(CommonErrorCode.E_200011);
+
+        AccountDTO accountDTO = new AccountDTO(username, password, 1, phone);
         accountDTO = accountService.create(accountDTO);
 
         String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), 1);
-        LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountVO.getUsername(), token);
+        LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountDTO.getUsername(), token);
         return Response.success().msg("注册成功").data(data);
     }
 

@@ -12,4 +12,5 @@ public interface AccountService {
     AccountDTO query(String username) throws BusinessException;
     Boolean isExist(Long accountId) throws BusinessException;
     Boolean isExist(String username) throws BusinessException;
+    Boolean isPhoneExist(Long phone) throws BusinessException;
 }

@@ -7,6 +7,10 @@ import java.time.LocalDateTime;
 public interface RedisService {
     void addTokenBlacklist(String token) throws BusinessException;
     Boolean checkToken(String token) throws BusinessException;
+    void setPhoneCode(Long phone, String code) throws BusinessException;
+    String getPhoneCode(Long phone) throws BusinessException;
+    void phoneCount(Long phone) throws BusinessException;
+    boolean isPhoneLimited(Long phone) throws BusinessException;
     Long getFileId(String root, Long accountId, String path) throws BusinessException;
     void setFileId(String root, Long accountId, String path, Long fileId) throws BusinessException;
     void delFileId(String root, Long accountId, String path) throws BusinessException;

@@ -58,6 +58,9 @@ public class AccountServiceImpl implements AccountService {
         // 用户名已存在
         if (this.isExist(accountDTO.getUsername()))
             throw new BusinessException(CommonErrorCode.E_200007);
+        // 手机号已存在
+        if (this.isPhoneExist(accountDTO.getPhone()))
+            throw new BusinessException(CommonErrorCode.E_200008);
 
         // 密码MD5加密
         accountDTO.setPassword(MD5Util.getMd5(accountDTO.getPassword()));
@@ -101,6 +104,9 @@ public class AccountServiceImpl implements AccountService {
         Wrapper exist = new LambdaQueryWrapper<Account>().eq(Account::getUsername, accountDTO.getUsername());
         if (accountMapper.selectCount(exist) > 0 && !accountMapper.selectOne(exist).getId().equals(accountDTO.getId()))
             throw new BusinessException(CommonErrorCode.E_200007);
+        // 手机号已存在
+        if (this.isPhoneExist(accountDTO.getPhone()))
+            throw new BusinessException(CommonErrorCode.E_200008);
 
         Account entity = AccountConvert.INSTANCE.dto2entity(accountDTO);
         accountMapper.updateById(entity);
@@ -140,5 +146,10 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Boolean isExist(String username) throws BusinessException {
         return accountMapper.selectCount(new LambdaQueryWrapper<Account>().eq(Account::getUsername, username)) > 0;
+    }
+
+    @Override
+    public Boolean isPhoneExist(Long phone) throws BusinessException {
+        return accountMapper.selectCount(new LambdaQueryWrapper<Account>().eq(Account::getPhone, phone)) > 0;
     }
 }
