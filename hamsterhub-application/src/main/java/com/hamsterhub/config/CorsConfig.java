@@ -10,7 +10,7 @@ public class CorsConfig implements WebMvcConfigurer {
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 //是否发送Cookie
-                .allowCredentials(true)
+//                .allowCredentials(true)
                 //设置放行哪些原始域
                 .allowedOrigins("*")
                 //放行哪些请求方式

@@ -349,7 +349,7 @@ public class FileController {
                 // 设置文件长度
                 response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileLength));
             }
-
+            response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
             // 从磁盘读取数据流返回
             byte[] cache = new byte[4096];
             try {
