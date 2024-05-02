@@ -95,4 +95,12 @@ CREATE TABLE IF NOT EXISTS `share` (
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
+CREATE TABLE IF NOT EXISTS `sys_config` (
+                              `key` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                              `value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+                              `type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+                              `order_id` int(11) NOT NULL DEFAULT '0',
+                              PRIMARY KEY (`key`) USING BTREE
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
 SET FOREIGN_KEY_CHECKS = 1;

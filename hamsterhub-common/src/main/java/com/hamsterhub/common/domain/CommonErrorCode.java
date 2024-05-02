@@ -90,6 +90,9 @@ public enum CommonErrorCode implements ErrorCode {
 	E_700001(700001,"阿里云盘签名计算错误"),
 	E_700002(700002,"阿里云盘文件上传出错"),
 
+	// 系统设置相关 800
+	E_800001(800001,"key为空"),
+
 	// 其它
 	E_NETWORK_ERROR(999996, "网络错误"),
 	E_NO_PERMISSION(999997, "访问权限不足"),
