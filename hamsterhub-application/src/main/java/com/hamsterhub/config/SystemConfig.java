@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hamsterhub.service.dto.SysConfigDTO;
 import com.hamsterhub.service.service.SysConfigService;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
@@ -14,6 +15,7 @@ import javax.annotation.PostConstruct;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 public class SystemConfig implements WebMvcConfigurer {
@@ -25,6 +27,9 @@ public class SystemConfig implements WebMvcConfigurer {
 
     private String cache = null;
 
+    @Getter
+    private String cacheId = "";
+
     @PostConstruct
     private void loadData() throws JsonProcessingException {
         List<SysConfigDTO> query = sysConfigService.query();
@@ -34,10 +39,14 @@ public class SystemConfig implements WebMvcConfigurer {
         for (SysConfigDTO sysConfigDTO : query) {
             temp.put(sysConfigDTO.getKey(), sysConfigDTO);
         }
+        this.cacheId = UUID.randomUUID().toString();
 
+        // 添加缓存标记
+        temp.put("hash",new SysConfigDTO("hash",this.cacheId));
         this.configs = temp;
         ObjectMapper mapper = new ObjectMapper();
         this.cache = mapper.writeValueAsString(temp);
+
     }
 
 

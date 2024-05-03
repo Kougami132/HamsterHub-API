@@ -24,7 +24,7 @@ import java.util.Objects;
 
 
 @RestController
-@Api(tags = "验证码 数据接口")
+@Api(tags = "系统设置 数据接口")
 public class SysConfigController {
     @Autowired
     private SystemConfig systemConfig;
@@ -53,7 +53,7 @@ public class SysConfigController {
 
         if(this.cache == null){
             this.cache = systemConfig.getJson();
-            this.hash = MD5Util.getMd5(this.cache);
+            this.hash = systemConfig.getCacheId();
         }
 
         if(!this.hash.equals(hash)){
