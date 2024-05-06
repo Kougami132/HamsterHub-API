@@ -102,7 +102,7 @@ CREATE TABLE IF NOT EXISTS `sys_config` (
                               `order_id` int(11) NOT NULL DEFAULT '0',
                               `hide` tinyint(1) unsigned NOT NULL COMMENT '0 表示不隐藏，1为隐藏，隐藏时数据不会发给前端',
                               PRIMARY KEY (`key`) USING BTREE
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 
 SET FOREIGN_KEY_CHECKS = 1;
