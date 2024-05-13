@@ -15,4 +15,5 @@ public class ShareResponse {
     private String key;
     private LocalDateTime expiry;
     private String accountID;
+    private String name;
 }

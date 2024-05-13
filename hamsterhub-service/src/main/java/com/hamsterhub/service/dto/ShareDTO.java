@@ -36,4 +36,7 @@ public class ShareDTO {
     @ApiModelProperty(value = "文件所有人ID")
     private Long accountID;
 
+    @ApiModelProperty(value = "分享的名称")
+    private String name;
+
 }

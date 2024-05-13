@@ -92,6 +92,7 @@ CREATE TABLE IF NOT EXISTS `share` (
                           `KEY` varchar(50) NULL COMMENT '提取码',
                           `EXPIRY` DATETIME NOT NULL COMMENT '分享过期时间',
                           `ACCOUNT_ID` bigint(20) NOT NULL COMMENT '用户ID',
+                          `NAME` varchar(50) DEFAULT NULL COMMENT '分享的名称',
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 

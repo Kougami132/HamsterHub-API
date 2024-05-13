@@ -34,4 +34,7 @@ public class Share {
     @TableField("ACCOUNT_ID")
     private Long accountID;
 
+    @TableField("NAME")
+    private String name;
+
 }
