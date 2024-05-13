@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @Transactional
@@ -113,6 +114,33 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
+    public void updateForAdmin(AccountDTO accountDTO) throws BusinessException {
+        // 传入对象为空
+        if (accountDTO == null || accountDTO.getId() == null)
+            throw new BusinessException(CommonErrorCode.E_100001);
+        // 账户id不存在
+        if (!this.isExist(accountDTO.getId()))
+            throw new BusinessException(CommonErrorCode.E_200013);
+        // 用户名格式错误
+        if (!MatchUtil.isUsernameMatches(accountDTO.getUsername()))
+            throw new BusinessException(CommonErrorCode.E_200004);
+        // 邮箱格式错误
+        if (!StringUtil.isBlank(accountDTO.getEmail()) && !MatchUtil.isEmailMatches(accountDTO.getEmail()))
+            throw new BusinessException(CommonErrorCode.E_200014);
+        // 密码格式错误
+        if (accountDTO.getPassword()!=null)
+            if(!MatchUtil.isPasswordMatches(accountDTO.getPassword()))
+                throw new BusinessException(CommonErrorCode.E_200005);
+        // 用户名已存在
+        Wrapper exist = new LambdaQueryWrapper<Account>().eq(Account::getUsername, accountDTO.getUsername());
+        if (accountMapper.selectCount(exist) > 0 && !accountMapper.selectOne(exist).getId().equals(accountDTO.getId()))
+            throw new BusinessException(CommonErrorCode.E_200007);
+
+        Account entity = AccountConvert.INSTANCE.dto2entity(accountDTO);
+        accountMapper.updateById(entity);
+    }
+
+    @Override
     public AccountDTO query(Long accountId) throws BusinessException {
         // 传入对象为空
         if (accountId == null)
@@ -151,5 +179,11 @@ public class AccountServiceImpl implements AccountService {
     @Override
     public Boolean isPhoneExist(Long phone) throws BusinessException {
         return accountMapper.selectCount(new LambdaQueryWrapper<Account>().eq(Account::getPhone, phone)) > 0;
+    }
+
+    @Override
+    public List<AccountDTO> FetchAll() throws BusinessException{
+        List<Account> entities = accountMapper.selectList(null);
+        return AccountConvert.INSTANCE.entity2dtoBatch(entities);
     }
 }

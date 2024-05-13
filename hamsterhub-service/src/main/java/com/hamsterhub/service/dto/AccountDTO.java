@@ -2,6 +2,7 @@ package com.hamsterhub.service.dto;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -41,6 +42,19 @@ public class AccountDTO implements Serializable {
         this.passModified = LocalDateTime.now();
         this.type = type;
         this.phone = phone;
+    }
+
+    public AccountDTO(String username, String password, Integer type, Long phone, String email) {
+        this.username = username;
+        this.password = password;
+        this.passModified = LocalDateTime.now();
+        this.type = type;
+        this.phone = phone;
+        this.email = email;
+    }
+
+    public void setPassModified() {
+        this.passModified = LocalDateTime.now();
     }
 
     public boolean isAdmin() {
