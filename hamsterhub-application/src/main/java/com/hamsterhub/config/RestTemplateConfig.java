@@ -12,12 +12,12 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 public class RestTemplateConfig {
     @Bean
-    public RestTemplate restTemplate(){
+    public RestTemplate restTemplate() {
         RestTemplate restTemplate = new RestTemplate(getClientHttpRequestFactory());
         return restTemplate;
     }
 
-    private ClientHttpRequestFactory getClientHttpRequestFactory(){
+    private ClientHttpRequestFactory getClientHttpRequestFactory() {
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .connectTimeout(5, TimeUnit.SECONDS)
                 .writeTimeout(5, TimeUnit.SECONDS)

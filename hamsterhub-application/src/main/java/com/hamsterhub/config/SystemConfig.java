@@ -21,7 +21,7 @@ public class SystemConfig implements WebMvcConfigurer {
     @Autowired
     private SysConfigService sysConfigService;
 
-    private Map<String,SysConfigDTO> configs = null;
+    private Map<String, SysConfigDTO> configs = null;
 
     private String cache = null;
 
@@ -29,9 +29,9 @@ public class SystemConfig implements WebMvcConfigurer {
     private void loadData() throws JsonProcessingException {
         List<SysConfigDTO> query = sysConfigService.query();
 
-        Map<String,SysConfigDTO> temp = new HashMap<>();
+        Map<String, SysConfigDTO> temp = new HashMap<>();
 
-        for (SysConfigDTO sysConfigDTO : query) {
+        for (SysConfigDTO sysConfigDTO: query) {
             temp.put(sysConfigDTO.getKey(), sysConfigDTO);
         }
 
@@ -55,13 +55,13 @@ public class SystemConfig implements WebMvcConfigurer {
         return temp;
     }
 
-    public Map<String,SysConfigDTO> getObj(){
+    public Map<String, SysConfigDTO> getObj(){
         return this.configs;
     }
 
 
     public void set(String key, String value){
-        sysConfigService.set(new SysConfigDTO(key,value));
+        sysConfigService.set(new SysConfigDTO(key, value));
 
         try {
             this.loadData();

@@ -41,7 +41,7 @@ public class SysConfigController {
             throw new BusinessException(CommonErrorCode.E_800001);
         }
 
-        systemConfig.set(key,value);
+        systemConfig.set(key, value);
 
         this.cache = null;
         return Response.success().msg("设置成功");
@@ -56,9 +56,9 @@ public class SysConfigController {
             this.hash = MD5Util.getMd5(this.cache);
         }
 
-        if(!this.hash.equals(hash)){
+        if (!this.hash.equals(hash)) {
             return Response.success().data(systemConfig.getObj());
-        }else{
+        }  {
             return Response.success();
         }
 

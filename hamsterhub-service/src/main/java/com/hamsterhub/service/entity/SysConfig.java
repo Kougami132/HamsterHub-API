@@ -14,16 +14,16 @@ import java.time.LocalDateTime;
 public class SysConfig implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "`key`", type = IdType.INPUT)
+    @TableId(value = "`KEY`", type = IdType.INPUT)
     private String key;
 
-    @TableField("value")
+    @TableField("VALUE")
     private String value;
 
-    @TableField("order_id")
-    private Integer orderID ;
+    @TableField("ORDER_ID")
+    private Integer orderID;
 
-    @TableField("type")
+    @TableField("TYPE")
     private String type;
 
 }
