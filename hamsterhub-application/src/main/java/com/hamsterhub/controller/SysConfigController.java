@@ -24,12 +24,12 @@ import java.util.Objects;
 
 
 @RestController
-@Api(tags = "验证码 数据接口")
+@Api(tags = "系统设置 数据接口")
 public class SysConfigController {
     @Autowired
     private SystemConfig systemConfig;
 
-    private String cache = null;
+    private Boolean cache = false;
     private String hash = null;
 
     @ApiOperation("设置系统变量(admin)")
@@ -43,7 +43,7 @@ public class SysConfigController {
 
         systemConfig.set(key, value);
 
-        this.cache = null;
+        this.cache = false;
         return Response.success().msg("设置成功");
     }
 
@@ -51,9 +51,9 @@ public class SysConfigController {
     @GetMapping(value = "/querySysConfig")
     public Response querySysConfig(@RequestParam("hash") String hash) {
 
-        if(this.cache == null){
-            this.cache = systemConfig.getJson();
-            this.hash = MD5Util.getMd5(this.cache);
+        if(!this.cache){
+            this.cache = true;
+            this.hash = systemConfig.getCacheId();
         }
 
         if (!this.hash.equals(hash)) {

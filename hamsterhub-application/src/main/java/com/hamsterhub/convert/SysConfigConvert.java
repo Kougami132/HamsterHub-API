@@ -14,4 +14,5 @@ public interface SysConfigConvert {
     SysConfigConvert INSTANCE = Mappers.getMapper(SysConfigConvert.class);
 
     List<SysConfigResponse> dto2resBatch(List<SysConfigDTO> sysConfigDTOs);
+    SysConfigResponse dto2res(SysConfigDTO sysConfigDTO);
 }

@@ -50,7 +50,8 @@ public class ShareController {
     @Token
     public Response shareFile(@RequestParam("vFileId") Long vFileId,
                               @RequestParam(value = "key", required = false) String key,
-                              @RequestParam(value = "expiry", required = false) Long expiry) {
+                              @RequestParam(value = "expiry", required = false) Long expiry,
+                              @RequestParam(value = "name", required = false) String name) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         VFileDTO vFileDTO = vFileService.query(vFileId);
         // 文件与用户不匹配
@@ -79,7 +80,7 @@ public class ShareController {
         else
             expiryTime = LocalDateTime.now().plusSeconds(expiry);
 
-        ShareDTO shareDTO = new ShareDTO(null, type, ticket, vFileId, key, expiryTime, accountDTO.getId());
+        ShareDTO shareDTO = new ShareDTO(null, type, ticket, vFileId, key, expiryTime, accountDTO.getId(), name);
         ShareResponse data = ShareConvert.INSTANCE.dto2res(shareService.create(shareDTO));
 
         vFileDTO.setShareType(1);

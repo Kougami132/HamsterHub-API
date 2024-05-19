@@ -6,6 +6,7 @@ import com.hamsterhub.common.domain.ErrorCode;
 import com.hamsterhub.common.domain.RestErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -24,6 +25,7 @@ public class GlobalExceptionHandler {
     @ResponseBody
     @ResponseStatus(HttpStatus.OK)
     public RestErrorResponse processException(HttpServletRequest request, HttpServletResponse response, Exception e) {
+        response.setHeader(HttpHeaders.ACCESS_CONTROL_ALLOW_ORIGIN, "*");
         if (e instanceof BusinessException) {
             LOGGER.info(e.getMessage(), e);
             BusinessException businessException = (BusinessException) e;

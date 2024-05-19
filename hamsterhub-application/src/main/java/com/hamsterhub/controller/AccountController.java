@@ -3,8 +3,10 @@ package com.hamsterhub.controller;
 import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
+import com.hamsterhub.common.domain.ConfigKey;
 import com.hamsterhub.common.util.JwtUtil;
 import com.hamsterhub.common.util.MD5Util;
+import com.hamsterhub.config.SystemConfig;
 import com.hamsterhub.response.LoginResponse;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.service.RedisService;
@@ -32,6 +34,8 @@ public class AccountController {
     private List<String> TYPE = Stream.of("管理员", "普通用户").collect(toList());
 
     @Autowired
+    private SystemConfig systemConfig;
+    @Autowired
     private AccountService accountService;
     @Autowired
     private RedisService redisService;
@@ -48,6 +52,12 @@ public class AccountController {
                                     @RequestParam("password") String password,
                                     @RequestParam("phone") Long phone,
                                     @RequestParam("code") String code) {
+        // 验证是否允许注册
+        if(!ConfigKey.isTrue(systemConfig.get(ConfigKey.CAN_REGISTER))){
+            throw new BusinessException(CommonErrorCode.E_200019);
+        }
+
+
         // 统一小写
         username = username.toLowerCase();
 

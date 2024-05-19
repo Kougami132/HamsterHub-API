@@ -1,7 +1,9 @@
 package com.hamsterhub.service.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
+import com.hamsterhub.common.domain.ConfigKey;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.service.convert.SysConfigConvert;
 import com.hamsterhub.service.dto.SysConfigDTO;
@@ -23,6 +25,13 @@ public class SysConfigServiceImpl implements SysConfigService {
     private SysConfigMapper sysConfigMapper;
 
     List<SysConfigDTO> cache = null;
+
+    @Override
+    public void init(){
+        if (!this.isExist(ConfigKey.CAN_REGISTER)){
+            sysConfigMapper.insert(new SysConfig(ConfigKey.CAN_REGISTER,"true",0,"bool",false));
+        }
+    }
 
 
     @Override
@@ -52,6 +61,14 @@ public class SysConfigServiceImpl implements SysConfigService {
         }
 
         return this.cache;
+    }
+
+    public Boolean isExist(String key){
+        if(StringUtil.isBlank(key)){
+            return false;
+        }else{
+            return sysConfigMapper.selectCount(new LambdaQueryWrapper<SysConfig>().eq(SysConfig::getKey, key)) > 0;
+        }
     }
 
 }

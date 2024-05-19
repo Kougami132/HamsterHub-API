@@ -92,15 +92,18 @@ CREATE TABLE IF NOT EXISTS `share` (
                           `KEY` varchar(50) NULL COMMENT '提取码',
                           `EXPIRY` DATETIME NOT NULL COMMENT '分享过期时间',
                           `ACCOUNT_ID` bigint(20) NOT NULL COMMENT '用户ID',
+                          `NAME` varchar(50) DEFAULT NULL COMMENT '分享的名称',
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE IF NOT EXISTS `sys_config` (
-                              `KEY` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-                              `VALUE` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-                              `TYPE` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
-                              `ORDER_ID` int(11) NOT NULL DEFAULT '0',
+                              `key` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
+                              `value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+                              `type` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '',
+                              `order_id` int(11) NOT NULL DEFAULT '0',
+                              `hide` tinyint(1) unsigned NOT NULL COMMENT '0 表示不隐藏，1为隐藏，隐藏时数据不会发给前端',
                               PRIMARY KEY (`key`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
 
 SET FOREIGN_KEY_CHECKS = 1;

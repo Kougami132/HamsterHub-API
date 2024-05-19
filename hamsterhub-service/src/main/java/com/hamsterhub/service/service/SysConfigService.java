@@ -8,6 +8,8 @@ import java.util.List;
 
 public interface SysConfigService {
 
+    void init();
+
     void set(SysConfigDTO sysConfigDTO) throws BusinessException;
 
     List<SysConfigDTO> query() throws BusinessException;
