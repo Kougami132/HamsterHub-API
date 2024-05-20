@@ -214,7 +214,7 @@ public class FileController {
 
         StrategyDTO strategyDTO = strategyService.query(root);
         // 存储文件
-        RFileDTO rFileDTO = null;
+        RFileDTO rFileDTO;
         if (!StringUtil.isBlank(hash)) { // 上传已有文件
             if (!rFileService.isExist(hash, strategyDTO.getId()))
                 throw new BusinessException(CommonErrorCode.E_500001);

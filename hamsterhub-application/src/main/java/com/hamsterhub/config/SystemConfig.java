@@ -1,6 +1,8 @@
 package com.hamsterhub.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hamsterhub.common.domain.ConfigKey;
+import com.hamsterhub.common.util.JwtUtil;
 import com.hamsterhub.convert.SysConfigConvert;
 import com.hamsterhub.initialize.DatabaseInitialize;
 import com.hamsterhub.response.SysConfigResponse;
@@ -54,6 +56,7 @@ public class SystemConfig {
         this.configs = temp;
         this.cache = _cache;
 
+        JwtUtil.setSecretKey(get(ConfigKey.JWT_SECRET_KEY));
     }
 
 

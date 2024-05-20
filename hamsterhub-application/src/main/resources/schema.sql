@@ -96,6 +96,7 @@ CREATE TABLE IF NOT EXISTS `share` (
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
+# DROP TABLE IF EXISTS `sys_config`;
 CREATE TABLE IF NOT EXISTS `sys_config` (
                               `key` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
                               `value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,

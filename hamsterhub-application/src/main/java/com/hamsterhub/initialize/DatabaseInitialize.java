@@ -17,13 +17,10 @@ public class DatabaseInitialize {
     AccountService accountService;
     @Autowired
     SysConfigService sysConfigService;
-    @Autowired
-    SystemConfig systemConfig;
 
     @PostConstruct
     private void init() {
         accountService.init();
         sysConfigService.init();
-        JwtUtil.setSecretKey(systemConfig.get(ConfigKey.JWT_SECRET_KEY));
     }
 }
