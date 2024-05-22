@@ -12,6 +12,10 @@ import java.util.UUID;
 public class JwtUtil {
     private static String secretKey = "j132o132k132e132r";
 
+    public static void setSecretKey(String key) {
+        secretKey = key;
+    }
+
     public static String createToken(Long accountId, String username, Integer expiryDay) {
         JwtBuilder jwtBuilder = Jwts.builder();
         String token = jwtBuilder

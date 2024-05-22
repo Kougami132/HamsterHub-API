@@ -31,15 +31,28 @@ mybatis-plus:
 
 sms:
   ali:
-    accessKeyId: ${ACCESS_KEY_ID:}
-    accessKeySecret: ${ACCESS_KEY_SECRET:}
-    sysRegionId: ${SYS_REGION_ID:cn-hangzhou}
-    signName: ${SIGN_NAME:扣噶米点西恩}
-    templateCode: ${TEMPLATE_CODE:SMS_282905496}
+    accessKeyId: ${ACCESS_KEY_ID}
+    accessKeySecret: ${ACCESS_KEY_SECRET}
+    sysRegionId: ${SYS_REGION_ID}
+    signName: ${SIGN_NAME}
+    templateCode: ${TEMPLATE_CODE}
   tencent:
-    secretId: ${SECRET_ID:}
-    secretKey: ${SECRET_KEY:}
-    region: ${REGION:ap-guangzhou}
-    sdkAppId: ${SDK_APP_ID:1400904738}
-    signName: ${SIGN_NAME:kougamiCn网}
-    templateId: ${TEMPLATE_ID:2134000}
+    secretId: ${SECRET_ID}
+    secretKey: ${SECRET_KEY}
+    region: ${REGION}
+    sdkAppId: ${SDK_APP_ID}
+    signName: ${SIGN_NAME}
+    templateId: ${TEMPLATE_ID}
+
+bit-torrent:
+  address: ${BIT_ADDRESS:http://localhost:8888}
+  username: ${BIT_USERNAME:admin}
+  password: ${BIT_PASSWORD:admin132}
+
+rocketmq:
+  name-server: ${MQ_ADDRESS:http://localhost}:${MQ_PORT:9876}
+  topic: HamsterHub
+  producer:
+    group: producer-hh
+  consumer:
+    group: consumer-hh

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 
 @Service
@@ -28,9 +29,10 @@ public class SysConfigServiceImpl implements SysConfigService {
 
     @Override
     public void init(){
-        if (!this.isExist(ConfigKey.CAN_REGISTER)){
-            sysConfigMapper.insert(new SysConfig(ConfigKey.CAN_REGISTER,"true",0,"bool",false));
-        }
+        if (!this.isExist(ConfigKey.CAN_REGISTER))
+            sysConfigMapper.insert(new SysConfig(ConfigKey.CAN_REGISTER, "true", 0, "bool", false));
+        if (!this.isExist(ConfigKey.JWT_SECRET_KEY))
+            sysConfigMapper.insert(new SysConfig(ConfigKey.JWT_SECRET_KEY, UUID.randomUUID().toString(), 0, "str", true));
     }
 
 

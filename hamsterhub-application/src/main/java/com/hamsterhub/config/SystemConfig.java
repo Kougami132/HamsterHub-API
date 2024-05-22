@@ -1,6 +1,8 @@
 package com.hamsterhub.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.hamsterhub.common.domain.ConfigKey;
+import com.hamsterhub.common.util.JwtUtil;
 import com.hamsterhub.convert.SysConfigConvert;
 import com.hamsterhub.initialize.DatabaseInitialize;
 import com.hamsterhub.response.SysConfigResponse;
@@ -36,24 +38,25 @@ public class SystemConfig {
     private void loadData() throws JsonProcessingException {
         List<SysConfigDTO> query = sysConfigService.query();
 
-        Map<String,SysConfigDTO> temp = new HashMap<>();
+        Map<String, SysConfigDTO> temp = new HashMap<>();
         Map<String, SysConfigResponse> _cache = new HashMap<>();
 
         for (SysConfigDTO sysConfigDTO : query) {
             temp.put(sysConfigDTO.getKey(), sysConfigDTO);
-            if(!sysConfigDTO.getHide()){
+            if (!sysConfigDTO.getHide()) {
                 _cache.put(sysConfigDTO.getKey(), SysConfigConvert.INSTANCE.dto2res(sysConfigDTO));
             }
         }
         this.cacheId = UUID.randomUUID().toString();
 
         // 添加缓存标记
-        temp.put("hash",new SysConfigDTO("hash",this.cacheId));
-        _cache.put("hash",new SysConfigResponse("hash",this.cacheId));
+        temp.put("hash", new SysConfigDTO("hash", this.cacheId));
+        _cache.put("hash", new SysConfigResponse("hash", this.cacheId));
 
         this.configs = temp;
         this.cache = _cache;
 
+        JwtUtil.setSecretKey(get(ConfigKey.JWT_SECRET_KEY));
     }
 
 
@@ -61,7 +64,7 @@ public class SystemConfig {
         return configs.get(key).getValue();
     }
 
-    public Map<String,SysConfigResponse> getObj(){
+    public Map<String, SysConfigResponse> getObj(){
         return this.cache;
     }
 

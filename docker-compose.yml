@@ -17,6 +17,12 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=<PASSWORD> # 自行修改密码
+      - SECRET_ID=<SECRET_ID>
+      - SECRET_KEY=<SECRET_KEY>
+      - REGION=ap-guangzhou
+      - SDK_APP_ID=1400904738
+      - SIGN_NAME=kougamiCn网
+      - TEMPLATE_ID=2134000
     depends_on:
       - mysql
       - redis

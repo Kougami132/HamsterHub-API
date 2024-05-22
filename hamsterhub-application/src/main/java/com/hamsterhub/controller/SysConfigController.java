@@ -35,13 +35,13 @@ public class SysConfigController {
     @ApiOperation("设置系统变量(admin)")
     @PostMapping(value = "/setSysConfig")
     @Token("0")
-    public Response setSysConfig(@RequestParam("key") String key,@RequestParam("value") String value) {
+    public Response setSysConfig(@RequestParam("key") String key, @RequestParam("value") String value) {
 
-        if(StringUtil.isBlank(key)){
+        if (StringUtil.isBlank(key)) {
             throw new BusinessException(CommonErrorCode.E_800001);
         }
 
-        systemConfig.set(key,value);
+        systemConfig.set(key, value);
 
         this.cache = false;
         return Response.success().msg("设置成功");
@@ -51,14 +51,15 @@ public class SysConfigController {
     @GetMapping(value = "/querySysConfig")
     public Response querySysConfig(@RequestParam("hash") String hash) {
 
-        if(!this.cache){
+        if (!this.cache) {
             this.cache = true;
             this.hash = systemConfig.getCacheId();
         }
 
-        if(!this.hash.equals(hash)){
+        if (!this.hash.equals(hash)) {
             return Response.success().data(systemConfig.getObj());
-        }else{
+        }
+        else {
             return Response.success();
         }
 
