@@ -32,6 +32,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.List;
@@ -133,7 +134,13 @@ public class MyWebDavServlet extends WebdavServlet {
         List<WebFileResource> data = null;
 
         if ("/".equals(path)) {// 根目录请求
-            data = fileTool.queryRoot(user);
+
+            if (depth == 0) {// 根目录默认值，主要兼容RaiDrive，其余客户端都不会查询根目录是否为目录
+                data = WebFileResource.CreateRootFile();
+            }else{
+                data = fileTool.queryRoot(user);
+            }
+
         } else if (req.getPathInfo().endsWith("/")) {// 子目录请求
             data = fileTool.queryList(path, depth, user);
         } else {// 文件请求

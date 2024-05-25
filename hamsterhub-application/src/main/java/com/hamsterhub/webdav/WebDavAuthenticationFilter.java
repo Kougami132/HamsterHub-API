@@ -29,7 +29,7 @@ public class WebDavAuthenticationFilter implements Filter {
         this.accountService = accountService;
     }
 
-    private final String realm = "my-realm";
+    private final String realm = "HamsterHub";
     private final String key = "GMXCVFWEAWT^UMUYN";
 
     private Boolean CheckPassword(String username, String password, HttpServletRequest request){
@@ -114,7 +114,7 @@ public class WebDavAuthenticationFilter implements Filter {
     private void sendChallenge(HttpServletResponse response) throws IOException {
 //        String nonce = generateNonce();
 //        String authenticateHeader = "Digest realm=\"" + realm + "\", qop=\"auth\", nonce=\"" + nonce + "\", opaque=\"" + md5Hex(realm) + "\"";
-        String authenticateHeader = "Basic";
+        String authenticateHeader = "Basic realm=\"" + realm + "\"";
                 response.setHeader("WWW-Authenticate", authenticateHeader);
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
     }

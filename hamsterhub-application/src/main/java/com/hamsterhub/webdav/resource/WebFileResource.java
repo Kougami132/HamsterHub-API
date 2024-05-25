@@ -16,7 +16,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
 public class WebFileResource {
     private String href;
@@ -25,11 +24,32 @@ public class WebFileResource {
     private Boolean isCollection;
     private Map<String,String> prop;
 
+    public static List<WebFileResource> CreateRootFile() throws UnsupportedEncodingException {
+        List<WebFileResource> data = new ArrayList<>();
+        WebFileResource temp = new WebFileResource();
+        // 根目录属性默认值
+        temp.setName("Home");
+        temp.setHrefAndEncode("/");
+        temp.setIsCollection(true);
+        data.add(temp);
+        return data;
+    }
+
+    public WebFileResource() throws UnsupportedEncodingException {
+        prop = new HashMap<>();
+        // 没有时间则返回当前时间
+        Date date = new Date();
+        SimpleDateFormat webDavDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
+        webDavDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        String data = webDavDateFormat.format(date);
+        prop.put("creationdate",data);
+        prop.put("getlastmodified",data);
+    }
 
     public WebFileResource(String url, VFileDTO vFileDTO) throws UnsupportedEncodingException {
         name = vFileDTO.getName();
         isCollection = vFileDTO.isDir();
-        String path = url + "/" + vFileDTO.getName() + (vFileDTO.isDir() ? "/" : "");
+//        String path = url + "/" + vFileDTO.getName() + (vFileDTO.isDir() ? "/" : "");
         // 避免特殊字符的影响需要url编码，同时由于历史原因需要将+ 转为为%20 以保证解码结果正确
         href = encodeUrl(url + "/" + vFileDTO.getName() + (vFileDTO.isDir() ? "/" : ""));
         downloadHref = null;
@@ -40,6 +60,11 @@ public class WebFileResource {
         if (!vFileDTO.isDir()){
             prop.put("getcontentlength",vFileDTO.getSize().toString());
         }
+    }
+
+    public void setHrefAndEncode(String url) throws UnsupportedEncodingException {
+        // 避免特殊字符的影响需要url编码，同时由于历史原因需要将+ 转为为%20 以保证解码结果正确
+        href = encodeUrl(url);
     }
 
     public void setDownloadHrefAndEncode(String url) throws UnsupportedEncodingException {

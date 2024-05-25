@@ -206,7 +206,8 @@ public class FileTool {
 
                 temp.setName(i.getRoot());
                 temp.setIsCollection(true); // 策略一定是文件夹
-                temp.setHref("/" + i.getRoot() + "/");
+//                temp.setHref("/" + i.getRoot() + "/");
+                temp.setHrefAndEncode("/" + i.getRoot() + "/");
                 data.add(temp);
             }
         }
