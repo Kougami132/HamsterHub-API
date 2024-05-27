@@ -15,6 +15,7 @@ import com.hamsterhub.service.RedisService;
 import com.hamsterhub.service.dto.*;
 import com.hamsterhub.service.service.*;
 import com.hamsterhub.util.SecurityUtil;
+import com.hamsterhub.webdav.resource.FilePathData;
 import com.hamsterhub.webdav.resource.WebFileResource;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -385,6 +383,175 @@ public class FileTool {
         return true;
     }
 
+    public FilePathData parseUrl(String url){
+        String[] paths = splitUrl(url);
+
+        if("".equals(paths[0])){
+            return null;
+        }
+        String root = paths[0];
+        String[] arr = splitUrlBack(paths[1]);
+
+        // 处理为空和不以/开头的情况
+        String parentUrl = arr[0].startsWith("/") || StringUtil.isBlank(arr[0])?arr[0]:"/"+arr[0];
+
+        return new FilePathData(paths[0],paths[1],parentUrl,arr[1]);
+    }
+
+    public Boolean copy(String url, String destination, AccountDTO accountDTO) {
+
+
+        FilePathData targetFile = parseUrl(url);
+        FilePathData destinationFile = parseUrl(destination);
+
+        if(targetFile == null || destinationFile == null ){
+            return false;
+        }
+
+        if(StringUtil.isBlank(targetFile.getName())){
+            return false;
+        }
+        Long fileId = 0L;
+
+        if(!StringUtil.isBlank(targetFile.getFileUrl())){
+            VFileDTO vFileDTO = queryFile(targetFile.getRoot(), targetFile.getFileUrl(), accountDTO);
+            fileId = vFileDTO.getId();
+        }
+
+        Long parentId = 0L;
+
+        if(!StringUtil.isBlank(destinationFile.getParentUrl())){
+            VFileDTO vFileDTO = queryFile(destinationFile.getRoot(), destinationFile.getParentUrl(), accountDTO);
+            parentId = vFileDTO.getId();
+        }
+
+        return copy(fileId,parentId,accountDTO);
+    }
+
+
+    public Boolean copy(Long vFileId, Long parentId, AccountDTO accountDTO) {
+        VFileDTO vFileDTO = vFileService.query(vFileId);
+        VFileDTO vParentDTO;
+        if (parentId.equals(0L)) {
+            vParentDTO = VFileDTO.rootFileDTO();
+            vParentDTO.setAccountID(accountDTO.getId());
+            vParentDTO.setStrategyId(vFileDTO.getStrategyId());
+        }
+        else
+            vParentDTO = vFileService.query(parentId);
+
+        // 文件与用户不匹配
+        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
+            throw new BusinessException(CommonErrorCode.E_600005);
+
+        // 目标文件不为目录
+        if (!vParentDTO.isDir())
+            throw new BusinessException(CommonErrorCode.E_600013);
+        // 文件与目标目录不属于同策略
+        if (!vFileDTO.getStrategyId().equals(vParentDTO.getStrategyId()))
+            throw new BusinessException(CommonErrorCode.E_600022);
+        // 目标目录已存在同名文件
+        if (vFileService.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), parentId, vFileDTO.getName()))
+            throw new BusinessException(CommonErrorCode.E_600016);
+        // 目标目录是文件的子目录
+        while (!vParentDTO.getId().equals(0L) && !vParentDTO.getParentId().equals(0L)) {
+            if (vParentDTO.getParentId().equals(vFileDTO.getId()))
+                throw new BusinessException(CommonErrorCode.E_600023);
+            vParentDTO = vFileService.query(vParentDTO.getParentId());
+        }
+
+        // BFS复制文件
+        Queue<VFileDTO> queue = new LinkedList<>();
+        Map<Long, Long> map =  new HashMap<>();
+        queue.offer(vFileDTO);
+        map.put(vFileDTO.getParentId(), parentId);
+        while (!queue.isEmpty()) {
+            VFileDTO cur = queue.poll();
+            if (cur.isDir()) {
+                List<VFileDTO> vFileDTOs = vFileService.queryBatch(cur.getAccountID(), cur.getStrategyId(), cur.getId());
+                for (VFileDTO i: vFileDTOs)
+                    queue.offer(i);
+            }
+            cur.setParentId(map.get(cur.getParentId()));
+            VFileDTO newVFileDTO = vFileService.create(cur);
+            map.put(cur.getId(), newVFileDTO.getId());
+        }
+
+        return true;
+    }
+
+    public Boolean move(String url, String destination, AccountDTO accountDTO) {
+
+
+        FilePathData targetFile = parseUrl(url);
+        FilePathData destinationFile = parseUrl(destination);
+
+        if(targetFile == null || destinationFile == null ){
+            return false;
+        }
+
+        if(StringUtil.isBlank(targetFile.getName())){
+            return false;
+        }
+        Long fileId = 0L;
+
+        if(!StringUtil.isBlank(targetFile.getFileUrl())){
+            VFileDTO vFileDTO = queryFile(targetFile.getRoot(), targetFile.getFileUrl(), accountDTO);
+            fileId = vFileDTO.getId();
+        }
+
+        Long parentId = 0L;
+
+        if(!StringUtil.isBlank(destinationFile.getParentUrl())){
+            VFileDTO vFileDTO = queryFile(destinationFile.getRoot(), destinationFile.getParentUrl(), accountDTO);
+            parentId = vFileDTO.getId();
+        }
+
+        return move(fileId,parentId,accountDTO);
+    }
+
+
+    public Boolean move(Long vFileId, Long parentId, AccountDTO accountDTO) {
+        VFileDTO vFileDTO = vFileService.query(vFileId);
+        VFileDTO vParentDTO;
+        if (parentId.equals(0L)) {
+            vParentDTO = VFileDTO.rootFileDTO();
+            vParentDTO.setAccountID(accountDTO.getId());
+            vParentDTO.setStrategyId(vFileDTO.getStrategyId());
+        }
+        else
+            vParentDTO = vFileService.query(parentId);
+        // 文件与用户不匹配
+        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
+            throw new BusinessException(CommonErrorCode.E_600005);
+
+        // 目标文件不为目录
+        if (!vParentDTO.isDir())
+            throw new BusinessException(CommonErrorCode.E_600013);
+        // 文件与目标目录不属于同策略
+        if (!vFileDTO.getStrategyId().equals(vParentDTO.getStrategyId()))
+            throw new BusinessException(CommonErrorCode.E_600022);
+        // 目标目录已存在同名文件
+        if (vFileService.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), parentId, vFileDTO.getName()))
+            throw new BusinessException(CommonErrorCode.E_600016);
+        // 目标目录是文件的子目录
+        while (!vParentDTO.getId().equals(0L) && !vParentDTO.getParentId().equals(0L)) {
+            if (vParentDTO.getParentId().equals(vFileDTO.getId()))
+                throw new BusinessException(CommonErrorCode.E_600023);
+            vParentDTO = vFileService.query(vParentDTO.getParentId());
+        }
+
+        List<VFileDTO> vFileDTOs = vFileService.query(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), vFileDTO.getParentId(), vFileDTO.getName());
+        for (VFileDTO i: vFileDTOs) {
+            i.setParentId(parentId);
+            vFileService.update(i);
+        }
+
+        // 移动后需要把原来路径的缓存删除
+        redisService.delFileId(strategyService.query(vFileDTO.getStrategyId()).getRoot(), accountDTO.getId(), vFileId);
+
+        return true;
+    }
 
 
 

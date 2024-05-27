@@ -11,6 +11,8 @@ import com.hamsterhub.util.ApplicationContextHelper;
 import com.hamsterhub.webdav.resource.WebFileResource;
 import org.apache.catalina.WebResource;
 import org.apache.catalina.servlets.WebdavServlet;
+import org.apache.tomcat.util.buf.UDecoder;
+import org.apache.tomcat.util.http.RequestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
@@ -31,6 +33,7 @@ import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -292,10 +295,8 @@ public class MyWebDavServlet extends WebdavServlet {
 //        }
     }
 
-
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         AccountDTO user = getUser(req,resp);
         String path = getRelativePath(req);
 
@@ -328,8 +329,7 @@ public class MyWebDavServlet extends WebdavServlet {
     }
 
     @Override
-    protected void doMkcol(HttpServletRequest req, HttpServletResponse resp)
-            throws ServletException, IOException {
+    protected void doMkcol(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
         AccountDTO user = getUser(req,resp);
         String path = getRelativePath(req);
@@ -365,6 +365,141 @@ public class MyWebDavServlet extends WebdavServlet {
             resp.sendError(WebdavStatus.SC_CONFLICT,WebdavStatus.getStatusText(WebdavStatus.SC_CONFLICT));
         }
     }
+
+    public String parseDestinationPath(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        String destinationPath = req.getHeader("Destination");
+
+        if (destinationPath == null) {
+            resp.sendError(WebdavStatus.SC_BAD_REQUEST);
+            return null;
+        }
+        // 解码
+        destinationPath = UDecoder.URLDecode(destinationPath, StandardCharsets.UTF_8);
+
+        // 移除url的前面部分
+        int protocolIndex = destinationPath.indexOf("://");
+        if (protocolIndex >= 0) {
+            int firstSeparator =
+                    destinationPath.indexOf('/', protocolIndex + 4);
+            if (firstSeparator < 0) {
+                destinationPath = "/";
+            } else {
+                destinationPath = destinationPath.substring(firstSeparator);
+            }
+        } else {
+            String hostName = req.getServerName();
+            if ((hostName != null) && (destinationPath.startsWith(hostName))) {
+                destinationPath = destinationPath.substring(hostName.length());
+            }
+
+            int portIndex = destinationPath.indexOf(':');
+            if (portIndex >= 0) {
+                destinationPath = destinationPath.substring(portIndex);
+            }
+
+            if (destinationPath.startsWith(":")) {
+                int firstSeparator = destinationPath.indexOf('/');
+                if (firstSeparator < 0) {
+                    destinationPath = "/";
+                } else {
+                    destinationPath =
+                            destinationPath.substring(firstSeparator);
+                }
+            }
+        }
+
+        // Normalise destination path (remove '.' and '..')
+        destinationPath = RequestUtil.normalize(destinationPath);
+
+        String contextPath = req.getContextPath();
+        if ((contextPath != null) &&
+                (destinationPath.startsWith(contextPath))) {
+            destinationPath = destinationPath.substring(contextPath.length());
+        }
+
+        // 处理/dav，默认的webdav目录
+        String davPath = "/dav";
+        if (destinationPath.startsWith(davPath)) {
+            destinationPath = destinationPath.substring(davPath.length());
+        }
+
+        return destinationPath;
+    }
+
+    protected void doCopy(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+//        todo
+//        if (readOnly) {
+//            resp.sendError(WebdavStatus.SC_FORBIDDEN);
+//            return;
+//        }
+        AccountDTO user = getUser(req,resp);
+
+
+        String destinationPath = parseDestinationPath(req,resp);
+
+        if(destinationPath== null){
+            return;
+        }
+
+        String path = req.getPathInfo();
+        if (path.length() > 1 && path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        if (destinationPath.equals(path)) {
+            resp.sendError(WebdavStatus.SC_FORBIDDEN);
+            return ;
+        }
+
+        if(fileTool.copy(path,destinationPath,user)){
+            resp.setStatus(WebdavStatus.SC_CREATED);
+        }else{
+            resp.sendError(WebdavStatus.SC_BAD_REQUEST);
+        }
+
+//        todo
+//        boolean overwrite = true;
+//        String overwriteHeader = req.getHeader("Overwrite");
+//
+//        if (overwriteHeader != null) {
+//            if (overwriteHeader.equalsIgnoreCase("T")) {
+//                overwrite = true;
+//            } else {
+//                overwrite = false;
+//            }
+//        }
+
+    }
+
+
+    protected void doMove(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        AccountDTO user = getUser(req,resp);
+
+        String destinationPath = parseDestinationPath(req,resp);
+
+        if(destinationPath== null){
+            return;
+        }
+
+        String path = req.getPathInfo();
+        if (path.length() > 1 && path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        if (destinationPath.equals(path)) {
+            resp.sendError(WebdavStatus.SC_FORBIDDEN);
+            return ;
+        }
+
+        if(fileTool.move(path,destinationPath,user)){
+            resp.setStatus(WebdavStatus.SC_CREATED);
+        }else{
+            resp.sendError(WebdavStatus.SC_BAD_REQUEST);
+        }
+
+
+    }
+
 }
 
 
