@@ -12,5 +12,4 @@ public class LoginResponse {
     private String type;
     private String username;
     private String token;
-    private Integer type;
 }
