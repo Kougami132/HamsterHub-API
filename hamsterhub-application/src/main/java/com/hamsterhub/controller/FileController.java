@@ -441,8 +441,8 @@ public class FileController {
         if (!vFileDTO.getStrategyId().equals(vParentDTO.getStrategyId()))
             throw new BusinessException(CommonErrorCode.E_600022);
         // 目标目录已存在同名文件
-        if (vFileService.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), parentId, vFileDTO.getName()))
-            throw new BusinessException(CommonErrorCode.E_600016);
+        while (vFileService.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), parentId, vFileDTO.getName()))
+            vFileDTO.setName(StringUtil.generateCopy(vFileDTO.getName()));
         // 目标目录是文件的子目录
         while (!vParentDTO.getId().equals(0L) && !vParentDTO.getParentId().equals(0L)) {
             if (vParentDTO.getParentId().equals(vFileDTO.getId()))
@@ -496,8 +496,8 @@ public class FileController {
         if (!vFileDTO.getStrategyId().equals(vParentDTO.getStrategyId()))
             throw new BusinessException(CommonErrorCode.E_600022);
         // 目标目录已存在同名文件
-        if (vFileService.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), parentId, vFileDTO.getName()))
-            throw new BusinessException(CommonErrorCode.E_600016);
+        while (vFileService.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), parentId, vFileDTO.getName()))
+            vFileDTO.setName(StringUtil.generateCopy(vFileDTO.getName()));
         // 目标目录是文件的子目录
         while (!vParentDTO.getId().equals(0L) && !vParentDTO.getParentId().equals(0L)) {
             if (vParentDTO.getParentId().equals(vFileDTO.getId()))

@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MatchUtil;
+import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.service.convert.VFileConvert;
 import com.hamsterhub.service.dto.StrategyDTO;
 import com.hamsterhub.service.dto.VFileDTO;
@@ -51,7 +52,7 @@ public class VFileServiceImpl implements VFileService {
         }
         // 文件已存在
         while (vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getStrategyId, vFileDTO.getStrategyId()).eq(VFile::getParentId, vFileDTO.getParentId()).eq(VFile::getName, vFileDTO.getName())) > 0)
-            vFileDTO.setName(generateCopy(vFileDTO.getName()));
+            vFileDTO.setName(StringUtil.generateCopy(vFileDTO.getName()));
 
         VFile entity = VFileConvert.INSTANCE.dto2entity(vFileDTO);
         entity.setId(null);
@@ -74,7 +75,7 @@ public class VFileServiceImpl implements VFileService {
         }
         // 目录已存在
         while (vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getStrategyId, vFileDTO.getStrategyId()).eq(VFile::getParentId, vFileDTO.getParentId()).eq(VFile::getName, vFileDTO.getName())) > 0)
-            vFileDTO.setName(generateCopy(vFileDTO.getName()));
+            vFileDTO.setName(StringUtil.generateCopy(vFileDTO.getName()));
 
         VFile entity = VFileConvert.INSTANCE.dto2entity(vFileDTO);
         entity.setId(null);
@@ -356,11 +357,6 @@ public class VFileServiceImpl implements VFileService {
         // 删除实际文件，条件：文件为文件类型且无相同rFile指向
         if (entity.getType().equals(1) && vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getRFileId, entity.getRFileId())) == 0)
             result.add(entity.getRFileId());
-    }
-    private String generateCopy(String name) {
-        if (name.indexOf('.') == -1) return name + " copy";
-        String extension = name.substring(name.lastIndexOf('.') + 1);
-        return name.substring(0, name.lastIndexOf('.')) + "copy." + extension;
     }
 
 }
