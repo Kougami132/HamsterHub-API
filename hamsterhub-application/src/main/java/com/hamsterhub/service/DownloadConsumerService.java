@@ -98,7 +98,7 @@ public class DownloadConsumerService implements RocketMQListener<DownloadTask> {
         for (File i: files)
             createFileInfo(i, downloadTask.getStrategyId(), downloadTask.getParentId(), downloadTask.getAccountId());
 
-        redisService.removeTask(downloadTask.getTag());
+        redisService.addTask(downloadTask.getAccountId(), downloadTask.getTag(), "done");
     }
 
     private void createFileInfo(File file, Long strategyId, Long parentId, Long accountId) {

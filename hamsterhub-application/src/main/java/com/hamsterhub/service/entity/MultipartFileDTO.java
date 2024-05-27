@@ -1,12 +1,10 @@
 package com.hamsterhub.service.entity;
 
+import org.apache.http.entity.ContentType;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 
 /**
  * @Author: szz
