@@ -471,7 +471,6 @@ public class MyWebDavServlet extends WebdavServlet {
 
     }
 
-
     protected void doMove(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         AccountDTO user = getUser(req,resp);
 

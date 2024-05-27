@@ -70,7 +70,8 @@ public class AccountController {
         accountDTO = accountService.create(accountDTO);
 
         String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), 1);
-        LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountDTO.getUsername(), token);
+
+        LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountDTO.getUsername(), token, accountDTO.getType());
         return Response.success().msg("注册成功").data(data);
     }
 
@@ -92,7 +93,7 @@ public class AccountController {
         else expiryDay = 1;
         String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), expiryDay);
 
-        LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountDTO.getUsername(), token);
+        LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountDTO.getUsername(), token, accountDTO.getType());
         return Response.success().msg("登录成功").data(data);
     }
 
@@ -143,7 +144,7 @@ public class AccountController {
         AccountDTO accountDTO = SecurityUtil.getAccount();
         String newToken = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), 7);
         redisService.addTokenBlacklist(oldToken);
-        LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountDTO.getUsername(), newToken);
+        LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountDTO.getUsername(), newToken, accountDTO.getType());
         return Response.success().data(data);
     }
 }
