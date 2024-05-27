@@ -176,7 +176,7 @@ public class StrategyController {
             res += 1 << i;
         return res;
     }
-    private List<Integer> separatePermission(Integer permission) {
+    public static List<Integer> separatePermission(Integer permission) {
         List<Integer> res = new ArrayList<>();
         Integer count = 0;
         while (permission > 0) {
