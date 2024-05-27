@@ -174,7 +174,7 @@ public class FileController {
         AccountDTO accountDTO = SecurityUtil.getAccount();
 
         StrategyDTO strategyDTO = strategyService.query(root);
-        VFileDTO vFileDTO = new VFileDTO(null, 0, name, parentId, 0L, 0, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), 0L, strategyDTO.getId(), 0);
+        VFileDTO vFileDTO = VFileDTO.newDir(name, strategyDTO.getId(), parentId, accountDTO.getId());
         VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileService.createDir(vFileDTO));
 
         return Response.success().data(data);
@@ -224,7 +224,7 @@ public class FileController {
             rFileDTO = fileService.upload(file, strategyDTO);
         }
 
-        VFileDTO vFileDTO = new VFileDTO(null, 1, name, parentId, rFileDTO.getId(), version, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), rFileDTO.getSize(), strategyDTO.getId(), 0);
+        VFileDTO vFileDTO = VFileDTO.newFile(name, strategyDTO.getId(), parentId, rFileDTO, accountDTO.getId());
         VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileService.create(vFileDTO));
 
         return Response.success().msg("上传成功").data(data);

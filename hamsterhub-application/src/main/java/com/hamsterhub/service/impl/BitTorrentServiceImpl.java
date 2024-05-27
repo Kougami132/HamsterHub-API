@@ -74,6 +74,8 @@ public class BitTorrentServiceImpl implements BitTorrentService {
 
     @Override
     public Boolean addTorrent(String tag, String magnet, String path) throws BusinessException {
+        path = System.getProperty("user.dir") + "/" + path;
+
         String url = this.address + "/api/v2/torrents/add";
 
         // header

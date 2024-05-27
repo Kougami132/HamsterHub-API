@@ -3,6 +3,9 @@ package com.hamsterhub.service;
 import com.hamsterhub.common.domain.BusinessException;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public interface RedisService {
     /**
@@ -38,5 +41,9 @@ public interface RedisService {
     /**
      * 下载任务
      */
-
+    Map<String, String> getTasks() throws BusinessException;
+    Map<String, String> getTasks(Long accountId) throws BusinessException;
+    void addTask(Long accountId, String tag) throws BusinessException;
+    void addTask(Long accountId, String tag, String state) throws BusinessException;
+    void removeTask(String tag) throws BusinessException;
 }

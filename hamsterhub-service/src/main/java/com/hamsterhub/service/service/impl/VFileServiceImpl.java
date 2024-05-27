@@ -49,6 +49,9 @@ public class VFileServiceImpl implements VFileService {
             if (!this.query(vFileDTO.getParentId()).getType().equals(0))
                 throw new BusinessException(CommonErrorCode.E_600013);
         }
+        // 文件已存在
+        while (vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getStrategyId, vFileDTO.getStrategyId()).eq(VFile::getParentId, vFileDTO.getParentId()).eq(VFile::getName, vFileDTO.getName())) > 0)
+            vFileDTO.setName(generateCopy(vFileDTO.getName()));
 
         VFile entity = VFileConvert.INSTANCE.dto2entity(vFileDTO);
         entity.setId(null);
@@ -70,8 +73,8 @@ public class VFileServiceImpl implements VFileService {
                 throw new BusinessException(CommonErrorCode.E_600013);
         }
         // 目录已存在
-        if (vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getStrategyId, vFileDTO.getStrategyId()).eq(VFile::getParentId, vFileDTO.getParentId()).eq(VFile::getName, vFileDTO.getName())) > 0)
-            throw new BusinessException(CommonErrorCode.E_600014);
+        while (vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getStrategyId, vFileDTO.getStrategyId()).eq(VFile::getParentId, vFileDTO.getParentId()).eq(VFile::getName, vFileDTO.getName())) > 0)
+            vFileDTO.setName(generateCopy(vFileDTO.getName()));
 
         VFile entity = VFileConvert.INSTANCE.dto2entity(vFileDTO);
         entity.setId(null);
@@ -340,7 +343,7 @@ public class VFileServiceImpl implements VFileService {
             return 0L;
     }
 
-    public void rm(List<Long> result, Long vFileId) {
+    private void rm(List<Long> result, Long vFileId) {
         VFile entity = vFileMapper.selectById(vFileId);
         if (entity.getType().equals(0)) { //文件夹
             Long accountId = entity.getAccountID();
@@ -354,4 +357,10 @@ public class VFileServiceImpl implements VFileService {
         if (entity.getType().equals(1) && vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getRFileId, entity.getRFileId())) == 0)
             result.add(entity.getRFileId());
     }
+    private String generateCopy(String name) {
+        if (name.indexOf('.') == -1) return name + " copy";
+        String extension = name.substring(name.lastIndexOf('.') + 1);
+        return name.substring(0, name.lastIndexOf('.')) + "copy." + extension;
+    }
+
 }

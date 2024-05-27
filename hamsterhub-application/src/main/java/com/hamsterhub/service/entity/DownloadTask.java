@@ -10,5 +10,7 @@ import lombok.NoArgsConstructor;
 public class DownloadTask {
     private String tag;
     private String magnet;
-    private String savePath;
+    private Long strategyId;
+    private Long parentId;
+    private Long accountId;
 }

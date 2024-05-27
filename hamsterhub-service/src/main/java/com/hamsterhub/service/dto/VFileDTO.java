@@ -62,4 +62,16 @@ public class VFileDTO {
         vFileDTO.setType(0);
         return vFileDTO;
     }
+
+    public static VFileDTO newFile(String name, Long strategyId, Long parentId, RFileDTO rFileDTO, Long accountId) {
+        VFileDTO file = new VFileDTO(null, 1, name, parentId, rFileDTO.getId(), 0,
+                LocalDateTime.now(), LocalDateTime.now(), accountId, rFileDTO.getSize(), strategyId, 0);
+        return file;
+    }
+
+    public static VFileDTO newDir(String name, Long strategyId, Long parentId, Long accountId) {
+        VFileDTO dir = new VFileDTO(null, 0, name, parentId, 0L, 0, LocalDateTime.now(),
+                LocalDateTime.now(), accountId, 0L, strategyId, 0);
+        return dir;
+    }
 }

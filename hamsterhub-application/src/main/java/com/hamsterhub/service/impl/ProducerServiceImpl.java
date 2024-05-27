@@ -1,5 +1,7 @@
 package com.hamsterhub.service.impl;
 
+import com.hamsterhub.common.domain.BusinessException;
+import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.service.entity.DownloadTask;
 import com.hamsterhub.service.ProducerService;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.UUID;
 
 @Slf4j
@@ -23,9 +26,10 @@ public class ProducerServiceImpl implements ProducerService {
     private RocketMQTemplate rocketMQTemplate;
 
     @Override
-    public String sendDownloadMsg(String magnet, String savePath) {
+    public String sendDownloadMsg(String magnet, Long strategyId, Long parentId, Long accountId) throws BusinessException {
         String tag = UUID.randomUUID().toString();
-        rocketMQTemplate.asyncSend(this.topic + ":DOWNLOAD", MessageBuilder.withPayload(new DownloadTask(tag, magnet, savePath)).build(), new SendCallback() {
+
+        rocketMQTemplate.asyncSend(this.topic + ":DOWNLOAD", MessageBuilder.withPayload(new DownloadTask(tag, magnet, strategyId, parentId, accountId)).build(), new SendCallback() {
             @Override
             public void onSuccess(SendResult sendResult) {
                 log.info("发送下载消息成功, tag: {}", tag);

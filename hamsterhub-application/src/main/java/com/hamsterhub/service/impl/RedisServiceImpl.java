@@ -11,8 +11,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 @Service
 public class RedisServiceImpl implements RedisService {
@@ -135,5 +136,48 @@ public class RedisServiceImpl implements RedisService {
     public boolean isAliSessionExist(Long deviceId) throws BusinessException {
         String key = this.prefix + ":ali:" + deviceId;
         return redisTemplate.hasKey(key);
+    }
+
+    @Override
+    public Map<String, String> getTasks() throws BusinessException {
+        String key = this.prefix + ":task:";
+        Set<String> keys = redisTemplate.keys(key + "*");
+        Map<String, String> res = new HashMap<>();
+        keys.stream().forEach(o -> res.put(
+                o.substring(o.lastIndexOf(':') + 1),
+                redisTemplate.opsForValue().get(o)
+        ));
+        return res;
+    }
+
+    @Override
+    public Map<String, String> getTasks(Long accountId) throws BusinessException {
+        String key = this.prefix + ":task:" + accountId + ":";
+        Set<String> keys = redisTemplate.keys(key + "*");
+        Map<String, String> res = new HashMap<>();
+        keys.stream().forEach(o -> res.put(
+                o.replace(key, ""),
+                redisTemplate.opsForValue().get(o)
+        ));
+        return res;
+    }
+
+    @Override
+    public void addTask(Long accountId, String tag) throws BusinessException {
+        addTask(accountId, tag, "waiting");
+    }
+
+    @Override
+    public void addTask(Long accountId, String tag, String state) throws BusinessException {
+        String key = this.prefix + ":task:" + accountId + ":" + tag;
+        redisTemplate.opsForValue().set(key, state);
+    }
+
+    @Override
+    public void removeTask(String tag) throws BusinessException {
+        String key = this.prefix + ":task:";
+        Set<String> keys = redisTemplate.keys(key + "*");
+        String s = keys.stream().filter(o -> o.contains(tag)).findFirst().get();
+        redisTemplate.delete(s);
     }
 }

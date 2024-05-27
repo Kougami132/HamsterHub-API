@@ -61,7 +61,7 @@ CREATE TABLE IF NOT EXISTS `r_file` (
 CREATE TABLE IF NOT EXISTS `v_file` (
                           `ID` bigint(20) NOT NULL COMMENT '主键',
                           `TYPE` bigint(10) NOT NULL COMMENT '文件类型',
-                          `NAME` varchar(50) NOT NULL COMMENT '文件名',
+                          `NAME` varchar(255) NOT NULL COMMENT '文件名',
                           `PARENT_ID` bigint(20) NOT NULL COMMENT '父文件id',
                           `R_FILE_ID` bigint(20) NOT NULL COMMENT '实际文件id',
                           `VERSION` bigint(20) NOT NULL DEFAULT '1' COMMENT '文件版本',
