@@ -9,6 +9,7 @@ services:
     volumes:
       - ./uploads:/app/uploads
       - ./avatars:/app/avatars
+      - ./temp:/app/temp
     environment:
       - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
@@ -23,9 +24,14 @@ services:
       - SDK_APP_ID=1400904738
       - SIGN_NAME=kougamiCn网
       - TEMPLATE_ID=2134000
+      - BIT_ADDRESS=qb
+      - BIT_PORT=8888
+      - BIT_USERNAME=admin
+      - BIT_PASSWORD=adminadmin
     depends_on:
       - mysql
       - redis
+      - qb
 
   mysql:
     image: mysql:8.0.33
@@ -53,6 +59,22 @@ services:
       - ./redis/logs:/logs
     command:
       redis-server /usr/local/etc/redis/redis.conf --requirepass <PASSWORD> # 需和上面的REDIS_PASSWORD一致
+
+  qb:
+    image: linuxserver/qbittorrent
+    container_name: hh-qb
+    restart: unless-stopped
+    expose:
+      - '8888'
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Shanghai # 你的时区
+      - UMASK_SET=022
+      - WEBUI_PORT=8888 # 将此处修改成你欲使用的 WEB 管理平台端口
+    volumes:
+      - ./qb-config:/config # 绝对路径请修改为自己的config文件夹
+      - ./temp:/downloads # 绝对路径请修改为自己的downloads文件夹
 
 networks:
   default:

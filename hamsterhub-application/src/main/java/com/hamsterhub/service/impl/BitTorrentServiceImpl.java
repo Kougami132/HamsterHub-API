@@ -3,6 +3,7 @@ package com.hamsterhub.service.impl;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.service.BitTorrentService;
 import com.hamsterhub.service.entity.Torrent;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class BitTorrentServiceImpl implements BitTorrentService {
 
     @Value("${bit-torrent.address}")
@@ -54,7 +56,7 @@ public class BitTorrentServiceImpl implements BitTorrentService {
             return true;
         }
         catch (Exception e) {
-            e.printStackTrace();
+            log.error("qbittorrent连接错误，连接地址：{}", url);
             return false;
         }
     }
@@ -73,9 +75,7 @@ public class BitTorrentServiceImpl implements BitTorrentService {
     }
 
     @Override
-    public Boolean addTorrent(String tag, String magnet, String path) throws BusinessException {
-//        path = System.getProperty("user.dir") + "/" + path;
-
+    public Boolean addTorrent(String tag, String magnet) throws BusinessException {
         String url = this.address + "/api/v2/torrents/add";
 
         // header
@@ -87,7 +87,6 @@ public class BitTorrentServiceImpl implements BitTorrentService {
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
         form.add("tags", tag);
         form.add("urls", magnet);
-        form.add("savepath", path);
 
         HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(form, headers);
 
