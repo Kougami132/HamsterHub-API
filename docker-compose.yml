@@ -70,7 +70,6 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Asia/Shanghai # 你的时区
-      - UMASK_SET=022
       - WEBUI_PORT=8888 # 将此处修改成你欲使用的 WEB 管理平台端口
     volumes:
       - ./qb-config:/config # 绝对路径请修改为自己的config文件夹

@@ -45,7 +45,7 @@ sms:
     templateId: ${TEMPLATE_ID}
 
 bit-torrent:
-  address: ${BIT_ADDRESS:http://localhost}:${BIT_PORT:8888}
+  address: http://${BIT_ADDRESS:localhost}:${BIT_PORT:8888}
   username: ${BIT_USERNAME:admin}
   password: ${BIT_PASSWORD:admin132}
 
