@@ -8,7 +8,7 @@ import java.util.List;
 public interface BitTorrentService {
     Boolean connect() throws BusinessException;
     List<Torrent> getTorrents() throws BusinessException;
-    Boolean addTorrent(String tag, String magnet) throws BusinessException;
+    Boolean addTorrent(String tag, String magnet, String path) throws BusinessException;
     Boolean deleteTorrent(String tag) throws BusinessException;
     Torrent getTorrent(String tag) throws BusinessException;
 }

@@ -35,8 +35,6 @@ public class TaskController {
     private RedisService redisService;
     @Autowired
     private BitTorrentService bitTorrentService;
-//    @Autowired
-//    private ProducerService producerService;
     @Autowired
     private VFileService vFileService;
     @Autowired
@@ -58,7 +56,6 @@ public class TaskController {
         if (parentId != 0 && !vFileService.query(parentId).isDir())
             throw new BusinessException(CommonErrorCode.E_600013);
 
-//        String tag = producerService.sendDownloadMsg(url, strategyService.query(root).getId(), parentId, accountDTO.getId());
         String tag = StringUtil.generateRandomString(16);
         redisService.addTask(accountDTO.getId(), tag);
         try {
@@ -66,7 +63,7 @@ public class TaskController {
         } catch (RejectedExecutionException e) {
             throw new BusinessException(CommonErrorCode.E_100008);
         }
-        return Response.success().msg("下载请求已加入队列");
+        return Response.success().msg("下载请求已加入队列").data(tag);
     }
 
     @ApiOperation("离线下载任务列表(token)")
@@ -94,7 +91,7 @@ public class TaskController {
         return Response.success().data(res);
     }
 
-    @ApiOperation("离线下载任务列表(token)")
+    @ApiOperation("删除任务(token)")
     @PostMapping(value = "/deleteTask")
     @Token
     public Response deleteTask(@RequestParam("tag") String tag) {
@@ -105,6 +102,7 @@ public class TaskController {
         if (!tasks.containsKey(tag))
             throw new BusinessException(CommonErrorCode.E_100007);
         redisService.removeTask(tag);
+        bitTorrentService.deleteTorrent(tag);
 
         return Response.success().msg("删除成功");
     }

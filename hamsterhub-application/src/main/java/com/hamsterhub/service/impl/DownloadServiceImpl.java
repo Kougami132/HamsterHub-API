@@ -63,7 +63,7 @@ public class DownloadServiceImpl implements DownloadService {
             }
             Torrent torrent = bitTorrentService.getTorrent(tag);
             if (torrent == null)
-                if (!bitTorrentService.addTorrent(tag, magnet)) {
+                if (!bitTorrentService.addTorrent(tag, magnet, tag)) {
                     log.error("下载任务添加失败");
                     redisService.addTask(accountId, tag, "error");
                     return;
