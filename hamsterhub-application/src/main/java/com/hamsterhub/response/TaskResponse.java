@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 public class TaskResponse {
     private String tag;
     private String state;
+    private String name;
     private Long completed;
     private Long total;
 }

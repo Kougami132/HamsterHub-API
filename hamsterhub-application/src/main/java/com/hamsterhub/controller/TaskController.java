@@ -3,10 +3,11 @@ package com.hamsterhub.controller;
 import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
+import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.response.TaskResponse;
 import com.hamsterhub.service.BitTorrentService;
-import com.hamsterhub.service.ProducerService;
+import com.hamsterhub.service.DownloadService;
 import com.hamsterhub.service.RedisService;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.entity.Torrent;
@@ -24,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.concurrent.RejectedExecutionException;
 
 @RestController
 @Api(tags = "任务管理 数据接口")
@@ -34,12 +35,14 @@ public class TaskController {
     private RedisService redisService;
     @Autowired
     private BitTorrentService bitTorrentService;
-    @Autowired
-    private ProducerService producerService;
+//    @Autowired
+//    private ProducerService producerService;
     @Autowired
     private VFileService vFileService;
     @Autowired
     private StrategyService strategyService;
+    @Autowired
+    private DownloadService downloadService;
 
     @ApiOperation("离线下载(token)")
     @PostMapping(value = "/downloadTask")
@@ -55,9 +58,14 @@ public class TaskController {
         if (parentId != 0 && !vFileService.query(parentId).isDir())
             throw new BusinessException(CommonErrorCode.E_600013);
 
-        String tag = producerService.sendDownloadMsg(url, strategyService.query(root).getId(), parentId, accountDTO.getId());
+//        String tag = producerService.sendDownloadMsg(url, strategyService.query(root).getId(), parentId, accountDTO.getId());
+        String tag = StringUtil.generateRandomString(16);
         redisService.addTask(accountDTO.getId(), tag);
-
+        try {
+            downloadService.sendDownloadMsg(tag, url, strategyService.query(root).getId(), parentId, accountDTO.getId());
+        } catch (RejectedExecutionException e) {
+            throw new BusinessException(CommonErrorCode.E_100008);
+        }
         return Response.success().msg("下载请求已加入队列");
     }
 
@@ -76,7 +84,8 @@ public class TaskController {
             task.setState(tasks.get(i));
             Torrent torrent = bitTorrentService.getTorrent(i);
             if (torrent != null) {
-                task.setState(torrent.getState());
+                if (!task.getState().equals("done")) task.setState(torrent.getState());
+                task.setName(torrent.getName());
                 task.setCompleted(torrent.getCompleted());
                 task.setTotal(torrent.getTotal_size());
             }

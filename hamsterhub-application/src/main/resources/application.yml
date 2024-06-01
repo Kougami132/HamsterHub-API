@@ -49,9 +49,6 @@ bit-torrent:
   username: ${BIT_USERNAME:admin}
   password: ${BIT_PASSWORD:admin132}
 
-rocketmq:
-  name-server: ${MQ_ADDRESS:http://localhost}:${MQ_PORT:9876}
-  topic: HamsterHub
   producer:
     group: producer-hh
   consumer:
