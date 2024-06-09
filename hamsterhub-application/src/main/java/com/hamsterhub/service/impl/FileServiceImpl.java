@@ -39,7 +39,7 @@ public class FileServiceImpl implements FileService {
     private RFileService rFileService;
 
     @Override
-    public String getHash(MultipartFile file) throws BusinessException {
+    public String getHash(File file) throws BusinessException {
         return MD5Util.getMd5(file);
     }
 
@@ -71,7 +71,7 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public RFileDTO upload(MultipartFile file, StrategyDTO strategyDTO) throws BusinessException {
+    public RFileDTO upload(File file, StrategyDTO strategyDTO) throws BusinessException {
         String hash = this.getHash(file);
         // 实际文件已存在
         if (rFileService.isExist(hash, strategyDTO.getId()))
@@ -81,14 +81,14 @@ public class FileServiceImpl implements FileService {
         for (Long i: deviceIds)
             deviceDTOs.add(deviceService.query(i));
         // 选择设备算法
-        DeviceDTO deviceDTO = switchDevice(deviceDTOs, strategyDTO.getMode(), file.getSize());
+        DeviceDTO deviceDTO = switchDevice(deviceDTOs, strategyDTO.getMode(), file.length());
         // 设备空间不足
         if (deviceDTO == null)
             throw new BusinessException(CommonErrorCode.E_300007);
         Storage storage = storageService.getInstance(deviceDTO);
         // 上传文件
         String url = storage.upload(file, hash);
-        RFileDTO rFileDTO = new RFileDTO(null, hash, hash, url, file.getSize(), deviceDTO.getId());
+        RFileDTO rFileDTO = new RFileDTO(null, hash, hash, url, file.length(), deviceDTO.getId());
         rFileDTO = rFileService.create(rFileDTO);
         return rFileDTO;
     }

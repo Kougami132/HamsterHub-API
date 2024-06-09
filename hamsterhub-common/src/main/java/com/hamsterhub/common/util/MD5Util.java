@@ -2,6 +2,9 @@ package com.hamsterhub.common.util;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -60,6 +63,28 @@ public class MD5Util {
         }
         return null;
     }
+
+    public static String getMd5(File file) {
+        BigInteger bi = null;
+        try {
+            byte[] buffer = new byte[8192];
+            int len = 0;
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            FileInputStream fis = new FileInputStream(file);
+            while ((len = fis.read(buffer)) != -1) {
+                md.update(buffer, 0, len);
+            }
+            fis.close();
+            byte[] b = md.digest();
+            bi = new BigInteger(1, b);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bi.toString(16);
+    }
+
 
     //public static void main(String[] args) {
     //    String nihao = getMd5("123456string");

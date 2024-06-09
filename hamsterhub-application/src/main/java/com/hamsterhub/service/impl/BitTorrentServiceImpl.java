@@ -75,7 +75,7 @@ public class BitTorrentServiceImpl implements BitTorrentService {
     }
 
     @Override
-    public Boolean addTorrent(String tag, String magnet, String path) throws BusinessException {
+    public Boolean addTorrent(String tag, String magnet) throws BusinessException {
         String url = this.address + "/api/v2/torrents/add";
 
         // header
@@ -87,7 +87,7 @@ public class BitTorrentServiceImpl implements BitTorrentService {
         MultiValueMap<String, Object> form = new LinkedMultiValueMap<>();
         form.add("tags", tag);
         form.add("urls", magnet);
-        form.add("savepath", path);
+        form.add("savepath", tag);
 
         HttpEntity<MultiValueMap<String, Object>> entity = new HttpEntity<>(form, headers);
 

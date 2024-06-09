@@ -36,7 +36,7 @@ public class Torrent {
 //    private Double progress;
 //    private Long ratio;
 //    private Long ratio_limit;
-//    private String save_path;
+    private String save_path;
 //    private Long seeding_time;
 //    private Long seeding_time_limit;
 //    private Long seen_complete;

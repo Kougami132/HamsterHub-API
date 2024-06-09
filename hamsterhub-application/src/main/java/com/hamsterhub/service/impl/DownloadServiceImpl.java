@@ -11,23 +11,17 @@ import com.hamsterhub.service.RedisService;
 import com.hamsterhub.service.dto.RFileDTO;
 import com.hamsterhub.service.dto.StrategyDTO;
 import com.hamsterhub.service.dto.VFileDTO;
-import com.hamsterhub.service.entity.MultipartFileDTO;
 import com.hamsterhub.service.entity.Torrent;
 import com.hamsterhub.service.service.RFileService;
 import com.hamsterhub.service.service.StrategyService;
 import com.hamsterhub.service.service.VFileService;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.http.entity.ContentType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.Executor;
 
 @Service
@@ -63,7 +57,7 @@ public class DownloadServiceImpl implements DownloadService {
             }
             Torrent torrent = bitTorrentService.getTorrent(tag);
             if (torrent == null)
-                if (!bitTorrentService.addTorrent(tag, magnet, tag)) {
+                if (!bitTorrentService.addTorrent(tag, magnet)) {
                     log.error("下载任务添加失败");
                     redisService.addTask(accountId, tag, "error");
                     return;
@@ -97,6 +91,7 @@ public class DownloadServiceImpl implements DownloadService {
 
                 log.info("{} 下载状态: {}, {}MB / {}MB", torrent.getName(), torrent.getState(),
                         torrent.getCompleted() / 1024 / 1024, torrent.getTotal_size() / 1024 / 1024);
+                if (torrent.getState().equals("error")) log.info("QB保存地址：{}", torrent.getSave_path());
 
                 if (torrent.isCompleted()) {
                     log.info("{} 下载完成", torrent.getName());
@@ -129,23 +124,14 @@ public class DownloadServiceImpl implements DownloadService {
         }
         else if (file.isFile()) {
             StrategyDTO strategyDTO = strategyService.query(strategyId);
-            MultipartFile multipartFile = getMultipartFile(file);
-            String hash = MD5Util.getMd5(multipartFile);
+            String hash = MD5Util.getMd5(file);
             RFileDTO rFileDTO;
             if (rFileService.isExist(hash, strategyId))
                 rFileDTO = rFileService.query(hash, strategyId);
             else
-                rFileDTO = fileService.upload(multipartFile, strategyDTO);
+                rFileDTO = fileService.upload(file, strategyDTO);
             VFileDTO f = VFileDTO.newFile(file.getName(), strategyId, parentId, rFileDTO, accountId);
             vFileService.create(f);
         }
-    }
-
-    @SneakyThrows
-    private static MultipartFile getMultipartFile(File file) {
-        File excelFile = new File(file.getPath());
-        FileInputStream fileInputStream = new FileInputStream(excelFile);
-        MultipartFile multipartFile = new MultipartFileDTO(file.getPath(), file.getPath(), ContentType.APPLICATION_OCTET_STREAM.toString(), fileInputStream);
-        return multipartFile;
     }
 }

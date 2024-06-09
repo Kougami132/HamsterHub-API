@@ -18,9 +18,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.bouncycastle.util.encoders.Hex;
 
-import java.io.File;
-import java.io.InputStream;
-import java.io.RandomAccessFile;
+import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -108,7 +106,7 @@ public class AliDrive extends Storage {
     }
 
     @Override
-    public String upload(MultipartFile file, String name) {
+    public String upload(File file, String name) {
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("/yyyy/MM/dd"));
         String path = "hamster-hub/uploads" + today;
         String[] folders = path.split("/");
@@ -331,7 +329,7 @@ public class AliDrive extends Storage {
         return response.getString("url");
     }
 
-    private List<String> createFile(String parentFileId, MultipartFile file) {
+    private List<String> createFile(String parentFileId, File file) {
         String url = "https://api.aliyundrive.com/adrive/v2/file/createWithFolders";
 
         // body
@@ -340,9 +338,9 @@ public class AliDrive extends Storage {
         body.put("parent_file_id", parentFileId);
         body.put("type", "file"); // 文件类型，file、folder
         body.put("name", MD5Util.getMd5(file));
-        body.put("size", file.getSize());
+        body.put("size", file.length());
 
-        Integer partCount = (int)(file.getSize() % partSize == 0 ? file.getSize() / partSize : file.getSize() / partSize + 1);
+        Integer partCount = (int)(file.length() % partSize == 0 ? file.length() / partSize : file.length() / partSize + 1);
         JSONObject[] partInfoList = new JSONObject[partCount];
         for (int i = 1; i <= partInfoList.length; i ++)
             partInfoList[i - 1] = new JSONObject().fluentPut("part_number", i);
@@ -362,26 +360,20 @@ public class AliDrive extends Storage {
         return fileInfo;
     }
 
-    private void uploadPart(MultipartFile file, List<String> urls) {
-        try {
-            for (int i = 0; i < urls.size(); i ++) {
+    private void uploadPart(File file, List<String> urls) {
+        try (InputStream fis = new FileInputStream(file)) {
+            for (int i = 0; i < urls.size(); i++) {
                 String url = urls.get(i);
 
                 // 计算分片在本地文件中的位置
                 long pos = i * this.partSize;
-                long size = Math.min(file.getSize() - pos, this.partSize);
+                long size = Math.min(file.length() - pos, this.partSize);
                 byte[] partContent = new byte[(int) size];
 
-                // 将文件分片
-                byte[] fileBytes = file.getBytes();
-                System.arraycopy(fileBytes, (int)pos, partContent, 0, (int)size);
-
-//                // header
-//                HttpHeaders headers = new HttpHeaders();
-//                headers.setContentLength(size);
-//
-//                HttpEntity<byte[]> entity = new HttpEntity<>(partContent, headers);
-//                restTemplate.put(url, entity);
+                // 跳到分片起始位置
+                fis.skip(pos);
+                // 将文件分片读取到内存中
+                fis.read(partContent, 0, (int) size);
 
                 // 上传分片
                 RequestBody body = RequestBody.create(null, partContent);
@@ -393,9 +385,11 @@ public class AliDrive extends Storage {
 
                 OkHttpClient okHttpClient = new OkHttpClient.Builder().build();
                 Response response = okHttpClient.newCall(request).execute();
+                if (!response.isSuccessful()) {
+                    throw new IOException("Unexpected code " + response);
+                }
             }
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             throw new BusinessException(CommonErrorCode.E_700002);
         }

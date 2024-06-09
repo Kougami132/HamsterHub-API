@@ -42,14 +42,14 @@ public class LocalDisk extends Storage {
     }
 
     @Override
-    public String upload(MultipartFile file, String name) {
+    public String upload(File file, String name) {
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("/yyyy/MM/dd"));
         File dir = new File(path + "uploads" + today);
         if (!dir.exists()) dir.mkdirs();
         String hash = MD5Util.getMd5(file);
         String url = dir.getAbsolutePath() + File.separator + hash;
         try {
-            file.transferTo(new File(url));
+            file.renameTo(new File(url));
         }
         catch (Exception e) {
             e.printStackTrace();

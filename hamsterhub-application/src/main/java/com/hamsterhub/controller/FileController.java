@@ -15,6 +15,7 @@ import com.hamsterhub.service.service.*;
 import com.hamsterhub.util.SecurityUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
@@ -187,6 +188,7 @@ public class FileController {
         return Response.success().data(vFileService.queryCount(fileId));
     }
 
+    @SneakyThrows
     @ApiOperation("上传文件(hash可选)(token)")
     @PostMapping(value = "/upload")
     @Token
@@ -221,7 +223,9 @@ public class FileController {
             rFileDTO = rFileService.query(hash, strategyDTO.getId());
         }
         else { // 上传新文件
-            rFileDTO = fileService.upload(file, strategyDTO);
+            File tmpFile = File.createTempFile("tmp", "tmp");
+            file.transferTo(tmpFile);
+            rFileDTO = fileService.upload(tmpFile, strategyDTO);
         }
 
         VFileDTO vFileDTO = VFileDTO.newFile(name, strategyDTO.getId(), parentId, rFileDTO, accountDTO.getId());

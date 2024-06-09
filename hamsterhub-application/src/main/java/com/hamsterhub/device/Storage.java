@@ -9,6 +9,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+
 @NoArgsConstructor
 @Data
 public class Storage {
@@ -27,7 +29,7 @@ public class Storage {
     }
 
     // 返回path
-    public String upload(MultipartFile file, String name) {
+    public String upload(File file, String name) {
         return null;
     }
 
