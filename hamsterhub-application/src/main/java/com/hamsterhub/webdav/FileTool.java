@@ -3,6 +3,7 @@ package com.hamsterhub.webdav;
 import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
+import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.common.util.MatchUtil;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.convert.StrategyConvert;
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -393,7 +395,13 @@ public class FileTool {
         String[] arr = splitUrlBack(paths[1]);
 
         // 处理为空和不以/开头的情况
-        String parentUrl = arr[0].startsWith("/") || StringUtil.isBlank(arr[0])?arr[0]:"/"+arr[0];
+        String parentUrl = null;
+        if(StringUtil.isBlank(arr[0])){
+            parentUrl = "/";
+        }else{
+            parentUrl = arr[0].startsWith("/") ?arr[0]:"/"+arr[0];
+        }
+
 
         return new FilePathData(paths[0],paths[1],parentUrl,arr[1]);
     }
@@ -420,7 +428,7 @@ public class FileTool {
 
         Long parentId = 0L;
 
-        if(!StringUtil.isBlank(destinationFile.getParentUrl())){
+        if(!destinationFile.getParentUrl().equals("/")){
             VFileDTO vFileDTO = queryFile(destinationFile.getRoot(), destinationFile.getParentUrl(), accountDTO);
             parentId = vFileDTO.getId();
         }
@@ -502,7 +510,7 @@ public class FileTool {
 
         Long parentId = 0L;
 
-        if(!StringUtil.isBlank(destinationFile.getParentUrl())){
+        if(!destinationFile.getParentUrl().equals("/")){
             VFileDTO vFileDTO = queryFile(destinationFile.getRoot(), destinationFile.getParentUrl(), accountDTO);
             parentId = vFileDTO.getId();
         }
@@ -549,6 +557,36 @@ public class FileTool {
 
         // 移动后需要把原来路径的缓存删除
         redisService.delFileId(strategyService.query(vFileDTO.getStrategyId()).getRoot(), accountDTO.getId(), vFileId);
+
+        return true;
+    }
+
+
+    public Boolean upload(File file,String url, AccountDTO accountDTO) {
+
+        FilePathData filePathData = parseUrl(url);
+
+        if(filePathData == null){
+            return false;
+        }
+
+        StrategyDTO strategyDTO = strategyService.query(filePathData.getRoot());
+        Long strategyId = strategyDTO.getId();
+        String hash = MD5Util.getMd5(file);
+        RFileDTO rFileDTO;
+        if (rFileService.isExist(hash, strategyId))
+            rFileDTO = rFileService.query(hash, strategyId);
+        else
+            rFileDTO = fileService.upload(file, strategyDTO);
+
+        Long parentId = 0L;
+        if(!filePathData.getParentUrl().equals("/")){
+            VFileDTO parentFile = queryFile(filePathData.getRoot(), filePathData.getParentUrl(), accountDTO);
+            parentId = parentFile.getId();
+        }
+
+        VFileDTO f = VFileDTO.newFile(filePathData.getName(), strategyId, parentId, rFileDTO, accountDTO.getId());
+        vFileService.create(f);
 
         return true;
     }

@@ -3,6 +3,7 @@ package com.hamsterhub.webdav;
 import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
+import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.service.FileService;
 import com.hamsterhub.service.RedisService;
 import com.hamsterhub.service.dto.*;
@@ -13,10 +14,6 @@ import org.apache.catalina.WebResource;
 import org.apache.catalina.servlets.WebdavServlet;
 import org.apache.tomcat.util.buf.UDecoder;
 import org.apache.tomcat.util.http.RequestUtil;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -35,10 +32,7 @@ import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Hashtable;
-import java.util.List;
+import java.util.*;
 
 public class MyWebDavServlet extends WebdavServlet {
 
@@ -497,6 +491,63 @@ public class MyWebDavServlet extends WebdavServlet {
         }
 
 
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+
+//        if (isLocked(req)) {
+//            resp.sendError(org.apache.catalina.servlets.WebdavStatus.SC_LOCKED);
+//            return;
+//        }
+
+        AccountDTO user = getUser(req,resp);
+
+        String path = getRelativePath(req);
+
+        if (path == null || path.equals("/")) {
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid file path");
+            return;
+        }
+
+        if (path.length() > 1 && path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+
+        // 获取文件保存的绝对路径，可以根据实际情况修改路径
+        File file = new File("temp/Webdav", UUID.randomUUID().toString());
+
+        // 创建父目录
+        if (!file.getParentFile().exists()) {
+            file.getParentFile().mkdirs();
+        }
+
+        // 从请求中读取文件数据并保存到服务器
+        try (InputStream inputStream = req.getInputStream();
+             FileOutputStream outputStream = new FileOutputStream(file)) {
+
+            byte[] buffer = new byte[4096];
+            int bytesRead;
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                outputStream.write(buffer, 0, bytesRead);
+            }
+        } catch (IOException e) {
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "File upload failed");
+            e.printStackTrace();
+            return;
+        }
+
+        if(fileTool.upload(file,path,user)){
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+        }else{
+            resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid file path");
+        }
+
+        // 删除临时文件
+        if (file.exists()) {
+            file.delete();
+        }
     }
 
 }
