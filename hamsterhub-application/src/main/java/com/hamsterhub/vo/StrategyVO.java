@@ -1,32 +1,31 @@
 package com.hamsterhub.vo;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-@ApiModel(value="StrategyVO", description="创建修改存储策略接收数据")
+@Schema(description="创建修改存储策略接收数据")
 public class StrategyVO {
-    @ApiModelProperty(value = "ID")
+    @Schema(description = "ID")
     private Long id;
 
-    @ApiModelProperty(value = "策略名称")
+    @Schema(description = "策略名称")
     private String name;
 
-    @ApiModelProperty(value = "策略类型")
+    @Schema(description = "策略类型")
     private Integer type;
 
-    @ApiModelProperty(value = "策略模式")
+    @Schema(description = "策略模式")
     private Integer mode;
 
-    @ApiModelProperty(value = "权限")
+    @Schema(description = "权限")
     private List<Integer> permissions;
 
-    @ApiModelProperty(value = "虚拟根目录")
+    @Schema(description = "虚拟根目录")
     private String root;
 
-    @ApiModelProperty(value = "策略绑定的设备ID")
+    @Schema(description = "策略绑定的设备ID")
     private List<Long> deviceIds;
 }

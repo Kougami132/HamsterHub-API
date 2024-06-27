@@ -1,21 +1,20 @@
 package com.hamsterhub.vo;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@ApiModel(value="DeviceVO", description="创建修改设备接收数据")
+@Schema(description="创建修改设备接收数据")
 public class DeviceVO {
-    @ApiModelProperty(value = "ID")
+    @Schema(description = "ID")
     private Long id;
 
-    @ApiModelProperty(value = "设备名称")
+    @Schema(description = "设备名称")
     private String name;
 
-    @ApiModelProperty(value = "设备类型")
+    @Schema(description = "设备类型")
     private Integer type;
 
-    @ApiModelProperty(value = "设备参数")
+    @Schema(description = "设备参数")
     private String param = "";
 }

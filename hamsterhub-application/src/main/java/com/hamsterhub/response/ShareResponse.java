@@ -1,12 +1,12 @@
 package com.hamsterhub.response;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.time.LocalDateTime;
 
 @Data
-@ApiModel(value="ShareResponse", description="分享返回数据")
+@Schema(description="分享返回数据")
 public class ShareResponse {
     private String id;
     private Integer type;

@@ -14,8 +14,8 @@ import com.hamsterhub.service.entity.Torrent;
 import com.hamsterhub.service.service.StrategyService;
 import com.hamsterhub.service.service.VFileService;
 import com.hamsterhub.util.SecurityUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.concurrent.RejectedExecutionException;
 
 @RestController
-@Api(tags = "任务管理 数据接口")
+@Tag(name = "任务管理 数据接口")
 public class TaskController {
 
     @Autowired
@@ -42,7 +42,7 @@ public class TaskController {
     @Autowired
     private DownloadService downloadService;
 
-    @ApiOperation("离线下载(token)")
+    @Operation(summary ="离线下载(token)")
     @PostMapping(value = "/downloadTask")
     @Token
     public Response downloadOffline(@RequestParam("root") String root,
@@ -66,7 +66,7 @@ public class TaskController {
         return Response.success().msg("下载请求已加入队列").data(tag);
     }
 
-    @ApiOperation("离线下载任务列表(token)")
+    @Operation(summary ="离线下载任务列表(token)")
     @GetMapping(value = "/taskList")
     @Token
     public Response taskList() {
@@ -91,7 +91,7 @@ public class TaskController {
         return Response.success().data(res);
     }
 
-    @ApiOperation("删除任务(token)")
+    @Operation(summary ="删除任务(token)")
     @PostMapping(value = "/deleteTask")
     @Token
     public Response deleteTask(@RequestParam("tag") String tag) {

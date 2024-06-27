@@ -1,30 +1,29 @@
 package com.hamsterhub.service.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 @Data
-@ApiModel(value="DeviceDTO", description="")
+@Schema(description="")
 public class DeviceDTO {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "主键")
+    @Schema(description = "主键")
     private Long id;
 
-    @ApiModelProperty(value = "设备名称")
+    @Schema(description = "设备名称")
     private String name;
 
-    @ApiModelProperty(value = "设备类型")
+    @Schema(description = "设备类型")
     private Integer type;
 
-    @ApiModelProperty(value = "参数")
+    @Schema(description = "参数")
     private String param;
 
-    @ApiModelProperty(value = "已配置")
+    @Schema(description = "已配置")
     private boolean configured;
 
-    @ApiModelProperty(value = "已连接")
+    @Schema(description = "已连接")
     private boolean connected;
 
 }

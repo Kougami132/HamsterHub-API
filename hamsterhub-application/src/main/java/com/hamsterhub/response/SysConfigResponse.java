@@ -1,6 +1,6 @@
 package com.hamsterhub.response;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@ApiModel(value="SysConfigResponse", description="系统设置返回数据")
+@Schema(description="系统设置返回数据")
 public class SysConfigResponse {
     private String key;
     private String value;

@@ -4,27 +4,19 @@ package com.hamsterhub.controller;
 import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
-import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.config.SystemConfig;
-import com.hamsterhub.convert.SysConfigConvert;
 import com.hamsterhub.response.Response;
-import com.hamsterhub.response.SysConfigResponse;
-import com.hamsterhub.service.dto.SysConfigDTO;
-import com.hamsterhub.service.service.SysConfigService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
-import java.util.Objects;
-
 
 @RestController
-@Api(tags = "系统设置 数据接口")
+@Tag(name = "系统设置 数据接口")
 public class SysConfigController {
     @Autowired
     private SystemConfig systemConfig;
@@ -32,7 +24,7 @@ public class SysConfigController {
     private Boolean cache = false;
     private String hash = null;
 
-    @ApiOperation("设置系统变量(admin)")
+    @Operation(summary ="设置系统变量(admin)")
     @PostMapping(value = "/setSysConfig")
     @Token("0")
     public Response setSysConfig(@RequestParam("key") String key, @RequestParam("value") String value) {
@@ -47,7 +39,7 @@ public class SysConfigController {
         return Response.success().msg("设置成功");
     }
 
-    @ApiOperation("获取系统变量")
+    @Operation(summary ="获取系统变量")
     @GetMapping(value = "/querySysConfig")
     public Response querySysConfig(@RequestParam("hash") String hash) {
 

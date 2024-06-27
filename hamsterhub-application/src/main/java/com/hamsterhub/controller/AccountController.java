@@ -13,8 +13,8 @@ import com.hamsterhub.service.RedisService;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.service.AccountService;
 import com.hamsterhub.util.SecurityUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,7 +28,7 @@ import static java.util.stream.Collectors.toList;
 
 
 @RestController
-@Api(tags = "用户 数据接口")
+@Tag(name = "用户 数据接口")
 public class AccountController {
 
     private List<String> TYPE = Stream.of("管理员", "普通用户").collect(toList());
@@ -40,13 +40,13 @@ public class AccountController {
     @Autowired
     private RedisService redisService;
 
-    @ApiOperation("用户类型")
+    @Operation(summary ="用户类型")
     @GetMapping(value = "/accountType")
     public Response strategyType() {
         return Response.success().data(TYPE);
     }
 
-    @ApiOperation("注册账号")
+    @Operation(summary ="注册账号")
     @PostMapping(value = "/registerAccount")
     public Response registerAccount(@RequestParam("username") String username,
                                     @RequestParam("password") String password,
@@ -74,7 +74,7 @@ public class AccountController {
         return Response.success().msg("注册成功").data(data);
     }
 
-    @ApiOperation("登录账号")
+    @Operation(summary ="登录账号")
     @PostMapping(value = "/loginAccount")
     public Response LoginAccount(@RequestParam("username") String username,
                                  @RequestParam("password") String password,
@@ -96,7 +96,7 @@ public class AccountController {
         return Response.success().msg("登录成功").data(data);
     }
 
-    @ApiOperation("修改密码(token)")
+    @Operation(summary ="修改密码(token)")
     @PostMapping(value = "/changePassword")
     @Token
     public Response ChangePassword(@RequestParam("oldPassword") String oldPassword,
@@ -119,7 +119,7 @@ public class AccountController {
         return Response.success().msg("密码修改成功").data(token);
     }
 
-    @ApiOperation("注销(token)")
+    @Operation(summary ="注销(token)")
     @PostMapping(value = "/logout")
     @Token
     public Response logout(HttpServletRequest request) {
@@ -128,14 +128,14 @@ public class AccountController {
         return Response.success().msg("注销成功");
     }
 
-    @ApiOperation("校验Token")
+    @Operation(summary ="校验Token")
     @GetMapping(value = "/checkToken")
     @Token
     public Response checkToken() {
         return Response.success();
     }
 
-    @ApiOperation("刷新Token")
+    @Operation(summary ="刷新Token")
     @GetMapping(value = "/refreshToken")
     @Token
     public Response refreshToken(HttpServletRequest request) {

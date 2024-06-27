@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 public class Account implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @TableId(value = "ID", type = IdType.ID_WORKER)
+    @TableId(value = "ID", type = IdType.ASSIGN_ID)
     private Long id;
 
     @TableField("USERNAME")

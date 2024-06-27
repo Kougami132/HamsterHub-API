@@ -13,8 +13,8 @@ import com.hamsterhub.service.FileService;
 import com.hamsterhub.service.dto.*;
 import com.hamsterhub.service.service.*;
 import com.hamsterhub.util.SecurityUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.Random;
 
 @RestController
-@Api(tags = "分享文件 数据接口")
+@Tag(name = "分享文件 数据接口")
 public class ShareController {
 
     @Autowired
@@ -45,7 +45,7 @@ public class ShareController {
     @Autowired
     private FileService fileService;
 
-    @ApiOperation("分享文件(token)")
+    @Operation(summary ="分享文件(token)")
     @PostMapping(value = "/share")
     @Token
     public Response shareFile(@RequestParam("vFileId") Long vFileId,
@@ -89,7 +89,7 @@ public class ShareController {
         return Response.success().data(data);
     }
 
-    @ApiOperation("隐藏文件(token)")
+    @Operation(summary ="隐藏文件(token)")
     @PostMapping(value = "/hide")
     @Token
     public Response hide(@RequestParam("vFileId") Long vFileId) {
@@ -107,7 +107,7 @@ public class ShareController {
         return Response.success().msg("隐藏成功");
     }
 
-    @ApiOperation("显示文件(token)")
+    @Operation(summary ="显示文件(token)")
     @PostMapping(value = "/show")
     @Token
     public Response show(@RequestParam("vFileId") Long vFileId) {
@@ -125,7 +125,7 @@ public class ShareController {
         return Response.success().msg("显示成功");
     }
 
-    @ApiOperation("取消分享文件(token)")
+    @Operation(summary ="取消分享文件(token)")
     @PostMapping(value = "/deleteShare")
     @Token
     public Response deleteShare(@RequestParam("shareId") Long shareId) {
@@ -146,7 +146,7 @@ public class ShareController {
         return Response.success().msg("分享取消成功");
     }
 
-    @ApiOperation("自己分享的文件(token)")
+    @Operation(summary ="自己分享的文件(token)")
     @GetMapping(value = "/queryShares")
     @Token
     public Response queryShares() {
@@ -156,7 +156,7 @@ public class ShareController {
         return Response.success().data(data);
     }
 
-    @ApiOperation("获取分享文件")
+    @Operation(summary ="获取分享文件")
     @GetMapping(value = "/queryShareFile")
     public Response queryShareFile(@RequestParam("ticket") String ticket,
                                @RequestParam(value = "key", required = false) String key,
@@ -199,7 +199,7 @@ public class ShareController {
         return Response.success().data(data);
     }
 
-    @ApiOperation("获取分享文件")
+    @Operation(summary ="获取分享文件")
     @GetMapping(value = "/searchShareFile")
     public Response searchShareFile(@RequestParam("ticket") String ticket,
                                    @RequestParam(value = "key", required = false) String key,
@@ -241,7 +241,7 @@ public class ShareController {
         return Response.success().data(data);
     }
 
-    @ApiOperation("获取分享文件列表")
+    @Operation(summary ="获取分享文件列表")
     @GetMapping(value = "/queryShareList")
     public Response queryList(@RequestParam("ticket") String ticket,
                               @RequestParam(value = "key", required = false) String key,
@@ -286,7 +286,7 @@ public class ShareController {
         return Response.success().data(data);
     }
 
-    @ApiOperation("获取分享文件下载地址")
+    @Operation(summary ="获取分享文件下载地址")
     @GetMapping(value = "/getShareDownloadUrl")
     public Response downloadShare(@RequestParam("ticket") String ticket,
                                   @RequestParam(value = "key", required = false) String key,

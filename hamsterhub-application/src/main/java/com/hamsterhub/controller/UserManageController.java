@@ -16,8 +16,8 @@ import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.service.AccountService;
 import com.hamsterhub.util.SecurityUtil;
 import com.hamsterhub.vo.UserVO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +31,7 @@ import static java.util.stream.Collectors.toList;
 
 
 @RestController
-@Api(tags = "用户管理 数据接口")
+@Tag(name = "用户管理 数据接口")
 public class UserManageController {
 
     @Autowired
@@ -41,7 +41,7 @@ public class UserManageController {
     private AccountService accountService;
 
 
-    @ApiOperation("新建账号")
+    @Operation(summary ="新建账号")
     @PostMapping(value = "/addAccount")
     @Token("0")
     public Response add(@RequestBody UserVO userVO) {
@@ -53,7 +53,7 @@ public class UserManageController {
         return Response.success().msg("新建成功");
     }
 
-    @ApiOperation("删除账号")
+    @Operation(summary ="删除账号")
     @PostMapping(value = "/delAccount")
     @Token("0")
     public Response del(@RequestParam("id") Long id) {
@@ -61,7 +61,7 @@ public class UserManageController {
         return Response.success().msg("删除账号");
     }
 
-    @ApiOperation("更新账号")
+    @Operation(summary ="更新账号")
     @PostMapping(value = "/updateAccount")
     @Token("0")
     public Response update(@RequestBody UserVO userVO) {
@@ -73,7 +73,7 @@ public class UserManageController {
         return Response.success().msg("更新成功");
     }
 
-    @ApiOperation("查询所有账号")
+    @Operation(summary ="查询所有账号")
     @GetMapping(value = "/fetchAccountAll")
     @Token("0")
     public Response fetchAll() {

@@ -1,23 +1,22 @@
 package com.hamsterhub.service.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Data
-@ApiModel(value="DeviceStrategyDTO", description="")
+@Schema(description="")
 public class DeviceStrategyDTO {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "主键")
+    @Schema(description = "主键")
     private Long id;
 
-    @ApiModelProperty(value = "设备ID")
+    @Schema(description = "设备ID")
     private Long deviceId;
 
-    @ApiModelProperty(value = "存储策略ID")
+    @Schema(description = "存储策略ID")
     private Long strategyId;
 
     public DeviceStrategyDTO(Long deviceId, Long strategyId) {

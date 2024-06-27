@@ -18,8 +18,8 @@ import com.hamsterhub.service.service.DeviceStrategyService;
 import com.hamsterhub.service.service.StrategyService;
 import com.hamsterhub.util.SecurityUtil;
 import com.hamsterhub.vo.StrategyVO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,7 +31,7 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toList;
 
 @RestController
-@Api(tags = "存储策略 数据接口")
+@Tag(name = "存储策略 数据接口")
 public class StrategyController {
 
     private List<String> TYPE = Stream.of("聚合", "备份").collect(toList()),
@@ -46,19 +46,19 @@ public class StrategyController {
     @Autowired
     private StorageService storageService;
 
-    @ApiOperation("策略类型")
+    @Operation(summary = "策略类型")
     @GetMapping(value = "/strategyType")
     public Response strategyType() {
         return Response.success().data(TYPE);
     }
 
-    @ApiOperation("策略模式")
+    @Operation(summary ="策略模式")
     @GetMapping(value = "/strategyMode")
     public Response strategyMode() {
         return Response.success().data(MODE);
     }
 
-    @ApiOperation("策略列表(token)")
+    @Operation(summary ="策略列表(token)")
     @GetMapping(value = "/queryStrategy")
     @Token
     public Response queryStrategy() {
@@ -81,7 +81,7 @@ public class StrategyController {
         return Response.success().data(data);
     }
 
-    @ApiOperation("创建策略(admin)")
+    @Operation(summary ="创建策略(admin)")
     @PostMapping(value = "/createStrategy")
     @Token("0")
     public Response createStrategy(@RequestBody StrategyVO strategyVO) {
@@ -114,7 +114,7 @@ public class StrategyController {
         return Response.success().data(res);
     }
 
-    @ApiOperation("修改策略(admin)")
+    @Operation(summary ="修改策略(admin)")
     @PostMapping(value = "/modifyStrategy")
     @Token("0")
     public Response modifyStrategy(@RequestBody StrategyVO strategyVO) {
@@ -152,7 +152,7 @@ public class StrategyController {
         return Response.success().msg("策略修改成功");
     }
 
-    @ApiOperation("删除策略(admin)")
+    @Operation(summary ="删除策略(admin)")
     @PostMapping(value = "/deleteStrategy")
     @Token("0")
     public Response deleteStrategy(@RequestParam("strategyId") Long strategyId) {
@@ -192,7 +192,7 @@ public class StrategyController {
         return permission.contains(type);
     }
 
-    @ApiOperation("策略容量(admin)")
+    @Operation(summary ="策略容量(admin)")
     @GetMapping(value = "/queryStrategySize")
     public Response queryStrategySize(@RequestParam("strategyId") Long strategyId) {
         // 策略不存在

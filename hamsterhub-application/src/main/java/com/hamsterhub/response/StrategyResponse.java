@@ -1,12 +1,12 @@
 package com.hamsterhub.response;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
 import java.util.List;
 
 @Data
-@ApiModel(value="StrategyResponse", description="存储策略返回数据")
+@Schema(description="存储策略返回数据")
 public class StrategyResponse {
     private String id;
     private String name;

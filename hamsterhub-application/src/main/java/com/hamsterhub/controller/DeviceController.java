@@ -15,15 +15,16 @@ import com.hamsterhub.service.service.DeviceService;
 import com.hamsterhub.service.service.DeviceStrategyService;
 import com.hamsterhub.util.SecurityUtil;
 import com.hamsterhub.vo.DeviceVO;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
-@Api(tags = "存储设备 数据接口")
+@Tag(name = "存储设备 数据接口")
 public class DeviceController {
     @Autowired
     private StorageService storageService;
@@ -32,13 +33,13 @@ public class DeviceController {
     @Autowired
     private DeviceStrategyService deviceStrategyService;
 
-    @ApiOperation("设备类型")
+    @Operation(summary ="设备类型")
     @GetMapping(value = "/deviceType")
     public Response deviceType() {
         return Response.success().data(storageService.getTypes());
     }
 
-    @ApiOperation("设备列表(admin)")
+    @Operation(summary ="设备列表(admin)")
     @GetMapping(value = "/queryDevice")
     @Token("0")
     public Response queryDevice() {
@@ -51,7 +52,7 @@ public class DeviceController {
         return Response.success().data(res);
     }
 
-    @ApiOperation("创建设备(admin)")
+    @Operation(summary ="创建设备(admin)")
     @PostMapping(value = "/createDevice")
     @Token("0")
     public Response createDevice(@RequestBody DeviceVO deviceVO) {
@@ -68,7 +69,7 @@ public class DeviceController {
         return Response.success().data(DeviceConvert.INSTANCE.dto2res(data));
     }
 
-    @ApiOperation("修改设备(admin)")
+    @Operation(summary ="修改设备(admin)")
     @PostMapping(value = "/modifyDevice")
     @Token("0")
     public Response modifyDevice(@RequestBody DeviceVO deviceVO) {
@@ -88,7 +89,7 @@ public class DeviceController {
         return Response.success().msg("设备修改成功");
     }
 
-    @ApiOperation("删除设备(admin)")
+    @Operation(summary ="删除设备(admin)")
     @PostMapping(value = "/deleteDevice")
     @Token("0")
     public Response deleteDevice(@RequestParam("deviceId") Long deviceId) {
@@ -100,7 +101,7 @@ public class DeviceController {
         return Response.success().msg("设备删除成功");
     }
 
-    @ApiOperation("设备容量(admin)")
+    @Operation(summary ="设备容量(admin)")
     @GetMapping(value = "/queryDeviceSize")
     @Token("0")
     public Response queryDeviceSize(@RequestParam("deviceId") Long deviceId) {

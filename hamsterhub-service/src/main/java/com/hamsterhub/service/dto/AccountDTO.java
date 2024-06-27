@@ -1,7 +1,6 @@
 package com.hamsterhub.service.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -10,30 +9,31 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Data
-@ApiModel(value="AccountDTO", description="")
+@Schema(description="")
 public class AccountDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "主键")
+    @Schema(description = "主键")
     private Long id;
 
-    @ApiModelProperty(value = "用户名")
+    @Schema(description = "用户名")
     private String username;
 
-    @ApiModelProperty(value = "密码")
+    @Schema(description = "密码")
     private String password;
 
-    @ApiModelProperty(value = "密码上次修改时间")
+    @Schema(description = "密码上次修改时间")
     private LocalDateTime passModified;
 
-    @ApiModelProperty(value = "用户类型")
+    @Schema(description = "用户类型")
     private Integer type;
 
-    @ApiModelProperty(value = "手机号")
+    @Schema(description = "手机号")
     private Long phone;
 
-    @ApiModelProperty(value = "邮箱")
+    @Schema(description = "邮箱")
     private String email;
 
     public AccountDTO(String username, String password, Integer type, Long phone) {

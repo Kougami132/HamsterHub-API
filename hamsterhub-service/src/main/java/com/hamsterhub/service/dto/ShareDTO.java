@@ -1,7 +1,6 @@
 package com.hamsterhub.service.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,32 +10,32 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@ApiModel(value="ShareDTO", description="")
+@Schema(description="")
 public class ShareDTO {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "主键")
+    @Schema(description = "主键")
     private Long id;
 
-    @ApiModelProperty(value = "分享类型")
+    @Schema(description = "分享类型")
     private Integer type;
 
-    @ApiModelProperty(value = "分享码")
+    @Schema(description = "分享码")
     private String ticket;
 
-    @ApiModelProperty(value = "分享码")
+    @Schema(description = "分享码")
     private Long vFileId;
 
-    @ApiModelProperty(value = "提取码")
+    @Schema(description = "提取码")
     private String key;
 
-    @ApiModelProperty(value = "过期时间")
+    @Schema(description = "过期时间")
     private LocalDateTime expiry;
 
-    @ApiModelProperty(value = "文件所有人ID")
+    @Schema(description = "文件所有人ID")
     private Long accountID;
 
-    @ApiModelProperty(value = "分享的名称")
+    @Schema(description = "分享的名称")
     private String name;
 
 }

@@ -13,8 +13,8 @@ import com.hamsterhub.service.RedisService;
 import com.hamsterhub.service.dto.*;
 import com.hamsterhub.service.service.*;
 import com.hamsterhub.util.SecurityUtil;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
@@ -39,7 +39,7 @@ import java.util.stream.Stream;
 import static java.util.stream.Collectors.toList;
 
 @RestController
-@Api(tags = "文件传输 数据接口")
+@Tag(name = "文件传输 数据接口")
 public class FileController {
 
     @Autowired
@@ -59,7 +59,7 @@ public class FileController {
     @Autowired
     private RedisService redisService;
 
-    @ApiOperation("查询文件是否存在(token)")
+    @Operation(summary ="查询文件是否存在(token)")
     @GetMapping(value = "/isExist")
     @Token
     public Response isExist(@RequestParam("root") String root,
@@ -68,7 +68,7 @@ public class FileController {
         return Response.success().data(rFileService.isExist(hash, strategyDTO.getId()));
     }
 
-    @ApiOperation("查看文件详情(token)")
+    @Operation(summary ="查看文件详情(token)")
     @GetMapping(value = "/queryFile")
     @Token
     public Response queryFile(@RequestParam("root") String root,
@@ -145,7 +145,7 @@ public class FileController {
         return Response.success().data(dataList);
     }
 
-    @ApiOperation("查看文件列表(token)")
+    @Operation(summary ="查看文件列表(token)")
     @GetMapping(value = "/queryList")
     @Token
     public Response queryList(@RequestParam("root") String root,
@@ -166,7 +166,7 @@ public class FileController {
         return Response.success().data(data);
     }
 
-    @ApiOperation("创建目录(token)")
+    @Operation(summary ="创建目录(token)")
     @PostMapping(value = "/mkdir")
     @Token
     public Response mkdir(@RequestParam("root") String root,
@@ -181,7 +181,7 @@ public class FileController {
         return Response.success().data(data);
     }
 
-    @ApiOperation("查询目录内文件数(token)")
+    @Operation(summary ="查询目录内文件数(token)")
     @GetMapping(value = "/queryFileCount")
     @Token
     public Response queryFileCount(@RequestParam("fileId") Long fileId) {
@@ -189,7 +189,7 @@ public class FileController {
     }
 
     @SneakyThrows
-    @ApiOperation("上传文件(hash可选)(token)")
+    @Operation(summary ="上传文件(hash可选)(token)")
     @PostMapping(value = "/upload")
     @Token
     public Response upload(@RequestParam("root") String root,
@@ -234,7 +234,7 @@ public class FileController {
         return Response.success().msg("上传成功").data(data);
     }
 
-    @ApiOperation("获取文件直链(token)")
+    @Operation(summary ="获取文件直链(token)")
     @GetMapping(value = "/getDownloadUrl")
     @Token
     public Response getDownloadUrl(@RequestParam("vFileId") Long vFileId) {
@@ -278,7 +278,7 @@ public class FileController {
         return Response.success().data(url);
     }
 
-    @ApiOperation("下载文件")
+    @Operation(summary ="下载文件")
     @GetMapping(value = "/download")
     public void download(@RequestParam("ticket") String ticket,
                              @RequestParam("fileName") String fileName,
@@ -382,7 +382,7 @@ public class FileController {
 
     }
 
-    @ApiOperation("删除文件(token)")
+    @Operation(summary ="删除文件(token)")
     @PostMapping(value = "/delete")
     @Token
     public Response delete(@RequestParam("vFileId") Long vFileId) {
@@ -403,7 +403,7 @@ public class FileController {
         return Response.success().msg("文件删除成功");
     }
 
-    @ApiOperation("重命名文件(token)")
+    @Operation(summary ="重命名文件(token)")
     @PostMapping(value = "/rename")
     @Token
     public Response rename(@RequestParam("vFileId") Long vFileId,
@@ -418,7 +418,7 @@ public class FileController {
         return Response.success().msg("重命名成功");
     }
 
-    @ApiOperation("复制文件(token)")
+    @Operation(summary ="复制文件(token)")
     @PostMapping(value = "/copy")
     @Token
     public Response copy(@RequestParam("vFileId") Long vFileId,
@@ -474,7 +474,7 @@ public class FileController {
         return Response.success().msg("复制成功");
     }
 
-    @ApiOperation("移动文件(token)")
+    @Operation(summary ="移动文件(token)")
     @PostMapping(value = "/move")
     @Token
     public Response move(@RequestParam("vFileId") Long vFileId,
@@ -521,7 +521,7 @@ public class FileController {
         return Response.success().msg("移动成功");
     }
 
-    @ApiOperation("上传头像(token)")
+    @Operation(summary ="上传头像(token)")
     @PostMapping(value = "/uploadAvatar")
     @Token
     public Response uploadAvatar(@RequestParam("file") MultipartFile file) {
@@ -550,7 +550,7 @@ public class FileController {
         return Response.success().msg("上传成功");
     }
 
-    @ApiOperation("获取头像")
+    @Operation(summary ="获取头像")
     @GetMapping(value = "/queryAvatar")
     public void queryAvatar(@RequestParam("accountId") Long accountId,
                             HttpServletResponse response) {

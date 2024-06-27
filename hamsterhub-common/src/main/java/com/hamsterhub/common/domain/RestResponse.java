@@ -2,20 +2,19 @@ package com.hamsterhub.common.domain;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 
 @JsonInclude(Include.NON_NULL)
-@ApiModel(value = "RestResponse<T>", description = "响应通用参数包装")
+@Schema( description = "响应通用参数包装")
 public class RestResponse<T> {
 
-	@ApiModelProperty("响应错误编码,0为正常")
+	@Schema(description = "响应错误编码,0为正常")
 	private int code;
 	
-	@ApiModelProperty("响应错误信息")
+	@Schema(description = "响应错误信息")
 	private String msg;
 	
-	@ApiModelProperty("响应内容")
+	@Schema(description = "响应内容")
 	private T data;
 
 	public static <T> RestResponse<T> success() {

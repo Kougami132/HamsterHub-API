@@ -5,8 +5,8 @@ import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.service.RedisService;
 import com.hamsterhub.service.SmsService;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Random;
 
 @RestController
-@Api(tags = "验证码 数据接口")
+@Tag(name = "验证码 数据接口")
 public class SmsController {
 
     @Autowired
@@ -23,7 +23,7 @@ public class SmsController {
     @Autowired
     private SmsService smsService;
 
-    @ApiOperation("发送手机验证码")
+    @Operation(summary ="发送手机验证码")
     @GetMapping(value = "/sendPhoneCode")
     public Response sendPhoneCode(@RequestParam("phone") Long phone) {
         // 每日上限

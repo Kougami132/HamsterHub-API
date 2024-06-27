@@ -1,7 +1,6 @@
 package com.hamsterhub.service.dto;
 
-import io.swagger.annotations.ApiModel;
-import io.swagger.annotations.ApiModelProperty;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,20 +10,20 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@ApiModel(value="FileLinkDTO", description="")
+@Schema(description="")
 public class FileLinkDTO {
     private static final long serialVersionUID = 1L;
 
-    @ApiModelProperty(value = "主键")
+    @Schema(description = "主键")
     private Long id;
 
-    @ApiModelProperty(value = "分享码")
+    @Schema(description = "分享码")
     private String ticket;
 
-    @ApiModelProperty(value = "实际文件ID")
+    @Schema(description = "实际文件ID")
     private Long rFileId;
 
-    @ApiModelProperty(value = "过期时间")
+    @Schema(description = "过期时间")
     private LocalDateTime expiry;
 
     public FileLinkDTO(String ticket, Long rFileId, LocalDateTime expiry) {

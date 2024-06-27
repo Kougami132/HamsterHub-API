@@ -1,6 +1,6 @@
 package com.hamsterhub.response;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@ApiModel(value="DeviceSizeResponse", description="设备存储空间返回数据")
+@Schema(description="设备存储空间返回数据")
 public class SizeResponse {
     private String total;
     private String usable;

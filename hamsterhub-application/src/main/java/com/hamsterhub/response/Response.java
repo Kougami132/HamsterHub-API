@@ -1,11 +1,11 @@
 package com.hamsterhub.response;
 
-import io.swagger.annotations.ApiModel;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @AllArgsConstructor
-@ApiModel(value = "Response", description = "请求返回数据")
+@Schema(description = "请求返回数据")
 @Data
 public class Response {
     private Integer code;
