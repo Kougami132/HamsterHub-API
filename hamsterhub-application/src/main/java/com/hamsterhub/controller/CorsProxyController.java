@@ -32,7 +32,7 @@ public class CorsProxyController {
     public String queryPageListBili(@RequestParam(required = false) String aid,
                       @RequestParam(required = false)  String bvid) throws IOException {
         // 验证是否开启
-        if(!ConfigKey.isTrue(systemConfig.get(ConfigKey.PROXY_DANMA_BILI))){
+        if(!systemConfig.check(ConfigKey.PROXY_DANMA_BILI)){
             throw new BusinessException(CommonErrorCode.E_100009);
         }
 
@@ -46,7 +46,7 @@ public class CorsProxyController {
     @GetMapping(value = "/queryXmlForBili")
     public String queryXmlForBili(@RequestParam() String cid) throws IOException {
         // 验证是否开启
-        if(!ConfigKey.isTrue(systemConfig.get(ConfigKey.PROXY_DANMA_BILI))){
+        if(!systemConfig.check(ConfigKey.PROXY_DANMA_BILI)){
             throw new BusinessException(CommonErrorCode.E_100009);
         }
 

@@ -59,15 +59,13 @@ public class SystemConfig {
         JwtUtil.setSecretKey(get(ConfigKey.JWT_SECRET_KEY));
     }
 
-
-    public String get(String key){
-        return configs.get(key).getValue();
-    }
-
     public Map<String, SysConfigResponse> getObj(){
         return this.cache;
     }
 
+    public String get(String key){
+        return configs.get(key).getValue();
+    }
 
     public void set(String key, String value){
         sysConfigService.set(new SysConfigDTO(key,value));
@@ -77,6 +75,11 @@ public class SystemConfig {
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+    }
+
+    // 判断某个配置是不是为true
+    public Boolean check(String key){
+        return ConfigKey.isTrue(this.get(key));
     }
 
 }
