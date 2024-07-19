@@ -1,16 +1,11 @@
 package com.hamsterhub.webdav;
 
-import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
-import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.service.FileService;
-import com.hamsterhub.service.RedisService;
 import com.hamsterhub.service.dto.*;
 import com.hamsterhub.service.service.*;
-import com.hamsterhub.util.ApplicationContextHelper;
 import com.hamsterhub.webdav.resource.WebFileResource;
-import org.apache.catalina.WebResource;
 import org.apache.catalina.servlets.WebdavServlet;
 import org.apache.tomcat.util.buf.UDecoder;
 import org.apache.tomcat.util.http.RequestUtil;
@@ -22,16 +17,11 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.*;
 
 public class MyWebDavServlet extends WebdavServlet {

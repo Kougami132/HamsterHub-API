@@ -1,6 +1,6 @@
-package com.hamsterhub.device.ext;
+package com.hamsterhub.service.device.ext;
 
-import com.hamsterhub.device.Storage;
+import com.hamsterhub.service.device.Storage;
 import com.hamsterhub.service.dto.DeviceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -16,8 +16,8 @@ public class OneDrive extends Storage {
     private String name = "OneDrive";
     private DeviceDTO device;
 
-    @Override
-    public OneDrive withDevice(DeviceDTO device) {
-        return new OneDrive(this.code, this.name, device);
-    }
+//    @Override
+//    public OneDrive withDevice(DeviceDTO device) {
+//        return new OneDrive(this.code, this.name, device);
+//    }
 }

@@ -4,16 +4,14 @@ import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.convert.DeviceConvert;
-import com.hamsterhub.device.Storage;
+import com.hamsterhub.service.device.Storage;
 import com.hamsterhub.response.DeviceResponse;
 import com.hamsterhub.response.SizeResponse;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.service.StorageService;
-import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.dto.DeviceDTO;
 import com.hamsterhub.service.service.DeviceService;
 import com.hamsterhub.service.service.DeviceStrategyService;
-import com.hamsterhub.util.SecurityUtil;
 import com.hamsterhub.vo.DeviceVO;
 
 import io.swagger.v3.oas.annotations.Operation;

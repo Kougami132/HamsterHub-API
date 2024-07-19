@@ -9,7 +9,7 @@ import com.hamsterhub.convert.VFileConvert;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.response.VFileResponse;
 import com.hamsterhub.service.FileService;
-import com.hamsterhub.service.RedisService;
+import com.hamsterhub.common.service.RedisService;
 import com.hamsterhub.service.dto.*;
 import com.hamsterhub.service.service.*;
 import com.hamsterhub.util.SecurityUtil;
@@ -27,12 +27,13 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import java.io.*;
 import java.net.URLEncoder;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -58,14 +59,20 @@ public class FileController {
     private FileService fileService;
     @Autowired
     private RedisService redisService;
+    @Autowired
+    private FileStorageService fileStorageService;
+
+    private static final long MAX_FILE_SIZE = 10L * 1024 * 1024 * 1024; // 10GB
+    private static final Pattern FILENAME_PATTERN = Pattern.compile("filename=\"(.*?)\"");
+    private static final long MAX_UPLOAD_SPEED = 100 * 1024 * 1024; // 10MB/s per second
+
 
     @Operation(summary ="查询文件是否存在(token)")
     @GetMapping(value = "/isExist")
     @Token
     public Response isExist(@RequestParam("root") String root,
                             @RequestParam("hash") String hash) {
-        StrategyDTO strategyDTO = strategyService.query(root);
-        return Response.success().data(rFileService.isExist(hash, strategyDTO.getId()));
+        return Response.success().data(fileStorageService.isExist(root,hash));
     }
 
     @Operation(summary ="查看文件详情(token)")
@@ -79,69 +86,8 @@ public class FileController {
         if (!MatchUtil.isPathMatches(url))
             throw new BusinessException(CommonErrorCode.E_600002);
 
-        List<String> split = Arrays.asList(url.split("/"));
-        Integer num = split.size() - 1;
-        // 找到最深的有缓存的目录
-        String path = "";
-        Long vFileId = null;
-        while (num >= 1) {
-            path = "/" + split.subList(1, num + 1)
-                              .stream()
-                              .collect(Collectors.joining("/"));
-            // 读取redis里缓存的ID
-            vFileId = redisService.getFileId(root, accountDTO.getId(), path);
-            if (vFileId != null) // 拿到缓存则跳出
-                break;
-            num --;
-        }
-
-        // 全路径无缓存
-        if (vFileId == null) {
-            vFileId = 0L;
-            path = "";
-        }
-        num ++;
-        VFileDTO vFileDTO = null;
-        List<VFileDTO> vFileDTOs = null;
-        while (num <= split.size() - 1) {
-            String name = split.get(num);
-            vFileDTOs = vFileService.query(accountDTO.getId(), root, vFileId, name);
-            vFileDTO = vFileDTOs.get(0);
-
-            vFileId = vFileDTO.getId();
-
-            path += "/" + name;
-            // 把路径与ID键值对写入redis
-            redisService.setFileId(root, accountDTO.getId(), path, vFileId);
-
-            // 文件类型不是目录
-            if (!vFileDTO.getType().equals(0)) {
-                if (num == split.size() - 1)
-                    break;
-                else
-                    throw new BusinessException(CommonErrorCode.E_600003);
-            }
-
-            num ++;
-        }
-
-        if (vFileDTO == null) {
-            vFileDTO = vFileService.query(vFileId);
-            vFileDTOs = vFileService.query(accountDTO.getId(), vFileDTO.getStrategyId(), vFileDTO.getParentId(), vFileDTO.getName());
-        }
-
-
-        VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileDTO);
-
-        // 是目录则把文件数存入size字段
-        if (data.getType().equals(0))
-            data.setSize(vFileService.queryCount(vFileDTO.getId()).toString());
-
-        List<VFileResponse> dataList = new ArrayList<>();
-        if (vFileDTO.getVersion().equals(1))
-            dataList.add(data);
-        else
-            dataList = VFileConvert.INSTANCE.dto2resBatch(vFileDTOs);
+        List<VFileDTO> vFileDTOs = fileStorageService.queryFile(root, url, accountDTO);
+        List<VFileResponse> dataList = VFileConvert.INSTANCE.dto2resBatch(vFileDTOs);
         return Response.success().data(dataList);
     }
 
@@ -149,19 +95,18 @@ public class FileController {
     @GetMapping(value = "/queryList")
     @Token
     public Response queryList(@RequestParam("root") String root,
-                              @RequestParam("parentId") Long parentId,
+                              @RequestParam("parentId") String parentId,
                               @RequestParam(value = "page", required = false) Integer page,
                               @RequestParam(value = "limit", required = false) Integer limit) {
         if (limit == null)
             limit = 10;
 
+        if (page == null)
+            page = 0;
+
         AccountDTO accountDTO = SecurityUtil.getAccount();
         List<VFileDTO> vFileDTOs;
-        if (page == null) // 未分页
-            vFileDTOs = vFileService.queryBatch(accountDTO.getId(), root, parentId);
-        else
-            vFileDTOs = vFileService.queryBatch(accountDTO.getId(), root, parentId, page, limit);
-
+        vFileDTOs = fileStorageService.queryDirectory(root,parentId,accountDTO,page,limit);
         List<VFileResponse> data = VFileConvert.INSTANCE.dto2resBatch(vFileDTOs);
         return Response.success().data(data);
     }
@@ -170,22 +115,34 @@ public class FileController {
     @PostMapping(value = "/mkdir")
     @Token
     public Response mkdir(@RequestParam("root") String root,
-                          @RequestParam("parentId") Long parentId,
+                          @RequestParam("parentId") String parent,
                           @RequestParam("name") String name) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
 
-        StrategyDTO strategyDTO = strategyService.query(root);
-        VFileDTO vFileDTO = VFileDTO.newDir(name, strategyDTO.getId(), parentId, accountDTO.getId());
-        VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileService.createDir(vFileDTO));
-
+        // 防止空空字符串
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(name),CommonErrorCode.E_100001);
+        VFileDTO vFileDTO = fileStorageService.makeDirectory(root, parent, name, accountDTO);
+        VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileDTO);
         return Response.success().data(data);
     }
 
     @Operation(summary ="查询目录内文件数(token)")
     @GetMapping(value = "/queryFileCount")
     @Token
-    public Response queryFileCount(@RequestParam("fileId") Long fileId) {
-        return Response.success().data(vFileService.queryCount(fileId));
+    public Response queryFileCount(@RequestParam("root") String root,
+                                   @RequestParam("fileId") String index) {
+        return Response.success().data(fileStorageService.queryFileCount(root,index));
+    }
+
+    private String getFileName(Part part) {
+        String contentDisposition = part.getHeader("Content-Disposition");
+        if (contentDisposition != null) {
+            Matcher matcher = FILENAME_PATTERN.matcher(contentDisposition);
+            if (matcher.find()) {
+                return matcher.group(1);
+            }
+        }
+        return null;
     }
 
     @SneakyThrows
@@ -193,43 +150,86 @@ public class FileController {
     @PostMapping(value = "/upload")
     @Token
     public Response upload(@RequestParam("root") String root,
-                           @RequestParam("parentId") Long parentId,
-                           @RequestParam("file") MultipartFile file,
-                           @RequestParam(value = "hash", required = false) String hash) {
+                           @RequestParam("parentId") String parent,
+                           @RequestParam(value = "hash", required = false) String hash,
+                           HttpServletRequest request) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
 
-        String name = file.getOriginalFilename();
-        // 文件名为空
-        if (StringUtil.isBlank(name))
-            throw new BusinessException(CommonErrorCode.E_600004);
-
-        // 文件大小校验
-        double imageSize = (double) file.getSize() / 1024 / 1024;
-        if (imageSize > 200)
-            throw new BusinessException(CommonErrorCode.E_500005);
-
-        // 覆盖
-        // 文件是否存在,存在则版本号+1
-        Integer version = 1;
-        if (vFileService.isExist(accountDTO.getId(), root, parentId, name))
-            version = vFileService.query(accountDTO.getId(), root, parentId, name).size() + 1;
-
-        StrategyDTO strategyDTO = strategyService.query(root);
-        // 存储文件
-        RFileDTO rFileDTO;
-        if (!StringUtil.isBlank(hash)) { // 上传已有文件
-            if (!rFileService.isExist(hash, strategyDTO.getId()))
-                throw new BusinessException(CommonErrorCode.E_500001);
-            rFileDTO = rFileService.query(hash, strategyDTO.getId());
-        }
-        else { // 上传新文件
-            File tmpFile = File.createTempFile("tmp", "tmp");
-            file.transferTo(tmpFile);
-            rFileDTO = fileService.upload(tmpFile, strategyDTO);
+        Collection<Part> parts = request.getParts();
+        Part filePart = null;
+        for (Part part : parts) {
+            if ("file".equals(part.getName())) {
+                filePart = part;
+                break;
+            }
         }
 
-        VFileDTO vFileDTO = VFileDTO.newFile(name, strategyDTO.getId(), parentId, rFileDTO, accountDTO.getId());
-        VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileService.create(vFileDTO));
+        CommonErrorCode.checkAndThrow(filePart == null, CommonErrorCode.E_500010);
+
+        assert filePart != null;
+        long declaredFileSize = filePart.getSize();
+        String name = getFileName(filePart);
+        // 验证大小
+        CommonErrorCode.checkAndThrow(declaredFileSize > MAX_FILE_SIZE, CommonErrorCode.E_500005);
+
+        // 防止文件名为空
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(name), CommonErrorCode.E_500011);
+
+        // file存储实现层的上传之前的验证
+        fileStorageService.uploadBefore(root,parent,name,accountDTO);
+
+        File targetFile = null;
+
+        // 如果没上传hash则说明试图上传一个新文件
+        if (StringUtil.isBlank(hash)) {
+
+            // 保存文件
+            InputStream inputStream = filePart.getInputStream();
+            targetFile = new File("temp/uploads/" , UUID.randomUUID().toString());
+
+            // 创建父目录
+            if (!targetFile.getParentFile().exists()) {
+                targetFile.getParentFile().mkdirs();
+            }
+
+            OutputStream outputStream = new FileOutputStream(targetFile);
+
+
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            long totalBytesRead = 0;
+            long startTime = System.currentTimeMillis();
+
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                totalBytesRead += bytesRead;
+                if (totalBytesRead > declaredFileSize) {
+                    outputStream.close();
+                    targetFile.delete();
+                    throw new BusinessException(CommonErrorCode.E_500009);
+                }
+
+                // 控制上传速度
+                long elapsedTime = System.currentTimeMillis() - startTime;
+                long expectedTime = (totalBytesRead * 1000L) / MAX_UPLOAD_SPEED;
+                if (expectedTime > elapsedTime) {
+                    Thread.sleep(expectedTime - elapsedTime);
+                }
+
+                outputStream.write(buffer, 0, bytesRead);
+            }
+
+            outputStream.close();
+            inputStream.close();
+
+            if (totalBytesRead != declaredFileSize) {
+                targetFile.delete();
+                throw new BusinessException(CommonErrorCode.E_500009);
+            }
+        }
+
+
+        VFileDTO upload = fileStorageService.upload(root, targetFile, parent, name, declaredFileSize, hash, accountDTO);
+        VFileResponse data = VFileConvert.INSTANCE.dto2res(upload);
 
         return Response.success().msg("上传成功").data(data);
     }
@@ -237,44 +237,47 @@ public class FileController {
     @Operation(summary ="获取文件直链(token)")
     @GetMapping(value = "/getDownloadUrl")
     @Token
-    public Response getDownloadUrl(@RequestParam("vFileId") Long vFileId) {
+    public Response getDownloadUrl(@RequestParam("root") String root,
+                                   @RequestParam("vFileId") String index,
+                                   @RequestParam(value = "preference", required = false) Long preference) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        VFileDTO vFileDTO = vFileService.query(vFileId);
+//        VFileDTO vFileDTO = vFileService.query(vFileId);
         // 文件与用户不匹配
-        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
-            throw new BusinessException(CommonErrorCode.E_600005);
-        RFileDTO rFileDTO = rFileService.query(vFileDTO.getRFileId());
-        DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
+//        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
+//            throw new BusinessException(CommonErrorCode.E_600005);
+//        RFileDTO rFileDTO = rFileService.query(vFileDTO.getRFileId());
+//        DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
 
         String url;
-        if (deviceDTO.getType().equals(0)) {// 本地硬盘
-            FileLinkDTO fileLinkDTO;
-            String ticket;
-            if (fileLinkService.isExist(rFileDTO.getId())) { // 文件直链已存在
-                fileLinkDTO = fileLinkService.query(rFileDTO.getId());
-                if (fileLinkDTO.getExpiry().isBefore(LocalDateTime.now())) { // 直链已过期
-                    do {
-                        fileLinkDTO.setTicket(StringUtil.generateRandomString(10));
-                    }
-                    while (fileLinkService.isExist(fileLinkDTO.getTicket()));
-                }
-                fileLinkDTO.setExpiry(LocalDateTime.now().plusMinutes(10));
-                fileLinkService.update(fileLinkDTO);
-            }
-            else {
-                do {
-                    ticket = StringUtil.generateRandomString(10);
-                }
-                while (fileLinkService.isExist(ticket));
-
-                fileLinkDTO = new FileLinkDTO(ticket, rFileDTO.getId(), LocalDateTime.now().plusMinutes(10));
-                fileLinkService.create(fileLinkDTO);
-            }
-
-            url = String.format("/download?ticket=%s&fileName=%s", fileLinkDTO.getTicket(), vFileDTO.getName());
-        }
-        else // 网盘
-            url = fileService.download(rFileDTO);
+        url = fileStorageService.getDownloadUrl(root,index,accountDTO,preference);
+//        if (deviceDTO.getType().equals(0)) {// 本地硬盘
+//            FileLinkDTO fileLinkDTO;
+//            String ticket;
+//            if (fileLinkService.isExist(rFileDTO.getId())) { // 文件直链已存在
+//                fileLinkDTO = fileLinkService.query(rFileDTO.getId());
+//                if (fileLinkDTO.getExpiry().isBefore(LocalDateTime.now())) { // 直链已过期
+//                    do {
+//                        fileLinkDTO.setTicket(StringUtil.generateRandomString(10));
+//                    }
+//                    while (fileLinkService.isExist(fileLinkDTO.getTicket()));
+//                }
+//                fileLinkDTO.setExpiry(LocalDateTime.now().plusMinutes(10));
+//                fileLinkService.update(fileLinkDTO);
+//            }
+//            else {
+//                do {
+//                    ticket = StringUtil.generateRandomString(10);
+//                }
+//                while (fileLinkService.isExist(ticket));
+//
+//                fileLinkDTO = new FileLinkDTO(ticket, rFileDTO.getId(), LocalDateTime.now().plusMinutes(10));
+//                fileLinkService.create(fileLinkDTO);
+//            }
+//
+//            url = String.format("/download?ticket=%s&fileName=%s", fileLinkDTO.getTicket(), vFileDTO.getName());
+//        }
+//        else // 网盘
+//            url = fileService.download(rFileDTO);
         return Response.success().data(url);
     }
 
@@ -289,19 +292,26 @@ public class FileController {
         if (fileLinkDTO.getExpiry().isBefore(LocalDateTime.now()))
             throw new BusinessException(CommonErrorCode.E_600018);
         RFileDTO rFileDTO = rFileService.query(fileLinkDTO.getRFileId());
-        DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
+        String result = null;
 
-        // 本地不存在此文件
-        if (!deviceDTO.getType().equals(0))
-            throw new BusinessException(CommonErrorCode.E_500001);
+        if (rFileDTO.getDeviceId().equals(-1L)){// 临时目录
+            result = rFileDTO.getPath();
+        }else {
+            DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
 
-        String result = fileService.download(rFileDTO);
+            // 本地不存在此文件
+            if (!deviceDTO.getType().equals(0))
+                throw new BusinessException(CommonErrorCode.E_500001);
+
+            result = fileService.download(rFileDTO);
+        }
 
         // 返回文件 断点续传
         File file = new File(result);
         if (!file.exists()) {
-            System.out.println("实际文件不存在");
-            return;
+            throw new BusinessException(CommonErrorCode.E_500001);
+//            System.out.println("实际文件不存在");
+//            return;
         }
         try (OutputStream outputStream = response.getOutputStream();
              RandomAccessFile targetFile = new RandomAccessFile(file, "r")) {
@@ -385,139 +395,46 @@ public class FileController {
     @Operation(summary ="删除文件(token)")
     @PostMapping(value = "/delete")
     @Token
-    public Response delete(@RequestParam("vFileId") Long vFileId) {
+    public Response delete(@RequestParam("root") String root,
+                           @RequestParam("vFileId") String vFileId) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        VFileDTO vFileDTO = vFileService.query(vFileId);
-        // 文件与用户不匹配
-        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
-            throw new BusinessException(CommonErrorCode.E_600005);
-
-        // 删除缓存
-        redisService.delFileId(strategyService.query(vFileDTO.getStrategyId()).getRoot(), accountDTO.getId(), vFileId);
-
-        List<Long> delete = vFileService.delete(vFileDTO.getId());
-        for (Long i: delete) {
-            fileService.delete(rFileService.query(i));
-            rFileService.delete(i);
-        }
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(root),CommonErrorCode.E_100001);
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(vFileId),CommonErrorCode.E_100001);
+        fileStorageService.delete(root,vFileId,accountDTO);
         return Response.success().msg("文件删除成功");
     }
 
     @Operation(summary ="重命名文件(token)")
     @PostMapping(value = "/rename")
     @Token
-    public Response rename(@RequestParam("vFileId") Long vFileId,
+    public Response rename(@RequestParam("root") String root,
+                           @RequestParam("vFileId") String vFileId,
                            @RequestParam("name") String name) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        VFileDTO vFileDTO = vFileService.query(vFileId);
-        // 文件与用户不匹配
-        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
-            throw new BusinessException(CommonErrorCode.E_600005);
-
-        vFileService.rename(vFileId, name);
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(name),CommonErrorCode.E_100001);
+        fileStorageService.rename(root,vFileId,name,accountDTO);
         return Response.success().msg("重命名成功");
     }
 
     @Operation(summary ="复制文件(token)")
     @PostMapping(value = "/copy")
     @Token
-    public Response copy(@RequestParam("vFileId") Long vFileId,
-                         @RequestParam("parentId") Long parentId) {
+    public Response copy(@RequestParam("root") String root,
+                         @RequestParam("vFileId") String vFileId,
+                         @RequestParam("parentId") String parent) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        VFileDTO vFileDTO = vFileService.query(vFileId);
-        VFileDTO vParentDTO;
-        if (parentId.equals(0L)) {
-            vParentDTO = VFileDTO.rootFileDTO();
-            vParentDTO.setAccountID(accountDTO.getId());
-            vParentDTO.setStrategyId(vFileDTO.getStrategyId());
-        }
-        else
-            vParentDTO = vFileService.query(parentId);
-
-        // 文件与用户不匹配
-        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
-            throw new BusinessException(CommonErrorCode.E_600005);
-
-        // 目标文件不为目录
-        if (!vParentDTO.isDir())
-            throw new BusinessException(CommonErrorCode.E_600013);
-        // 文件与目标目录不属于同策略
-        if (!vFileDTO.getStrategyId().equals(vParentDTO.getStrategyId()))
-            throw new BusinessException(CommonErrorCode.E_600022);
-        // 目标目录已存在同名文件
-        while (vFileService.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), parentId, vFileDTO.getName()))
-            vFileDTO.setName(StringUtil.generateCopy(vFileDTO.getName()));
-        // 目标目录是文件的子目录
-        while (!vParentDTO.getId().equals(0L) && !vParentDTO.getParentId().equals(0L)) {
-            if (vParentDTO.getParentId().equals(vFileDTO.getId()))
-                throw new BusinessException(CommonErrorCode.E_600023);
-            vParentDTO = vFileService.query(vParentDTO.getParentId());
-        }
-
-        // BFS复制文件
-        Queue<VFileDTO> queue = new LinkedList<>();
-        Map<Long, Long> map =  new HashMap<>();
-        queue.offer(vFileDTO);
-        map.put(vFileDTO.getParentId(), parentId);
-        while (!queue.isEmpty()) {
-            VFileDTO cur = queue.poll();
-            if (cur.isDir()) {
-                List<VFileDTO> vFileDTOs = vFileService.queryBatch(cur.getAccountID(), cur.getStrategyId(), cur.getId());
-                for (VFileDTO i: vFileDTOs)
-                    queue.offer(i);
-            }
-            cur.setParentId(map.get(cur.getParentId()));
-            VFileDTO newVFileDTO = vFileService.create(cur);
-            map.put(cur.getId(), newVFileDTO.getId());
-        }
-
+        fileStorageService.copyTo(root,vFileId,parent,accountDTO);
         return Response.success().msg("复制成功");
     }
 
     @Operation(summary ="移动文件(token)")
     @PostMapping(value = "/move")
     @Token
-    public Response move(@RequestParam("vFileId") Long vFileId,
-                         @RequestParam("parentId") Long parentId) {
+    public Response move(@RequestParam("root") String root,
+                         @RequestParam("vFileId") String vFileId,
+                         @RequestParam("parentId") String parent) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        VFileDTO vFileDTO = vFileService.query(vFileId);
-        VFileDTO vParentDTO;
-        if (parentId.equals(0L)) {
-            vParentDTO = VFileDTO.rootFileDTO();
-            vParentDTO.setAccountID(accountDTO.getId());
-            vParentDTO.setStrategyId(vFileDTO.getStrategyId());
-        }
-        else
-            vParentDTO = vFileService.query(parentId);
-        // 文件与用户不匹配
-        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
-            throw new BusinessException(CommonErrorCode.E_600005);
-
-        // 目标文件不为目录
-        if (!vParentDTO.isDir())
-            throw new BusinessException(CommonErrorCode.E_600013);
-        // 文件与目标目录不属于同策略
-        if (!vFileDTO.getStrategyId().equals(vParentDTO.getStrategyId()))
-            throw new BusinessException(CommonErrorCode.E_600022);
-        // 目标目录已存在同名文件
-        while (vFileService.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), parentId, vFileDTO.getName()))
-            vFileDTO.setName(StringUtil.generateCopy(vFileDTO.getName()));
-        // 目标目录是文件的子目录
-        while (!vParentDTO.getId().equals(0L) && !vParentDTO.getParentId().equals(0L)) {
-            if (vParentDTO.getParentId().equals(vFileDTO.getId()))
-                throw new BusinessException(CommonErrorCode.E_600023);
-            vParentDTO = vFileService.query(vParentDTO.getParentId());
-        }
-
-        List<VFileDTO> vFileDTOs = vFileService.query(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), vFileDTO.getParentId(), vFileDTO.getName());
-        for (VFileDTO i: vFileDTOs) {
-            i.setParentId(parentId);
-            vFileService.update(i);
-        }
-
-        // 移动后需要把原来路径的缓存删除
-        redisService.delFileId(strategyService.query(vFileDTO.getStrategyId()).getRoot(), accountDTO.getId(), vFileId);
-
+        fileStorageService.moveTo(root,vFileId,parent,accountDTO);
         return Response.success().msg("移动成功");
     }
 

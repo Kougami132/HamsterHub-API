@@ -1,11 +1,8 @@
-package com.hamsterhub.service;
+package com.hamsterhub.common.service;
 
 import com.hamsterhub.common.domain.BusinessException;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public interface RedisService {
     /**

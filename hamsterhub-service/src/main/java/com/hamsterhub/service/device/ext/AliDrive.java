@@ -1,15 +1,16 @@
-package com.hamsterhub.device.ext;
+package com.hamsterhub.service.device.ext;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
+import com.hamsterhub.common.service.RedisService;
+import com.hamsterhub.common.util.GetBeanUtil;
 import com.hamsterhub.common.util.MD5Util;
-import com.hamsterhub.device.Storage;
-import com.hamsterhub.service.RedisService;
+import com.hamsterhub.service.device.Storage;
+
 import com.hamsterhub.service.dto.DeviceDTO;
-import com.hamsterhub.service.entity.Device;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import okhttp3.OkHttpClient;
@@ -22,19 +23,10 @@ import java.io.*;
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.util.StreamUtils;
-import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.multipart.MultipartFile;
 import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Hash;
 import org.web3j.crypto.Sign;
@@ -47,13 +39,9 @@ import java.util.UUID;
 
 @NoArgsConstructor
 @Data
-@Component
 public class AliDrive extends Storage {
-    @Autowired
-    private ApplicationContext applicationContext;
-    @Autowired
+
     private RestTemplate restTemplate;
-    @Autowired
     private RedisService redisService;
 
     private Integer code = 1;
@@ -78,6 +66,13 @@ public class AliDrive extends Storage {
     public AliDrive(DeviceDTO deviceDTO) {
         super(deviceDTO);
         this.device = deviceDTO;
+
+        // 获取依赖
+        this.restTemplate = GetBeanUtil.getBean(RestTemplate.class);
+        this.redisService = GetBeanUtil.getBean(RedisService.class);
+
+        // 初始化
+        this.init();
     }
 
     private void init() {
@@ -96,14 +91,14 @@ public class AliDrive extends Storage {
         }
     }
 
-    @Override
-    public AliDrive withDevice(DeviceDTO device) {
-        AliDrive aliDrive = new AliDrive(device);
-        // 手动给新的实例手动依赖注入
-        applicationContext.getAutowireCapableBeanFactory().autowireBean(aliDrive);
-        aliDrive.init();
-        return aliDrive;
-    }
+//    @Override
+//    public AliDrive withDevice(DeviceDTO device) {
+//        AliDrive aliDrive = new AliDrive(device);
+//        // 手动给新的实例手动依赖注入
+//        applicationContext.getAutowireCapableBeanFactory().autowireBean(aliDrive);
+//        aliDrive.init();
+//        return aliDrive;
+//    }
 
     @Override
     public String upload(File file, String name) {

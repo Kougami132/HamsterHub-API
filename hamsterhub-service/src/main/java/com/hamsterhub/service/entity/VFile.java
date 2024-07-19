@@ -48,4 +48,7 @@ public class VFile {
 
     @TableField("SHARE_TYPE")
     private Integer shareType;
+
+    @TableField("HASH")
+    private String hash;
 }

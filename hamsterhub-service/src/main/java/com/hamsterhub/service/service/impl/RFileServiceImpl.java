@@ -57,6 +57,22 @@ public class RFileServiceImpl implements RFileService {
     }
 
     @Override
+    public RFileDTO createTemp(RFileDTO rFileDTO) throws BusinessException {
+        // 传入对象为空
+        if (rFileDTO == null)
+            throw new BusinessException(CommonErrorCode.E_100001);
+        // hash值为空
+        if (StringUtil.isBlank(rFileDTO.getHash()))
+            throw new BusinessException(CommonErrorCode.E_500003);
+
+        RFile entity = RFileConvert.INSTANCE.dto2entity(rFileDTO);
+        entity.setDeviceId(-1L);
+        entity.setId(null);
+        rFileMapper.insert(entity);
+        return RFileConvert.INSTANCE.entity2dto(entity);
+    }
+
+    @Override
     public void delete(Long rFileId) throws BusinessException {
         // 传入对象为空
         if (rFileId == null)
@@ -132,5 +148,24 @@ public class RFileServiceImpl implements RFileService {
                 if (deviceIds.contains(i.getDeviceId()))
                     return true;
         return false;
+    }
+
+    @Override
+    public List<RFileDTO> queryByHash(String hash) throws BusinessException {
+        // 传入对象为空
+        if (hash == null)
+            throw new BusinessException(CommonErrorCode.E_100001);
+        List<RFile> rFiles = rFileMapper.selectList(new LambdaQueryWrapper<RFile>().eq(RFile::getHash, hash));
+        return RFileConvert.INSTANCE.entity2dto(rFiles);
+    }
+
+    @Override
+    public List<RFileDTO> queryByHash(String hash, Long size) throws BusinessException {
+        // 传入对象为空
+        if (hash == null)
+            throw new BusinessException(CommonErrorCode.E_100001);
+        List<RFile> rFiles = rFileMapper.selectList(new LambdaQueryWrapper<RFile>()
+                .eq(RFile::getHash, hash).eq(RFile::getSize,size));
+        return RFileConvert.INSTANCE.entity2dto(rFiles);
     }
 }

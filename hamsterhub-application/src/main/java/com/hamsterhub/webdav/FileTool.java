@@ -1,18 +1,15 @@
 package com.hamsterhub.webdav;
 
-import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.common.util.MatchUtil;
 import com.hamsterhub.common.util.StringUtil;
-import com.hamsterhub.convert.StrategyConvert;
 import com.hamsterhub.convert.VFileConvert;
 import com.hamsterhub.response.Response;
-import com.hamsterhub.response.StrategyResponse;
 import com.hamsterhub.response.VFileResponse;
 import com.hamsterhub.service.FileService;
-import com.hamsterhub.service.RedisService;
+import com.hamsterhub.common.service.RedisService;
 import com.hamsterhub.service.dto.*;
 import com.hamsterhub.service.service.*;
 import com.hamsterhub.util.SecurityUtil;
@@ -33,7 +30,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.hamsterhub.controller.StrategyController.separatePermission;
-import static java.util.stream.Collectors.toList;
 
 @Component
 public class FileTool {
@@ -338,11 +334,11 @@ public class FileTool {
         // 删除缓存
         redisService.delFileId(strategyService.query(vFileDTO.getStrategyId()).getRoot(), accountDTO.getId(), vFileId);
 
-        List<Long> delete = vFileService.delete(vFileDTO.getId());
-        for (Long i: delete) {
-            fileService.delete(rFileService.query(i));
-            rFileService.delete(i);
-        }
+//        List<Long> delete = vFileService.delete(vFileDTO.getId());
+//        for (Long i: delete) {
+//            fileService.delete(rFileService.query(i));
+//            rFileService.delete(i);
+//        }
         return true;
     }
 
@@ -375,7 +371,7 @@ public class FileTool {
 
     public Boolean mkdir(String root, Long parentId, String name, AccountDTO accountDTO) {
         StrategyDTO strategyDTO = strategyService.query(root);
-        VFileDTO vFileDTO = new VFileDTO(null, 0, name, parentId, 0L, 0, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), 0L, strategyDTO.getId(), 0);
+        VFileDTO vFileDTO = new VFileDTO(null, 0, name, parentId, 0L, 0, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), 0L, strategyDTO.getId(), 0,"");
         VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileService.createDir(vFileDTO));
 
         return true;

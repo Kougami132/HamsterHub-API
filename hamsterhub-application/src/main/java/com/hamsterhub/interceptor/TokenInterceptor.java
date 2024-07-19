@@ -4,7 +4,7 @@ import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.JwtUtil;
-import com.hamsterhub.service.RedisService;
+import com.hamsterhub.common.service.RedisService;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +14,6 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.time.LocalDateTime;
 
 @Component
 public class TokenInterceptor extends HandlerInterceptorAdapter {

@@ -4,7 +4,7 @@ import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.convert.StrategyConvert;
-import com.hamsterhub.device.Storage;
+import com.hamsterhub.service.device.Storage;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.response.SizeResponse;
 import com.hamsterhub.response.StrategyResponse;
@@ -15,6 +15,7 @@ import com.hamsterhub.service.dto.DeviceStrategyDTO;
 import com.hamsterhub.service.dto.StrategyDTO;
 import com.hamsterhub.service.service.DeviceService;
 import com.hamsterhub.service.service.DeviceStrategyService;
+import com.hamsterhub.service.service.FileStorageService;
 import com.hamsterhub.service.service.StrategyService;
 import com.hamsterhub.util.SecurityUtil;
 import com.hamsterhub.vo.StrategyVO;
@@ -45,6 +46,8 @@ public class StrategyController {
     private DeviceStrategyService deviceStrategyService;
     @Autowired
     private StorageService storageService;
+    @Autowired
+    private FileStorageService fileStorageService;
 
     @Operation(summary = "策略类型")
     @GetMapping(value = "/strategyType")
@@ -194,24 +197,13 @@ public class StrategyController {
 
     @Operation(summary ="策略容量(admin)")
     @GetMapping(value = "/queryStrategySize")
-    public Response queryStrategySize(@RequestParam("strategyId") Long strategyId) {
-        // 策略不存在
-        if (!strategyService.isExist(strategyId))
-            throw new BusinessException(CommonErrorCode.E_400001);
-
-        StrategyDTO strategyDTO = strategyService.query(strategyId);
-        List<Long> deviceIds = deviceStrategyService.queryDeviceIds(strategyDTO.getId());
-
+    public Response queryStrategySize(@RequestParam("root") String root,
+                                      @RequestParam(value = "combine",required = false) Integer combine) {
         Long total = 0L, usable = 0L;
-        for (Long deviceId: deviceIds) {
-            DeviceDTO deviceDTO = deviceService.query(deviceId);
-            Storage storage = storageService.getInstance(deviceDTO);
-            // 设备连接失败
-            if (!deviceDTO.isConnected())
-                throw new BusinessException(CommonErrorCode.E_300006);
-            total += storage.getTotalSize();
-            usable += storage.getUsableSize();
-        }
+
+        total = fileStorageService.getTotalSize(root,combine);
+        usable = fileStorageService.getUsableSize(root,combine);
+
         SizeResponse size = new SizeResponse(total, usable);
         return Response.success().data(size);
     }

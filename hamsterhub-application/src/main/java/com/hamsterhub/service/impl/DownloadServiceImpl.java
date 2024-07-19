@@ -1,13 +1,11 @@
 package com.hamsterhub.service.impl;
 
 import com.hamsterhub.common.domain.BusinessException;
-import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MD5Util;
-import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.service.BitTorrentService;
 import com.hamsterhub.service.DownloadService;
 import com.hamsterhub.service.FileService;
-import com.hamsterhub.service.RedisService;
+import com.hamsterhub.common.service.RedisService;
 import com.hamsterhub.service.dto.RFileDTO;
 import com.hamsterhub.service.dto.StrategyDTO;
 import com.hamsterhub.service.dto.VFileDTO;

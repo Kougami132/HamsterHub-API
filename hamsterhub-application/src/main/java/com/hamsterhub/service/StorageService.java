@@ -1,7 +1,7 @@
 package com.hamsterhub.service;
 
 import com.hamsterhub.common.domain.BusinessException;
-import com.hamsterhub.device.Storage;
+import com.hamsterhub.service.device.Storage;
 import com.hamsterhub.service.dto.DeviceDTO;
 
 import java.util.List;

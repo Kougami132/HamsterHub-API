@@ -7,8 +7,11 @@ import java.util.List;
 
 public interface VFileService {
     VFileDTO create(VFileDTO vFileDTO) throws BusinessException;
+
+    VFileDTO createOverlay(VFileDTO vFileDTO) throws BusinessException;
+
     VFileDTO createDir(VFileDTO vFileDTO) throws BusinessException;
-    List<Long> delete(Long vFileId) throws BusinessException; // 返回要删除实际文件的ID
+    List<String> delete(Long vFileId) throws BusinessException; // 返回要删除实际文件的ID
     void update(VFileDTO vFileDTO) throws BusinessException;
     VFileDTO query(Long vFileId) throws BusinessException;
     VFileDTO query(Long strategyId, Long parentId, String name) throws BusinessException;

@@ -50,6 +50,9 @@ public class VFileDTO {
     @Schema(description = "分享类型")
     private Integer shareType;
 
+    @Schema(description = "hash")
+    private String hash;
+
     public Boolean isDir() {
         return this.type.equals(0);
     }
@@ -62,15 +65,28 @@ public class VFileDTO {
         return vFileDTO;
     }
 
+    public static VFileDTO rootFileDTO(Long userId, Long strategyId) {
+        VFileDTO vFileDTO = rootFileDTO();
+        vFileDTO.setAccountID(userId);
+        vFileDTO.setStrategyId(strategyId);
+        return vFileDTO;
+    }
+
     public static VFileDTO newFile(String name, Long strategyId, Long parentId, RFileDTO rFileDTO, Long accountId) {
         VFileDTO file = new VFileDTO(null, 1, name, parentId, rFileDTO.getId(), 0,
-                LocalDateTime.now(), LocalDateTime.now(), accountId, rFileDTO.getSize(), strategyId, 0);
+                LocalDateTime.now(), LocalDateTime.now(), accountId, rFileDTO.getSize(), strategyId, 0,"");
+        return file;
+    }
+
+    public static VFileDTO newFile(String name, Long strategyId, Long parentId, Long size, Long accountId,String hash) {
+        VFileDTO file = new VFileDTO(null, 1, name, parentId, 0L, 0,
+                LocalDateTime.now(), LocalDateTime.now(), accountId, size, strategyId, 0,hash);
         return file;
     }
 
     public static VFileDTO newDir(String name, Long strategyId, Long parentId, Long accountId) {
         VFileDTO dir = new VFileDTO(null, 0, name, parentId, 0L, 0, LocalDateTime.now(),
-                LocalDateTime.now(), accountId, 0L, strategyId, 0);
+                LocalDateTime.now(), accountId, 0L, strategyId, 0,"");
         return dir;
     }
 }

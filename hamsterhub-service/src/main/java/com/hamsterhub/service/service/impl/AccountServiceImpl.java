@@ -158,11 +158,13 @@ public class AccountServiceImpl implements AccountService {
         // 传入对象为空
         if (StringUtil.isBlank(username))
             throw new BusinessException(CommonErrorCode.E_100001);
-        // 用户名不存在
-        if (!isExist(username))
-            throw new BusinessException(CommonErrorCode.E_200015);
 
         Account entity = accountMapper.selectOne(new LambdaQueryWrapper<Account>().eq(Account::getUsername, username));
+
+        if (entity == null){
+            throw new BusinessException(CommonErrorCode.E_200015);
+        }
+
         return AccountConvert.INSTANCE.entity2dto(entity);
     }
 

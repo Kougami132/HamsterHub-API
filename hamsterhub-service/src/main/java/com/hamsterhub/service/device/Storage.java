@@ -1,31 +1,26 @@
-package com.hamsterhub.device;
+package com.hamsterhub.service.device;
 
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MatchUtil;
 import com.hamsterhub.service.dto.DeviceDTO;
-import com.hamsterhub.service.entity.Device;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 
 @NoArgsConstructor
 @Data
-public class Storage {
+public class Storage implements WRFiler {
     private Integer code;
     private String name;
-    private DeviceDTO device;
+    private DeviceDTO device = null;
+    private Boolean ready = false;
 
     public Storage(DeviceDTO deviceDTO) {
         // json格式校验
         if (!MatchUtil.isJson(deviceDTO.getParam()))
             throw new BusinessException(CommonErrorCode.E_300005);
-    }
-
-    public Storage withDevice(DeviceDTO device) {
-        return null;
     }
 
     // 返回path

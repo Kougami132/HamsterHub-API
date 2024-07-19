@@ -1,5 +1,7 @@
 package com.hamsterhub.service.dto;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.hamsterhub.service.entity.RFile;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -29,5 +31,15 @@ public class RFileDTO {
 
     @Schema(description = "设备ID")
     private Long deviceId;
+
+    public static RFileDTO createTemp(String name,String hash,String path,Long size) {
+        RFileDTO rFileDTO = new RFileDTO();
+        rFileDTO.name = hash;
+        rFileDTO.hash = hash;
+        rFileDTO.size = size;
+        rFileDTO.path = path;
+        rFileDTO.deviceId = -1L;
+        return rFileDTO;
+    }
 
 }

@@ -28,4 +28,10 @@ public class Strategy {
 
     @TableField("ROOT")
     private String root;
+
+    @TableField("FILE_SYSTEM")
+    private Integer fileSystem;
+
+    @TableField("PARAM")
+    private String param;
 }

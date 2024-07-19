@@ -55,6 +55,7 @@ public enum CommonErrorCode implements ErrorCode {
 	E_400004(400004,"存储策略类型不存在"),
 	E_400005(400005,"存储策略模式不存在"),
 	E_400006(400006,"存储策略根目录已存在"),
+	E_400007(400007,"存储策略未就绪"),
 
 	// 实际文件异常编码 500
 	E_500001(500001,"文件不存在(r)"),
@@ -65,6 +66,9 @@ public enum CommonErrorCode implements ErrorCode {
 	E_500006(500006,"上传失败"),
 	E_500007(500007,"头像初始化失败"),
 	E_500008(500008,"离线下载请求出错，请联系管理员"),
+	E_500009(500009,"实际文件大小与声明大小不相符"),
+	E_500010(500010,"错误上传格式"),
+	E_500011(500011,"文件名为空"),
 
 	// 虚拟文件异常编码 600
 	E_600001(600001,"文件不存在(v)"),
@@ -90,6 +94,7 @@ public enum CommonErrorCode implements ErrorCode {
 	E_600021(600021,"分享中的文件不得隐藏或显示"),
 	E_600022(600022,"文件与目标目录不属于同策略"),
 	E_600023(600023,"目标目录是文件的子目录"),
+	E_600024(600024,"root与策略id不一致"),
 
 	// 网盘或其他设备连接异常编码 700
 	E_700001(700001,"阿里云盘签名计算错误"),
@@ -133,5 +138,11 @@ public enum CommonErrorCode implements ErrorCode {
            }
        }
 	       return null;
+	}
+
+	public static void checkAndThrow(Boolean state, CommonErrorCode error) {
+		if (state){
+			throw new BusinessException(error);
+		}
 	}
 }

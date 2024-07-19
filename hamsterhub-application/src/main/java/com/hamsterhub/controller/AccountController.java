@@ -9,7 +9,7 @@ import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.config.SystemConfig;
 import com.hamsterhub.response.LoginResponse;
 import com.hamsterhub.response.Response;
-import com.hamsterhub.service.RedisService;
+import com.hamsterhub.common.service.RedisService;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.service.AccountService;
 import com.hamsterhub.util.SecurityUtil;

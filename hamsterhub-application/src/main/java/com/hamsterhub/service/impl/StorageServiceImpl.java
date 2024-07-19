@@ -1,7 +1,7 @@
 package com.hamsterhub.service.impl;
 
 import com.hamsterhub.common.domain.BusinessException;
-import com.hamsterhub.device.Storage;
+import com.hamsterhub.service.device.Storage;
 import com.hamsterhub.service.StorageService;
 import com.hamsterhub.service.dto.DeviceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +33,8 @@ public class StorageServiceImpl implements StorageService {
     @Override
     public Storage getInstance(DeviceDTO deviceDTO) throws BusinessException {
         Storage storage = storages.get(deviceDTO.getType());
-        return storage.withDevice(deviceDTO);
+//        return storage.withDevice(deviceDTO);
+        return null;
     }
 
     @Override

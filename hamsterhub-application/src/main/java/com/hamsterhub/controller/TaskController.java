@@ -8,7 +8,7 @@ import com.hamsterhub.response.Response;
 import com.hamsterhub.response.TaskResponse;
 import com.hamsterhub.service.BitTorrentService;
 import com.hamsterhub.service.DownloadService;
-import com.hamsterhub.service.RedisService;
+import com.hamsterhub.common.service.RedisService;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.entity.Torrent;
 import com.hamsterhub.service.service.StrategyService;
