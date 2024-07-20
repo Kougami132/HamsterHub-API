@@ -288,7 +288,7 @@ public class VirtualStrategyStorage implements ListFiler {
         CommonErrorCode.checkAndThrow(!vFileDTO.getAccountID().equals(userId), CommonErrorCode.E_600005);
 
         // 删除缓存
-        redisService.delFileId(this.root, userId, index);
+        redisService.delFileId(this.root, userId,Long.parseLong(index));
 
         List<String> deleteHash = vFileService.delete(vFileDTO.getId());
 
@@ -458,20 +458,21 @@ public class VirtualStrategyStorage implements ListFiler {
     public VFileDTO upload(String parent, File file, String name, Long size, Long userId, String hash) {
         Long parentId = Long.parseLong(parent);
 
+        // 版本控制功能导致复杂度提高，故移除
         // 取出版本最新的VFile
-        List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>()
-                .eq(VFile::getAccountID, userId)
-                .eq(VFile::getStrategyId, this.id)
-                .eq(VFile::getParentId, parentId)
-                .eq(VFile::getName, name));
-        vFiles.sort((o1, o2) -> o2.getVersion() - o1.getVersion());
-
-        Integer version = vFiles.size() + 1;
-
-        // version == 1 说明vFiles.size()为0，vFiles.get(0)会报错
-        if (version!=1 && version.equals(vFiles.get(0).getVersion())) {
-            version = vFiles.get(0).getVersion() + 1;
-        }
+//        List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>()
+//                .eq(VFile::getAccountID, userId)
+//                .eq(VFile::getStrategyId, this.id)
+//                .eq(VFile::getParentId, parentId)
+//                .eq(VFile::getName, name));
+//        vFiles.sort((o1, o2) -> o2.getVersion() - o1.getVersion());
+//
+//        Integer version = vFiles.size() + 1;
+//
+//        // version == 1 说明vFiles.size()为0，vFiles.get(0)会报错
+//        if (version!=1 && version.equals(vFiles.get(0).getVersion())) {
+//            version = vFiles.get(0).getVersion() + 1;
+//        }
 
         // 创建真实文件记录
         if (!this.isExist(hash, size)){
@@ -485,8 +486,8 @@ public class VirtualStrategyStorage implements ListFiler {
 
         // 记录先创建
         VFileDTO vFileDTO = VFileDTO.newFile(name, this.id, parentId, size, userId, hash);
-        vFileDTO.setVersion(version);
-        vFileDTO = vFileService.createOverlay(vFileDTO);
+        vFileDTO.setVersion(1); // 取消版本控制功能
+        vFileDTO = vFileService.create(vFileDTO);
 
         return vFileDTO;
 

@@ -241,43 +241,8 @@ public class FileController {
                                    @RequestParam("vFileId") String index,
                                    @RequestParam(value = "preference", required = false) Long preference) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
-//        VFileDTO vFileDTO = vFileService.query(vFileId);
-        // 文件与用户不匹配
-//        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
-//            throw new BusinessException(CommonErrorCode.E_600005);
-//        RFileDTO rFileDTO = rFileService.query(vFileDTO.getRFileId());
-//        DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
-
         String url;
         url = fileStorageService.getDownloadUrl(root,index,accountDTO,preference);
-//        if (deviceDTO.getType().equals(0)) {// 本地硬盘
-//            FileLinkDTO fileLinkDTO;
-//            String ticket;
-//            if (fileLinkService.isExist(rFileDTO.getId())) { // 文件直链已存在
-//                fileLinkDTO = fileLinkService.query(rFileDTO.getId());
-//                if (fileLinkDTO.getExpiry().isBefore(LocalDateTime.now())) { // 直链已过期
-//                    do {
-//                        fileLinkDTO.setTicket(StringUtil.generateRandomString(10));
-//                    }
-//                    while (fileLinkService.isExist(fileLinkDTO.getTicket()));
-//                }
-//                fileLinkDTO.setExpiry(LocalDateTime.now().plusMinutes(10));
-//                fileLinkService.update(fileLinkDTO);
-//            }
-//            else {
-//                do {
-//                    ticket = StringUtil.generateRandomString(10);
-//                }
-//                while (fileLinkService.isExist(ticket));
-//
-//                fileLinkDTO = new FileLinkDTO(ticket, rFileDTO.getId(), LocalDateTime.now().plusMinutes(10));
-//                fileLinkService.create(fileLinkDTO);
-//            }
-//
-//            url = String.format("/download?ticket=%s&fileName=%s", fileLinkDTO.getTicket(), vFileDTO.getName());
-//        }
-//        else // 网盘
-//            url = fileService.download(rFileDTO);
         return Response.success().data(url);
     }
 

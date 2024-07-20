@@ -373,7 +373,7 @@ public class StringUtil {
 	public static String generateCopy(String name) {
 		if (name.indexOf('.') == -1) return name + " copy";
 		String extension = name.substring(name.lastIndexOf('.') + 1);
-		return name.substring(0, name.lastIndexOf('.')) + "copy." + extension;
+		return name.substring(0, name.lastIndexOf('.')) + " copy." + extension;
 	}
 
 }
