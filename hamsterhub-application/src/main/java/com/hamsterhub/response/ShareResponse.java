@@ -11,9 +11,10 @@ public class ShareResponse {
     private String id;
     private Integer type;
     private String ticket;
-    private String vFileId;
+    private String fileIndex;
     private String key;
     private LocalDateTime expiry;
     private String accountID;
     private String name;
+    private String root;
 }

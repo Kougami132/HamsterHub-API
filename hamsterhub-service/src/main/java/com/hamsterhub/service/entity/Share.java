@@ -22,8 +22,11 @@ public class Share {
     @TableField("TICKET")
     private String ticket;
 
-    @TableField("V_FILE_ID")
-    private Long vFileId;
+    @TableField("ROOT")
+    private String root;
+
+    @TableField("FILE_INDEX")
+    private String fileIndex;
 
     @TableField("`KEY`")
     private String key;

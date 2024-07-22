@@ -29,6 +29,8 @@ import java.util.stream.Collectors;
 
 public class VirtualStrategyStorage implements ListFiler {
 
+    public static final Integer fileSystemType = 0;
+
     private DeviceService deviceService;
     private VFileService vFileService;
     private RFileService rFileService;
@@ -137,6 +139,11 @@ public class VirtualStrategyStorage implements ListFiler {
             }
         }
         return res;
+    }
+
+    @Override
+    public Integer getFileSystem() {
+        return fileSystem;
     }
 
     @Override
@@ -558,17 +565,15 @@ public class VirtualStrategyStorage implements ListFiler {
         if (deviceId == -1L){
             return this.tempDevice.downLoad(selectedRFileDTO.getId().toString()) +
                     "&fileName=" +
-                    selectedRFileDTO.getName();
+                    vFileDTO.getName();
         }
 
         Storage storage = deviceMap.get(selectedRFileDTO.getDeviceId());
 
-        String url = null;
+        String url = storage.downLoad(selectedRFileDTO.getPath());
 
         if (storage.getDevice().getType().equals(0)){ // 本地硬盘时，为统一接口，不把东西传进去
-            url = storage.downLoad(selectedRFileDTO.getId().toString()) + "&fileName=" + selectedRFileDTO.getName();
-        }else {
-            url = storage.downLoad(selectedRFileDTO.getPath());
+            url = url + "&fileName=" + vFileDTO.getName();
         }
 
         return url;

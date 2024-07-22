@@ -10,6 +10,8 @@ public interface ListFiler {
     // 查询是否就绪
     public Boolean isReady();
 
+    Integer getFileSystem();
+
     // 查询文件是否存在，虚拟文件系统应当传递hash，真实文件系统应当传递url
     Boolean isExist(String index);
 

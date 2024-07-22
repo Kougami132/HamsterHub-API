@@ -23,8 +23,8 @@ public class ShareDTO {
     @Schema(description = "分享码")
     private String ticket;
 
-    @Schema(description = "分享码")
-    private Long vFileId;
+    @Schema(description = "用于确定文件的所应")
+    private String fileIndex;
 
     @Schema(description = "提取码")
     private String key;
@@ -37,5 +37,8 @@ public class ShareDTO {
 
     @Schema(description = "分享的名称")
     private String name;
+
+    @Schema(description = "文件所处的策略的root值")
+    private String root;
 
 }

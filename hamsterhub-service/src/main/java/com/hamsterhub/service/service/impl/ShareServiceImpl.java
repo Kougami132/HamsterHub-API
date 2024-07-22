@@ -43,7 +43,7 @@ public class ShareServiceImpl implements ShareService {
 
     @Override
     public void deleteByVFileId(Long vFileId) throws BusinessException {
-        shareMapper.delete(new LambdaQueryWrapper<Share>().eq(Share::getVFileId, vFileId));
+        shareMapper.delete(new LambdaQueryWrapper<Share>().eq(Share::getFileIndex, vFileId));
     }
 
     @Override
@@ -75,7 +75,7 @@ public class ShareServiceImpl implements ShareService {
 
     @Override
     public Boolean isExistByVFileId(Long vFileId) throws BusinessException {
-        return shareMapper.selectCount(new LambdaQueryWrapper<Share>().eq(Share::getVFileId, vFileId)) > 0;
+        return shareMapper.selectCount(new LambdaQueryWrapper<Share>().eq(Share::getFileIndex, vFileId)) > 0;
     }
 
     @Override

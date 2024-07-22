@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RealyStrategyStorage implements ListFiler {
+    public static final Integer fileSystemType = 1;
 
     private DeviceService deviceService;
 
@@ -77,6 +78,11 @@ public class RealyStrategyStorage implements ListFiler {
             }
         }
         return res;
+    }
+
+    @Override
+    public Integer getFileSystem() {
+        return fileSystem;
     }
 
     @Override

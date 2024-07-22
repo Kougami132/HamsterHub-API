@@ -27,8 +27,8 @@ import java.util.Map;
 @Service
 @Slf4j
 public class FileStorageServiceImpl implements FileStorageService {
-    private final Integer VIRTUAL_FILE_SYSTEM = 0;
-    private final Integer REALY_FILE_SYSTEM = 1;
+    public static final Integer VIRTUAL_FILE_SYSTEM = 0;
+    public static final Integer REALY_FILE_SYSTEM = 1;
 
     @Autowired
     private StrategyMapper strategyMapper;
@@ -68,6 +68,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     }
 
+    @Override
     public ListFiler getListFiler(String root) {
         ListFiler listFiler = strategies.get(root);
         CommonErrorCode.checkAndThrow(listFiler == null,CommonErrorCode.E_400001);
@@ -166,6 +167,8 @@ public class FileStorageServiceImpl implements FileStorageService {
         ListFiler listFiler = getListFiler(root);
         return listFiler.getUsableSize(combineOption);
     }
+
+
 
 
 }

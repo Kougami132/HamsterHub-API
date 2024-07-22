@@ -1,5 +1,6 @@
 package com.hamsterhub.service.service;
 
+import com.hamsterhub.service.device.ListFiler;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.dto.VFileDTO;
 
@@ -9,6 +10,8 @@ import java.util.List;
 public interface FileStorageService {
     // 载入策略和设备数据，springboot启动时调用一次，当修改策略和设备的数据库数据应当刷新一次
     void loadData();
+
+    ListFiler getListFiler(String root);
 
     // 判断文件是否存在，虚拟文件系统应当传递hash，真实文件系统应当传递url
     Boolean isExist(String root, String index);
