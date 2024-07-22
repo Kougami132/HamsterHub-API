@@ -50,6 +50,8 @@ public class FileTool {
     private FileService fileService;
     @Autowired
     private RedisService redisService;
+    @Autowired
+    private FileStorageService fileStorageService;
 
     Pattern splitUrlPattern = Pattern.compile("^/([^/]+)(/.*)?");
     Pattern splitUrlBackPattern = Pattern.compile("^(.*)/([^/]+)$");
@@ -232,42 +234,48 @@ public class FileTool {
 
     public String getDownloadUrl(Long vFileId, AccountDTO accountDTO) {
 
+
+
+
         VFileDTO vFileDTO = vFileService.query(vFileId);
+
         // 文件与用户不匹配
         if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
             throw new BusinessException(CommonErrorCode.E_600005);
-        RFileDTO rFileDTO = rFileService.query(vFileDTO.getRFileId());
-        DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
 
-        String url;
-        if (deviceDTO.getType().equals(0)) {// 本地硬盘
-            FileLinkDTO fileLinkDTO;
-            String ticket;
-            if (fileLinkService.isExist(rFileDTO.getId())) { // 文件直链已存在
-                fileLinkDTO = fileLinkService.query(rFileDTO.getId());
-                if (fileLinkDTO.getExpiry().isBefore(LocalDateTime.now())) { // 直链已过期
-                    do {
-                        fileLinkDTO.setTicket(StringUtil.generateRandomString(10));
-                    }
-                    while (fileLinkService.isExist(fileLinkDTO.getTicket()));
-                }
-                fileLinkDTO.setExpiry(LocalDateTime.now().plusMinutes(10));
-                fileLinkService.update(fileLinkDTO);
-            }
-            else {
-                do {
-                    ticket = StringUtil.generateRandomString(10);
-                }
-                while (fileLinkService.isExist(ticket));
+        StrategyDTO strategyDTO = strategyService.query(vFileDTO.getStrategyId());
+        String url = fileStorageService.getDownloadUrl(strategyDTO.getRoot(),vFileId.toString(),accountDTO,null);
 
-                fileLinkDTO = new FileLinkDTO(ticket, rFileDTO.getId(), LocalDateTime.now().plusMinutes(10));
-                fileLinkService.create(fileLinkDTO);
-            }
 
-            url = String.format("/download?ticket=%s&fileName=%s", fileLinkDTO.getTicket(), vFileDTO.getName());
-        }
-        else // 网盘
-            url = fileService.download(rFileDTO);
+
+//        if (deviceDTO.getType().equals(0)) {// 本地硬盘
+//            FileLinkDTO fileLinkDTO;
+//            String ticket;
+//            if (fileLinkService.isExist(rFileDTO.getId())) { // 文件直链已存在
+//                fileLinkDTO = fileLinkService.query(rFileDTO.getId());
+//                if (fileLinkDTO.getExpiry().isBefore(LocalDateTime.now())) { // 直链已过期
+//                    do {
+//                        fileLinkDTO.setTicket(StringUtil.generateRandomString(10));
+//                    }
+//                    while (fileLinkService.isExist(fileLinkDTO.getTicket()));
+//                }
+//                fileLinkDTO.setExpiry(LocalDateTime.now().plusMinutes(10));
+//                fileLinkService.update(fileLinkDTO);
+//            }
+//            else {
+//                do {
+//                    ticket = StringUtil.generateRandomString(10);
+//                }
+//                while (fileLinkService.isExist(ticket));
+//
+//                fileLinkDTO = new FileLinkDTO(ticket, rFileDTO.getId(), LocalDateTime.now().plusMinutes(10));
+//                fileLinkService.create(fileLinkDTO);
+//            }
+//
+//            url = String.format("/download?ticket=%s&fileName=%s", fileLinkDTO.getTicket(), vFileDTO.getName());
+//        }
+//        else // 网盘
+//            url = fileService.download(rFileDTO);
         return url;
     }
 
@@ -291,23 +299,23 @@ public class FileTool {
     }
 
 
-    public RFileDTO getRFileObj(String url) throws UnsupportedEncodingException {
-        String[] paths = splitUrl(url);
-
-        if("".equals(paths[0])){
-            return null;
-        }
-
-        String root = paths[0];
-        String fileUrl = paths[1];
-
-        // 构造user
-        AccountDTO accountDTO = new AccountDTO();
-        accountDTO.setId(0L);
-        VFileDTO vFileDTO = queryFile(root, fileUrl, accountDTO);
-
-        return rFileService.query(vFileDTO.getRFileId());
-    }
+//    public RFileDTO getRFileObj(String url) throws UnsupportedEncodingException {
+//        String[] paths = splitUrl(url);
+//
+//        if("".equals(paths[0])){
+//            return null;
+//        }
+//
+//        String root = paths[0];
+//        String fileUrl = paths[1];
+//
+//        // 构造user
+//        AccountDTO accountDTO = new AccountDTO();
+//        accountDTO.setId(0L);
+//        VFileDTO vFileDTO = queryFile(root, fileUrl, accountDTO);
+//
+//        return rFileService.query(vFileDTO.getRFileId());
+//    }
 
 
     public Boolean delFileUrl(String url, AccountDTO accountDTO) throws UnsupportedEncodingException {
@@ -371,7 +379,8 @@ public class FileTool {
 
     public Boolean mkdir(String root, Long parentId, String name, AccountDTO accountDTO) {
         StrategyDTO strategyDTO = strategyService.query(root);
-        VFileDTO vFileDTO = new VFileDTO(null, 0, name, parentId, 0L, 0, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), 0L, strategyDTO.getId(), 0,"");
+        VFileDTO vFileDTO = VFileDTO.newDir(name,strategyDTO.getId(),parentId,accountDTO.getId());
+//        VFileDTO vFileDTO = new VFileDTO(null, 0, name, parentId, 0, LocalDateTime.now(), LocalDateTime.now(), accountDTO.getId(), 0L, strategyDTO.getId(), 0,"");
         VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileService.createDir(vFileDTO));
 
         return true;

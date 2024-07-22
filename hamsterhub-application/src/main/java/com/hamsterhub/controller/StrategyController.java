@@ -73,9 +73,9 @@ public class StrategyController {
             StrategyResponse strategyResponse = StrategyConvert.INSTANCE.dto2res(i);
             strategyResponse.setPermissions(separatePermission(i.getPermission()));
             if (accountDTO.isAdmin() || strategyResponse.getPermissions().contains(accountDTO.getType())) {
-                strategyResponse.setDeviceIds(deviceStrategyService.queryDeviceIds(i.getId()).stream()
-                        .map(Objects::toString)
-                        .collect(toList()));
+//                strategyResponse.setDeviceIds(deviceStrategyService.queryDeviceIds(i.getId()).stream()
+//                        .map(Objects::toString)
+//                        .collect(toList()));
 
                 data.add(strategyResponse);
             }

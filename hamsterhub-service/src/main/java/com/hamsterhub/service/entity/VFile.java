@@ -25,9 +25,6 @@ public class VFile {
     @TableField("PARENT_ID")
     private Long parentId;
 
-    @TableField("R_FILE_ID")
-    private Long rFileId;
-
     @TableField("VERSION")
     private Integer version;
 

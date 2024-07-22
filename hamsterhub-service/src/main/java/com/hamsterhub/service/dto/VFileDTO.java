@@ -26,9 +26,6 @@ public class VFileDTO {
     @Schema(description = "父文件ID")
     private Long parentId;
 
-    @Schema(description = "实际文件ID")
-    private Long rFileId;
-
     @Schema(description = "文件版本")
     private Integer version;
 
@@ -73,19 +70,19 @@ public class VFileDTO {
     }
 
     public static VFileDTO newFile(String name, Long strategyId, Long parentId, RFileDTO rFileDTO, Long accountId) {
-        VFileDTO file = new VFileDTO(null, 1, name, parentId, rFileDTO.getId(), 0,
+        VFileDTO file = new VFileDTO(null, 1, name, parentId, 0,
                 LocalDateTime.now(), LocalDateTime.now(), accountId, rFileDTO.getSize(), strategyId, 0,"");
         return file;
     }
 
     public static VFileDTO newFile(String name, Long strategyId, Long parentId, Long size, Long accountId,String hash) {
-        VFileDTO file = new VFileDTO(null, 1, name, parentId, 0L, 0,
+        VFileDTO file = new VFileDTO(null, 1, name, parentId, 0,
                 LocalDateTime.now(), LocalDateTime.now(), accountId, size, strategyId, 0,hash);
         return file;
     }
 
     public static VFileDTO newDir(String name, Long strategyId, Long parentId, Long accountId) {
-        VFileDTO dir = new VFileDTO(null, 0, name, parentId, 0L, 0, LocalDateTime.now(),
+        VFileDTO dir = new VFileDTO(null, 0, name, parentId, 0, LocalDateTime.now(),
                 LocalDateTime.now(), accountId, 0L, strategyId, 0,"");
         return dir;
     }
