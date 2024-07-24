@@ -63,9 +63,6 @@ public class FileStorageServiceImpl implements FileStorageService {
             }
 
         }
-
-//        log.info(strategies.toString());
-
     }
 
     @Override

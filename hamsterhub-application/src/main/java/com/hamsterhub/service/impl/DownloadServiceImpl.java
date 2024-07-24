@@ -118,7 +118,7 @@ public class DownloadServiceImpl implements DownloadService {
 
             File[] files = file.listFiles();
             for (File i: files)
-                createFileInfo(i, strategyId, dir.getId(), accountId);
+                createFileInfo(i, strategyId, Long.parseLong(dir.getId()), accountId);
         }
         else if (file.isFile()) {
             StrategyDTO strategyDTO = strategyService.query(strategyId);

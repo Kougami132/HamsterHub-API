@@ -148,7 +148,7 @@ public class VFileServiceImpl implements VFileService {
         if (vFileDTO == null)
             throw new BusinessException(CommonErrorCode.E_100001);
         // 文件不存在
-        if (!this.isExist(vFileDTO.getId()))
+        if (!this.isExist(Long.parseLong(vFileDTO.getId())))
             throw new BusinessException(CommonErrorCode.E_600001);
         // 存储策略不存在
         if (!strategyService.isExist(vFileDTO.getStrategyId()))
@@ -383,7 +383,7 @@ public class VFileServiceImpl implements VFileService {
             vFileDTO = this.query(vFileDTO.getParentId());
         }
         if (vFileDTO.getShareType().equals(1))
-            return vFileDTO.getId();
+            return Long.parseLong(vFileDTO.getId());
         else if (vFileDTO.getShareType().equals(2)) {
             return 2L;
         } else

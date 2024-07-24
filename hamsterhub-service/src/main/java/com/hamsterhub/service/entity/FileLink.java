@@ -24,4 +24,7 @@ public class FileLink {
 
     @TableField("`EXPIRY`")
     private LocalDateTime expiry;
+
+    @TableField("`PATH`")
+    private String path;
 }

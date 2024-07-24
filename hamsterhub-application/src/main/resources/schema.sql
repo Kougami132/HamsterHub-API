@@ -75,6 +75,7 @@ CREATE TABLE IF NOT EXISTS `file_link` (
                           `TICKET` varchar(50) NOT NULL UNIQUE COMMENT '分享码',
                           `R_FILE_ID` bigint(20) NOT NULL COMMENT '实际文件id',
                           `EXPIRY` DATETIME NOT NULL COMMENT '过期时间',
+                          `PATH` varchar(1024) DEFAULT '' COMMENT '存储实际位置',
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 

@@ -26,9 +26,21 @@ public class FileLinkDTO {
     @Schema(description = "过期时间")
     private LocalDateTime expiry;
 
+    @Schema(description = "文件位置")
+    private String path;
+
     public FileLinkDTO(String ticket, Long rFileId, LocalDateTime expiry) {
         this.ticket = ticket;
         this.rFileId = rFileId;
         this.expiry = expiry;
+        this.path = null;
     }
+
+    public FileLinkDTO(String ticket, Long rFileId, LocalDateTime expiry, String path) {
+        this.ticket = ticket;
+        this.rFileId = rFileId;
+        this.expiry = expiry;
+        this.path = path;
+    }
+
 }

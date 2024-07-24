@@ -256,20 +256,31 @@ public class FileController {
         // 直链已过期
         if (fileLinkDTO.getExpiry().isBefore(LocalDateTime.now()))
             throw new BusinessException(CommonErrorCode.E_600018);
-        RFileDTO rFileDTO = rFileService.query(fileLinkDTO.getRFileId());
+
         String result = null;
+        Long rFileId = fileLinkDTO.getRFileId();
+        if (rFileId.equals(-1L)){
+            // 如果没指定rFileId
+            if (StringUtil.isBlank(fileLinkDTO.getPath()))
+                throw new BusinessException(CommonErrorCode.E_600018);
+            result = fileLinkDTO.getPath();
+        }else{
+            // 如果指定了rFileId
+            RFileDTO rFileDTO = rFileService.query(rFileId);
 
-        if (rFileDTO.getDeviceId().equals(-1L)){// 临时目录
-            result = rFileDTO.getPath();
-        }else {
-            DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
+            if (rFileDTO.getDeviceId().equals(-1L)){// 临时目录
+                result = rFileDTO.getPath();
+            }else {
+                DeviceDTO deviceDTO = deviceService.query(rFileDTO.getDeviceId());
 
-            // 本地不存在此文件
-            if (!deviceDTO.getType().equals(0))
-                throw new BusinessException(CommonErrorCode.E_500001);
+                // 本地不存在此文件
+                if (!deviceDTO.getType().equals(0))
+                    throw new BusinessException(CommonErrorCode.E_500001);
 
-            result = fileService.download(rFileDTO);
+                result = fileService.download(rFileDTO);
+            }
         }
+
 
         // 返回文件 断点续传
         File file = new File(result);

@@ -156,7 +156,7 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
 
             // 是目录则把文件数存入size字段
             if (vFileDTO.getType().equals(0))
-                vFileDTO.setSize(vFileService.queryCount(vFileDTO.getId()).longValue());
+                vFileDTO.setSize(vFileService.queryCount(Long.parseLong(vFileDTO.getId()) ).longValue());
         }
 
         return vFileDTO;
@@ -182,7 +182,7 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
 
             // 是目录则把文件数存入size字段
             if (vFileDTO.getType().equals(0))
-                vFileDTO.setSize(vFileService.queryCount(vFileDTO.getId()).longValue());
+                vFileDTO.setSize(vFileService.queryCount(Long.parseLong(vFileDTO.getId()) ).longValue());
         }
 
         return vFileDTO;

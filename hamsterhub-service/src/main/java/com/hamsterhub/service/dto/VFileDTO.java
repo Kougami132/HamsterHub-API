@@ -15,7 +15,7 @@ public class VFileDTO {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主键")
-    private Long id;
+    private String id;
 
     @Schema(description = "文件类型")
     private Integer type;
@@ -56,7 +56,7 @@ public class VFileDTO {
 
     public static VFileDTO rootFileDTO() {
         VFileDTO vFileDTO = new VFileDTO();
-        vFileDTO.setId(0L);
+        vFileDTO.setId("0");
         vFileDTO.setParentId(0L);
         vFileDTO.setType(0);
         return vFileDTO;

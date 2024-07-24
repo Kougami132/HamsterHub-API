@@ -114,8 +114,7 @@ public class VirtualStrategyStorage implements ListFiler {
             devices.add(temp);
         }
 
-
-        this.ready = true;
+        this.ready = !devices.isEmpty();
     }
 
     public Storage createDevices(String deviceId) {
@@ -233,7 +232,7 @@ public class VirtualStrategyStorage implements ListFiler {
             String name = split.get(num);
             vFileDTOs = vFileService.query(userId, root, vFileId, name);
             vFileDTO = vFileDTOs.get(0);
-            vFileId = vFileDTO.getId();
+            vFileId = Long.parseLong(vFileDTO.getId()) ;
             path += "/" + name;
             // 把路径与ID键值对写入redis
             redisService.setFileId(root, userId, path, vFileId);
@@ -256,7 +255,7 @@ public class VirtualStrategyStorage implements ListFiler {
 
         // 是目录则把文件数存入size字段
         if (vFileDTO.getType().equals(0))
-            vFileDTO.setSize(Long.valueOf(vFileService.queryCount(vFileDTO.getId())));
+            vFileDTO.setSize(Long.valueOf(vFileService.queryCount(Long.parseLong(vFileDTO.getId()) )));
 
         List<VFileDTO> dataList = new ArrayList<>();
         if (vFileDTO.getVersion().equals(1))
@@ -297,7 +296,7 @@ public class VirtualStrategyStorage implements ListFiler {
         // 删除缓存
         redisService.delFileId(this.root, userId,Long.parseLong(index));
 
-        List<String> deleteHash = vFileService.delete(vFileDTO.getId());
+        List<String> deleteHash = vFileService.delete(Long.parseLong(vFileDTO.getId()));
 
         for (String i: deleteHash) {
             List<RFileDTO> rFileDTOS = rFileService.queryByHash(i);
@@ -390,13 +389,13 @@ public class VirtualStrategyStorage implements ListFiler {
         while (!queue.isEmpty()) {
             VFileDTO cur = queue.poll();
             if (cur.isDir()) {
-                List<VFileDTO> vFileDTOs = vFileService.queryBatch(cur.getAccountID(), cur.getStrategyId(), cur.getId());
+                List<VFileDTO> vFileDTOs = vFileService.queryBatch(cur.getAccountID(), cur.getStrategyId(), Long.parseLong(cur.getId()));
                 for (VFileDTO i: vFileDTOs)
                     queue.offer(i);
             }
             cur.setParentId(map.get(cur.getParentId()));
             VFileDTO newVFileDTO = vFileService.create(cur);
-            map.put(cur.getId(), newVFileDTO.getId());
+            map.put(Long.parseLong(cur.getId()),Long.parseLong(newVFileDTO.getId()));
         }
 
     }

@@ -25,7 +25,7 @@ public class FileLinkServiceImpl implements FileLinkService {
     @Override
     public FileLinkDTO create(FileLinkDTO fileLinkDTO) throws BusinessException {
         // 实际文件不存在
-        if (!rFileService.isExist(fileLinkDTO.getRFileId()))
+        if (!rFileService.isExist(fileLinkDTO.getRFileId()) && !fileLinkDTO.getRFileId().equals(-1L))
             throw new BusinessException(CommonErrorCode.E_600001);
         // ticket已存在
         if (isExist(fileLinkDTO.getTicket()))

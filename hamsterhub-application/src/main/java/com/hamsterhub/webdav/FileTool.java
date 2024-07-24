@@ -126,7 +126,7 @@ public class FileTool {
             vFileDTOs = vFileService.query(accountDTO.getId(), root, vFileId, name);
             vFileDTO = vFileDTOs.get(0);
 
-            vFileId = vFileDTO.getId();
+            vFileId = Long.parseLong(vFileDTO.getId()) ;
 
             path += "/" + name;
             // 把路径与ID键值对写入redis
@@ -175,7 +175,7 @@ public class FileTool {
                 data.add(new WebFileResource(url,vFileDTO));
                 return data;
             }
-            parentId = vFileDTO.getId();
+            parentId = Long.parseLong(vFileDTO.getId());
         }
 
         // 获取列表
@@ -291,7 +291,7 @@ public class FileTool {
 
         VFileDTO vFileDTO = queryFile(root, fileUrl, accountDTO);
 
-        return getDownloadUrl(vFileDTO.getId(),accountDTO);
+        return getDownloadUrl(Long.parseLong(vFileDTO.getId()),accountDTO);
     }
     public String encodeUrl(String url) throws UnsupportedEncodingException {
         // 避免特殊字符的影响需要url编码，同时由于历史原因需要将+ 转为为%20 以保证解码结果正确
@@ -330,7 +330,7 @@ public class FileTool {
 
         VFileDTO vFileDTO = queryFile(root, fileUrl, accountDTO);
 
-        return delFile(vFileDTO.getId(), accountDTO);
+        return delFile(Long.parseLong(vFileDTO.getId()), accountDTO);
     }
 
     public Boolean delFile(Long vFileId, AccountDTO accountDTO) {
@@ -371,7 +371,7 @@ public class FileTool {
 
         if(!StringUtil.isBlank(parentUrl)){
             VFileDTO vFileDTO = queryFile(root, parentUrl, accountDTO);
-            parentId = vFileDTO.getId();
+            parentId = Long.parseLong(vFileDTO.getId());
         }
 
         return mkdir(root,parentId,dirName,accountDTO);
@@ -424,14 +424,14 @@ public class FileTool {
 
         if(!StringUtil.isBlank(targetFile.getFileUrl())){
             VFileDTO vFileDTO = queryFile(targetFile.getRoot(), targetFile.getFileUrl(), accountDTO);
-            fileId = vFileDTO.getId();
+            fileId = Long.parseLong(vFileDTO.getId());
         }
 
         Long parentId = 0L;
 
         if(!destinationFile.getParentUrl().equals("/")){
             VFileDTO vFileDTO = queryFile(destinationFile.getRoot(), destinationFile.getParentUrl(), accountDTO);
-            parentId = vFileDTO.getId();
+            parentId = Long.parseLong(vFileDTO.getId());
         }
 
         return copy(fileId,parentId,accountDTO);
@@ -477,13 +477,13 @@ public class FileTool {
         while (!queue.isEmpty()) {
             VFileDTO cur = queue.poll();
             if (cur.isDir()) {
-                List<VFileDTO> vFileDTOs = vFileService.queryBatch(cur.getAccountID(), cur.getStrategyId(), cur.getId());
+                List<VFileDTO> vFileDTOs = vFileService.queryBatch(cur.getAccountID(), cur.getStrategyId(), Long.parseLong(cur.getId()));
                 for (VFileDTO i: vFileDTOs)
                     queue.offer(i);
             }
             cur.setParentId(map.get(cur.getParentId()));
             VFileDTO newVFileDTO = vFileService.create(cur);
-            map.put(cur.getId(), newVFileDTO.getId());
+            map.put(Long.parseLong(cur.getId()),Long.parseLong(newVFileDTO.getId()) );
         }
 
         return true;
@@ -506,14 +506,14 @@ public class FileTool {
 
         if(!StringUtil.isBlank(targetFile.getFileUrl())){
             VFileDTO vFileDTO = queryFile(targetFile.getRoot(), targetFile.getFileUrl(), accountDTO);
-            fileId = vFileDTO.getId();
+            fileId =Long.parseLong(vFileDTO.getId()) ;
         }
 
         Long parentId = 0L;
 
         if(!destinationFile.getParentUrl().equals("/")){
             VFileDTO vFileDTO = queryFile(destinationFile.getRoot(), destinationFile.getParentUrl(), accountDTO);
-            parentId = vFileDTO.getId();
+            parentId = Long.parseLong(vFileDTO.getId());
         }
 
         return move(fileId,parentId,accountDTO);
@@ -583,7 +583,7 @@ public class FileTool {
         Long parentId = 0L;
         if(!filePathData.getParentUrl().equals("/")){
             VFileDTO parentFile = queryFile(filePathData.getRoot(), filePathData.getParentUrl(), accountDTO);
-            parentId = parentFile.getId();
+            parentId = Long.parseLong(parentFile.getId());
         }
 
         VFileDTO f = VFileDTO.newFile(filePathData.getName(), strategyId, parentId, rFileDTO, accountDTO.getId());
