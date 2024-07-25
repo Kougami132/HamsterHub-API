@@ -2,7 +2,10 @@ package com.hamsterhub.common.util;
 
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Random;
 import java.util.regex.Matcher;
@@ -374,6 +377,11 @@ public class StringUtil {
 		if (name.indexOf('.') == -1) return name + " copy";
 		String extension = name.substring(name.lastIndexOf('.') + 1);
 		return name.substring(0, name.lastIndexOf('.')) + " copy." + extension;
+	}
+
+	public static String encodeUrl(String url) throws UnsupportedEncodingException {
+		// 避免特殊字符的影响需要url编码，同时由于历史原因需要将+ 转为为%20 以保证解码结果正确
+		return URLEncoder.encode(url, StandardCharsets.UTF_8.name()).replaceAll("\\+", "%20");
 	}
 
 }

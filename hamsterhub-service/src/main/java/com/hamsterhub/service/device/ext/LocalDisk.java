@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -156,11 +157,10 @@ public class LocalDisk extends ListStorage {
 
             BasicFileAttributes attr = Files.readAttributes(path, BasicFileAttributes.class);
 
-            vFileDTO.setCreated (LocalDateTime.ofInstant(attr.creationTime().toInstant(),
-                    ZoneId.systemDefault()));
+            // 转换为unix时间戳
+            vFileDTO.setCreated (attr.creationTime().toInstant().toEpochMilli());
 
-            vFileDTO.setModified (LocalDateTime.ofInstant(attr.lastModifiedTime().toInstant(),
-                    ZoneId.systemDefault()));
+            vFileDTO.setModified (attr.creationTime().toInstant().toEpochMilli());
 
             if (attr.isDirectory()){
                 vFileDTO.setType(0);

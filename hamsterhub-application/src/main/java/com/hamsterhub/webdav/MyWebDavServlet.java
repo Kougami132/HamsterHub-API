@@ -5,10 +5,12 @@ import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.service.FileService;
 import com.hamsterhub.service.dto.*;
 import com.hamsterhub.service.service.*;
+import com.hamsterhub.webdav.resource.FilePathData;
 import com.hamsterhub.webdav.resource.WebFileResource;
 import org.apache.catalina.servlets.WebdavServlet;
 import org.apache.tomcat.util.buf.UDecoder;
 import org.apache.tomcat.util.http.RequestUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -23,24 +25,25 @@ import javax.xml.parsers.DocumentBuilder;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.regex.Pattern;
 
 public class MyWebDavServlet extends WebdavServlet {
 
-
-    private final DeviceService deviceService;
-    private final FileService fileService;
     private final FileTool fileTool;
+    private FileStorageService fileStorageService;
 
-    public MyWebDavServlet(FileTool fileTool,DeviceService deviceService,FileService fileService) {
+    public MyWebDavServlet(FileTool fileTool,FileStorageService fileStorageService) {
         this.fileTool = fileTool;
-        this.fileService = fileService;
-        this.deviceService = deviceService;
+        this.fileStorageService = fileStorageService;
     }
     private static final int FIND_BY_PROPERTY = 0;
     private static final int FIND_ALL_PROP = 1;
     private static final int FIND_PROPERTY_NAMES = 2;
     private static final int maxDepth = 1;
     private static final int SC_MULTI_STATUS = 207;
+
+    private static final long MAX_FILE_SIZE = 10L * 1024 * 1024 * 1024; // 10GB
+    private static final long MAX_UPLOAD_SPEED = 100 * 1024 * 1024; // 10MB/s per second
 
     private AccountDTO getUser(HttpServletRequest req, HttpServletResponse resp){
         AccountDTO user = (AccountDTO) req.getAttribute("user");
@@ -418,7 +421,6 @@ public class MyWebDavServlet extends WebdavServlet {
 //        }
         AccountDTO user = getUser(req,resp);
 
-
         String destinationPath = parseDestinationPath(req,resp);
 
         if(destinationPath== null){
@@ -503,6 +505,8 @@ public class MyWebDavServlet extends WebdavServlet {
         if (path.length() > 1 && path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
+        FilePathData filePathData = FileTool.parseUrl(path);
+        fileStorageService.uploadBefore(filePathData.getRoot(),filePathData.getParentUrl(),filePathData.getName(),user);
 
         // 获取文件保存的绝对路径，可以根据实际情况修改路径
         File file = new File("temp/Webdav", UUID.randomUUID().toString());
@@ -512,32 +516,50 @@ public class MyWebDavServlet extends WebdavServlet {
             file.getParentFile().mkdirs();
         }
 
+        // 总大小
+        long totalBytesRead = 0;
+
         // 从请求中读取文件数据并保存到服务器
         try (InputStream inputStream = req.getInputStream();
              FileOutputStream outputStream = new FileOutputStream(file)) {
 
             byte[] buffer = new byte[4096];
             int bytesRead;
-
+            long startTime = System.currentTimeMillis();
             while ((bytesRead = inputStream.read(buffer)) != -1) {
+                totalBytesRead += bytesRead;
+
+                // 控制上传速度
+                long elapsedTime = System.currentTimeMillis() - startTime;
+                long expectedTime = (totalBytesRead * 1000L) / MAX_UPLOAD_SPEED;
+                if (expectedTime > elapsedTime) {
+                    Thread.sleep(expectedTime - elapsedTime);
+                }
+
                 outputStream.write(buffer, 0, bytesRead);
             }
-        } catch (IOException e) {
+
+        } catch (IOException | InterruptedException e) {
             resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "File upload failed");
-            e.printStackTrace();
+//            e.printStackTrace();
             return;
         }
 
-        if(fileTool.upload(file,path,user)){
+        if (totalBytesRead >MAX_FILE_SIZE){
+            resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "File upload failed");
+            return;
+        }
+
+        if(fileTool.upload(file, path, totalBytesRead, user)){
             resp.setStatus(HttpServletResponse.SC_CREATED);
         }else{
             resp.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid file path");
         }
 
         // 删除临时文件
-        if (file.exists()) {
-            file.delete();
-        }
+//        if (file.exists()) {
+//            file.delete();
+//        }
     }
 
 }

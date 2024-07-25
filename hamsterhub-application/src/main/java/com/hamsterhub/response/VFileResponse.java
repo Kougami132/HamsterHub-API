@@ -14,8 +14,8 @@ public class VFileResponse {
     private String parentId;
 //    private String rFileId;
     private Integer version;
-    private LocalDateTime created;
-    private LocalDateTime modified;
+    private Long created;
+    private Long modified;
 //    private String accountID;
     private String size;
 //    private String strategyId;

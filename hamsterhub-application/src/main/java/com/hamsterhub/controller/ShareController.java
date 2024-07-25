@@ -161,7 +161,7 @@ public class ShareController {
     public Response downloadShare(@RequestParam("ticket") String ticket,
                                   @RequestParam(value = "key", required = false) String key,
                                   @RequestParam(value = "vFileId", required = false) String fileIndex,
-                                  @RequestParam(value = "preference", required = false) Long preference) {
+                                  @RequestParam(value = "preference", required = false) Long preference){
 
         String url = shareFileStorageService.downloadShare(ticket, key, fileIndex, preference);
         return Response.success().data(url);

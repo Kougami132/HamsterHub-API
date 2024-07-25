@@ -3,6 +3,7 @@ package com.hamsterhub.service.device;
 import com.hamsterhub.service.dto.VFileDTO;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public interface ListFiler {

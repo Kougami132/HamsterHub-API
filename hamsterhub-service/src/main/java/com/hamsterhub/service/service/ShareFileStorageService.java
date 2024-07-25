@@ -4,6 +4,7 @@ import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.dto.ShareDTO;
 import com.hamsterhub.service.dto.VFileDTO;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public interface ShareFileStorageService {

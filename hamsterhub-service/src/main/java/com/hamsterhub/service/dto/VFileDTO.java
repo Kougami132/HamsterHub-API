@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -30,10 +31,10 @@ public class VFileDTO {
     private Integer version;
 
     @Schema(description = "文件创建时间")
-    private LocalDateTime created;
+    private Long created;
 
     @Schema(description = "文件修改时间")
-    private LocalDateTime modified;
+    private Long modified;
 
     @Schema(description = "文件所有人ID")
     private Long accountID;
@@ -70,20 +71,27 @@ public class VFileDTO {
     }
 
     public static VFileDTO newFile(String name, Long strategyId, Long parentId, RFileDTO rFileDTO, Long accountId) {
+        LocalDateTime now = LocalDateTime.now();
         VFileDTO file = new VFileDTO(null, 1, name, parentId, 0,
-                LocalDateTime.now(), LocalDateTime.now(), accountId, rFileDTO.getSize(), strategyId, 0,"");
+                toTimestamp(now) , toTimestamp(now), accountId, rFileDTO.getSize(), strategyId, 0,"");
         return file;
     }
 
     public static VFileDTO newFile(String name, Long strategyId, Long parentId, Long size, Long accountId,String hash) {
+        LocalDateTime now = LocalDateTime.now();
         VFileDTO file = new VFileDTO(null, 1, name, parentId, 0,
-                LocalDateTime.now(), LocalDateTime.now(), accountId, size, strategyId, 0,hash);
+                toTimestamp(now), toTimestamp(now), accountId, size, strategyId, 0,hash);
         return file;
     }
 
     public static VFileDTO newDir(String name, Long strategyId, Long parentId, Long accountId) {
-        VFileDTO dir = new VFileDTO(null, 0, name, parentId, 0, LocalDateTime.now(),
-                LocalDateTime.now(), accountId, 0L, strategyId, 0,"");
+        LocalDateTime now = LocalDateTime.now();
+        VFileDTO dir = new VFileDTO(null, 0, name, parentId, 0, toTimestamp(now),
+                toTimestamp(now), accountId, 0L, strategyId, 0,"");
         return dir;
+    }
+
+    public static Long toTimestamp(LocalDateTime date){
+        return date.toEpochSecond(ZoneOffset.UTC);
     }
 }

@@ -1,5 +1,7 @@
 package com.hamsterhub.service.device.impl;
 
+import com.hamsterhub.common.domain.BusinessException;
+import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.GetBeanUtil;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.service.device.ListFiler;
@@ -14,6 +16,7 @@ import com.hamsterhub.service.entity.Strategy;
 import com.hamsterhub.service.service.DeviceService;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -191,7 +194,7 @@ public class RealyStrategyStorage implements ListFiler {
     }
 
     @Override
-    public String getDownloadUrl(String index, Long userId, Long preference) {
+    public String getDownloadUrl(String index, Long userId, Long preference){
         String filePath = pathCheck(index);
         ListStorage listStorage = devices.get(0);
         String fileName = getLastPartOfPath(index);
@@ -201,10 +204,16 @@ public class RealyStrategyStorage implements ListFiler {
         String url = listStorage.downLoadByPath(filePath);
 
         if (listStorage.getDevice().getType().equals(0)){ // 本地硬盘时，为统一接口，不把东西传进去
-            url = url + "&fileName=" + fileName;
+            try{
+                url = url + "&fileName=" + StringUtil.encodeUrl(fileName); // 防止文件名导致编码异常
+            } catch (UnsupportedEncodingException e) {
+                throw new BusinessException(CommonErrorCode.UNKNOWN);
+            }
+
         }
 
-        return  url;
+
+        return url;
     }
 
     @Override

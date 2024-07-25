@@ -5,6 +5,7 @@ import javax.servlet.Servlet;
 
 import com.hamsterhub.service.FileService;
 import com.hamsterhub.service.service.DeviceService;
+import com.hamsterhub.service.service.FileStorageService;
 import com.hamsterhub.webdav.FileTool;
 import com.hamsterhub.webdav.MyWebDavServlet;
 import org.apache.catalina.servlets.DefaultServlet;
@@ -18,14 +19,13 @@ public class ServletConfig {
     @Autowired
     private FileTool fileTool;
     @Autowired
-    private DeviceService deviceService;
-    @Autowired
-    private FileService fileService;
+    private FileStorageService fileStorageService;
+
 
     @Bean
     public ServletRegistrationBean<Servlet> servletRegistrationBean() {
         ServletRegistrationBean<Servlet> register = new ServletRegistrationBean<>();
-        DefaultServlet defaultServlet = new MyWebDavServlet(fileTool,deviceService,fileService);
+        DefaultServlet defaultServlet = new MyWebDavServlet(fileTool,fileStorageService);
         register.setServlet(defaultServlet);
         register.addUrlMappings("/dav/*");
         register.setLoadOnStartup(1);

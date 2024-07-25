@@ -34,7 +34,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;
@@ -182,9 +181,6 @@ public class FileController {
 
         // 如果没上传hash则说明试图上传一个新文件
         if (StringUtil.isBlank(hash)) {
-
-            // 保存文件
-            InputStream inputStream = filePart.getInputStream();
             targetFile = new File("temp/uploads/" , UUID.randomUUID().toString());
 
             // 创建父目录
@@ -192,8 +188,9 @@ public class FileController {
                 targetFile.getParentFile().mkdirs();
             }
 
+            // 保存文件
+            InputStream inputStream = filePart.getInputStream();
             OutputStream outputStream = new FileOutputStream(targetFile);
-
 
             byte[] buffer = new byte[1024];
             int bytesRead;
@@ -239,10 +236,13 @@ public class FileController {
     @Token
     public Response getDownloadUrl(@RequestParam("root") String root,
                                    @RequestParam("vFileId") String index,
-                                   @RequestParam(value = "preference", required = false) Long preference) {
+                                   @RequestParam(value = "preference", required = false) Long preference){
         AccountDTO accountDTO = SecurityUtil.getAccount();
         String url;
+
         url = fileStorageService.getDownloadUrl(root,index,accountDTO,preference);
+
+
         return Response.success().data(url);
     }
 

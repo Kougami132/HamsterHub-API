@@ -10,9 +10,11 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 
 @Data
@@ -40,7 +42,7 @@ public class WebFileResource {
         // 没有时间则返回当前时间
         Date date = new Date();
         SimpleDateFormat webDavDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
-        webDavDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        webDavDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
         String data = webDavDateFormat.format(date);
         prop.put("creationdate",data);
         prop.put("getlastmodified",data);
@@ -54,8 +56,8 @@ public class WebFileResource {
         href = encodeUrl(url + "/" + vFileDTO.getName() + (vFileDTO.isDir() ? "/" : ""));
         downloadHref = null;
         prop = new HashMap<>();
-        prop.put("creationdate",dateAdaptor(vFileDTO.getCreated().toString()));
-        prop.put("getlastmodified",dateAdaptor(vFileDTO.getModified().toString()));
+        prop.put("creationdate",dateAdaptor(vFileDTO.getCreated()));
+        prop.put("getlastmodified",dateAdaptor(vFileDTO.getModified()));
         // 目录不加入尺寸
         if (!vFileDTO.isDir()){
             prop.put("getcontentlength",vFileDTO.getSize().toString());
@@ -89,9 +91,19 @@ public class WebFileResource {
 
         // 创建 WebDAV 日期格式化器
         SimpleDateFormat webDavDateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz", Locale.US);
-        webDavDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+        webDavDateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
 
         return webDavDateFormat.format(date);
+    }
+
+    // Unix时间戳(毫秒)转WebDav日期
+    public String dateAdaptor(Long dateValue){
+        Instant instant = Instant.ofEpochMilli(dateValue);
+
+        // 转换为 LocalDateTime 对象（使用 UTC 时区）
+        LocalDateTime dateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC"));
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss'Z'");
+        return dateTime.format(formatter);
     }
 
 

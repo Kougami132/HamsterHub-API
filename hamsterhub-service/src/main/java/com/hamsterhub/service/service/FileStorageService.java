@@ -5,6 +5,7 @@ import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.dto.VFileDTO;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public interface FileStorageService {
