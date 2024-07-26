@@ -375,17 +375,17 @@ public class VirtualStrategyStorage implements ListFiler {
             vFileDTO.setName(StringUtil.generateCopy(vFileDTO.getName()));
 
         // 目标目录是文件的子目录
-        while (!vParentDTO.getId().equals(0L) && !vParentDTO.getParentId().equals(0L)) {
-            if (vParentDTO.getParentId().equals(vFileDTO.getId()))
+        while (!vParentDTO.getId().equals("0") && !vParentDTO.getParentId().equals(0L)) {
+            if (vParentDTO.getParentId().toString().equals(vFileDTO.getId()))
                 throw new BusinessException(CommonErrorCode.E_600023);
             vParentDTO = vFileService.query(vParentDTO.getParentId());
         }
 
         // BFS复制文件
         Queue<VFileDTO> queue = new LinkedList<>();
-        Map<Long, Long> map =  new HashMap<>();
+        Map<String, String> map =  new HashMap<>();
         queue.offer(vFileDTO);
-        map.put(vFileDTO.getParentId(), parentId);
+        map.put(vFileDTO.getParentId().toString(), parentId.toString());
         while (!queue.isEmpty()) {
             VFileDTO cur = queue.poll();
             if (cur.isDir()) {
@@ -393,15 +393,15 @@ public class VirtualStrategyStorage implements ListFiler {
                 for (VFileDTO i: vFileDTOs)
                     queue.offer(i);
             }
-            cur.setParentId(map.get(cur.getParentId()));
+            cur.setParentId(Long.parseLong(map.get(cur.getParentId().toString())));
             VFileDTO newVFileDTO = vFileService.create(cur);
-            map.put(Long.parseLong(cur.getId()),Long.parseLong(newVFileDTO.getId()));
+            map.put(cur.getId(),newVFileDTO.getId());
         }
 
     }
 
     @Override
-    public void moveTo(String index, String parent, Long userId) {
+    public void moveTo(String index, String parent, String name, Long userId) {
         VFileDTO vFileDTO = vFileService.query(Long.parseLong(index));
 
         // root与策略id不一致，大概率初始化时出现错误
@@ -419,13 +419,21 @@ public class VirtualStrategyStorage implements ListFiler {
         // 文件与目标目录不属于同策略
         CommonErrorCode.checkAndThrow(!vParentDTO.getStrategyId().equals(this.id), CommonErrorCode.E_600022);
 
+        String newName = null;
+
+        if (StringUtil.isBlank(name)){
+            newName = vFileDTO.getName();
+        }else {
+            newName = name;
+        }
+
         // 目标目录已存在同名文件
-        while (vFileService.isExist(userId, this.id, parentId, vFileDTO.getName()))
-            vFileDTO.setName(StringUtil.generateCopy(vFileDTO.getName()));
+        while (vFileService.isExist(userId, this.id, parentId, newName))
+            newName = StringUtil.generateCopy(newName);
 
         // 目标目录是文件的子目录
-        while (!vParentDTO.getId().equals(0L) && !vParentDTO.getParentId().equals(0L)) {
-            if (vParentDTO.getParentId().equals(vFileDTO.getId()))
+        while (!vParentDTO.getId().equals("0") && !vParentDTO.getParentId().equals(0L)) {
+            if (vParentDTO.getParentId().toString().equals(vFileDTO.getId()))
                 throw new BusinessException(CommonErrorCode.E_600023);
             vParentDTO = vFileService.query(vParentDTO.getParentId());
         }
@@ -433,6 +441,7 @@ public class VirtualStrategyStorage implements ListFiler {
         List<VFileDTO> vFileDTOs = vFileService.query(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), vFileDTO.getParentId(), vFileDTO.getName());
         for (VFileDTO i: vFileDTOs) {
             i.setParentId(parentId);
+            i.setName(newName);
             vFileService.update(i);
         }
 

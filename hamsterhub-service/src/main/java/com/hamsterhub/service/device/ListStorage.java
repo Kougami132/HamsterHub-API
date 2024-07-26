@@ -83,5 +83,5 @@ public class ListStorage extends Storage {
 
     public void copyTo(String index, String parent){}
 
-    public void moveTo(String index, String parent){}
+    public void moveTo(String index, String parent, String name){}
 }

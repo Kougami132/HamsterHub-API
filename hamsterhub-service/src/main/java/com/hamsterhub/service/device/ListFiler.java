@@ -31,7 +31,7 @@ public interface ListFiler {
 
     void copyTo(String index, String parent, Long userId);
 
-    void moveTo(String index, String parent, Long userId);
+    void moveTo(String index, String parent, String name, Long userId);
 
     void uploadBefore(String parent, String name, Long userId);
 

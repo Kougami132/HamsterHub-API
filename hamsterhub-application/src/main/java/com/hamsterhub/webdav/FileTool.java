@@ -49,9 +49,9 @@ public class FileTool {
     @Autowired
     private FileStorageService fileStorageService;
 
-
+// ^/([^/]+)(/.*)?
     static Pattern splitUrlPattern = Pattern.compile("^/([^/]+)(/.*)?");
-    static Pattern splitUrlBackPattern = Pattern.compile("^(.*)/([^/]+)$");
+    static Pattern splitUrlBackPattern = Pattern.compile("^(.*?)/?([^/]+)/?$");
 
     public static String[] splitUrl(String url) {
 
@@ -316,7 +316,7 @@ public class FileTool {
         }
 
 
-        fileStorageService.moveTo(targetFile.getRoot(),fileId,parentId,accountDTO);
+        fileStorageService.moveTo(targetFile.getRoot(),fileId,parentId,destinationFile.getName(),accountDTO);
         return true;
     }
 

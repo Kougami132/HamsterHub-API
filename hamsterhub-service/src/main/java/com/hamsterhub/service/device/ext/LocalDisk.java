@@ -357,16 +357,23 @@ public class LocalDisk extends ListStorage {
         });
     }
 
+    @Override
     public void copyTo(String index, String parent){
         String filePath = mergePath(index);
         String parentPath = mergePath(parent);
         Path sourcePath = Paths.get(filePath);
+        String newName = sourcePath.getFileName().toString();
 
+//        if (StringUtil.isBlank(name)){
+//            newName = sourcePath.getFileName().toString();
+//        }else {
+//            newName = name.replaceAll("[/\\\\]","");
+//        }
         // 目标不存在
         CommonErrorCode.checkAndThrow(!Files.exists(sourcePath),CommonErrorCode.E_500001);
 
         Path directoryPath = Paths.get(parentPath);
-        Path targetPath = directoryPath.resolve(sourcePath.getFileName().toString());
+        Path targetPath = directoryPath.resolve(newName);
 
         try {
             if (Files.isDirectory(sourcePath)){
@@ -408,17 +415,24 @@ public class LocalDisk extends ListStorage {
         });
     }
 
-    public void moveTo(String index, String parent){
+    @Override
+    public void moveTo(String index, String parent, String name){
         String filePath = mergePath(index);
         String parentPath = mergePath(parent);
         Path sourcePath = Paths.get(filePath);
+        String newName = null;
+
+        if (StringUtil.isBlank(name)){
+            newName = sourcePath.getFileName().toString();
+        }else {
+            newName = name.replaceAll("[/\\\\]","");
+        }
 
         // 目标不存在
         CommonErrorCode.checkAndThrow(!Files.exists(sourcePath),CommonErrorCode.E_500001);
 
         Path directoryPath = Paths.get(parentPath);
-        Path targetPath = directoryPath.resolve(sourcePath.getFileName().toString());
-
+        Path targetPath = directoryPath.resolve(newName);
 
         try {
             if (Files.isDirectory(sourcePath)){

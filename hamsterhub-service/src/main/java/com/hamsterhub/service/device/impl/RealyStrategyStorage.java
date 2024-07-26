@@ -174,11 +174,11 @@ public class RealyStrategyStorage implements ListFiler {
     }
 
     @Override
-    public void moveTo(String index, String parent, Long userId) {
+    public void moveTo(String index, String parent, String name, Long userId) {
         String filePath = pathCheck(index);
         String parentPath = pathCheck(parent);
         ListStorage listStorage = devices.get(0);
-        listStorage.moveTo(filePath, parentPath);
+        listStorage.moveTo(filePath, parentPath, name);
     }
 
     @Override

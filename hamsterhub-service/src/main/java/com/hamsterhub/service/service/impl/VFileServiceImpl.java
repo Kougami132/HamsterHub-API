@@ -214,7 +214,11 @@ public class VFileServiceImpl implements VFileService {
             throw new BusinessException(CommonErrorCode.E_600001);
 
         // 取出版本最新的VFile
-        List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyId).eq(VFile::getParentId, parentId).eq(VFile::getName, name));
+        List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().
+                eq(VFile::getAccountID, accountId).
+                eq(VFile::getStrategyId, strategyId).
+                eq(VFile::getParentId, parentId).
+                eq(VFile::getName, name));
         vFiles.sort((o1, o2) -> o2.getVersion() - o1.getVersion());
         return VFileConvert.INSTANCE.entity2dtoBatch(vFiles);
     }

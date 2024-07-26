@@ -410,7 +410,7 @@ public class FileController {
                          @RequestParam("vFileId") String vFileId,
                          @RequestParam("parentId") String parent) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        fileStorageService.moveTo(root,vFileId,parent,accountDTO);
+        fileStorageService.moveTo(root,vFileId,parent,null,accountDTO);
         return Response.success().msg("移动成功");
     }
 

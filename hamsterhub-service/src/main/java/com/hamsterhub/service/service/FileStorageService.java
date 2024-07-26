@@ -35,7 +35,7 @@ public interface FileStorageService {
 
     void copyTo(String root, String index, String parent, AccountDTO accountDTO);
 
-    void moveTo(String root, String index, String parent, AccountDTO accountDTO);
+    void moveTo(String root, String index, String parent, String name, AccountDTO accountDTO);
 
     void uploadBefore(String root, String parent, String name, AccountDTO accountDTO);
 

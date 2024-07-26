@@ -123,9 +123,9 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     @Override
-    public void moveTo(String root, String index, String parent, AccountDTO accountDTO) {
+    public void moveTo(String root, String index, String parent, String name, AccountDTO accountDTO) {
         ListFiler listFiler = getListFiler(root);
-        listFiler.moveTo(index, parent, accountDTO.getId());
+        listFiler.moveTo(index, parent, name, accountDTO.getId());
     }
 
     @Override

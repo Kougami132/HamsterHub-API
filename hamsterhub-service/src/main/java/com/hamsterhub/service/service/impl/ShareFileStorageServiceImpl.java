@@ -44,22 +44,19 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
         return ticket;
     }
 
+    private LocalDateTime generateExpiryTime(Long expiry){
+        LocalDateTime expiryTime;
+        if (expiry == null)
+            expiryTime = LocalDateTime.parse("9999-12-31T23:59:59");
+        else
+            expiryTime = LocalDateTime.now().plusSeconds(expiry);
+
+        return expiryTime;
+    }
+
     @Override
     public ShareDTO shareFile(String root, String index, AccountDTO accountDTO, String key, Long expiry, String name){
         ListFiler listFiler = fileStorageService.getListFiler(root);
-
-        Long fileIndex = Long.parseLong(index);
-
-        VFileDTO vFileDTO = vFileService.query(fileIndex);
-        // 文件与用户不匹配
-        CommonErrorCode.checkAndThrow(!vFileDTO.getAccountID().equals(accountDTO.getId()),CommonErrorCode.E_600005);
-
-        // 创建之前
-        if(listFiler.getFileSystem().equals(VIRTUAL_FILE_SYSTEM)){
-            // 该文件正在分享
-            Long shareParent = vFileService.getShareParent(fileIndex);
-            CommonErrorCode.checkAndThrow(!shareParent.equals(0L) && !shareParent.equals(2L),CommonErrorCode.E_600006);
-        }
 
         // 0: 无需提取码 1: 需要提取码
         Integer type = 0;
@@ -68,13 +65,24 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
         else
             key = "";
 
-        String ticket = generateTicket();
 
-        LocalDateTime expiryTime;
-        if (expiry == null)
-            expiryTime = LocalDateTime.parse("9999-12-31T23:59:59");
-        else
-            expiryTime = LocalDateTime.now().plusSeconds(expiry);
+        VFileDTO vFileDTO = null;
+
+        // 创建之前
+        if(listFiler.getFileSystem().equals(VIRTUAL_FILE_SYSTEM)){
+            Long fileIndex = Long.parseLong(index);
+            vFileDTO = vFileService.query(fileIndex);
+
+            // 文件与用户不匹配
+            CommonErrorCode.checkAndThrow(!vFileDTO.getAccountID().equals(accountDTO.getId()),CommonErrorCode.E_600005);
+
+            // 该文件正在分享
+            Long shareParent = vFileService.getShareParent(fileIndex);
+            CommonErrorCode.checkAndThrow(!shareParent.equals(0L) && !shareParent.equals(2L),CommonErrorCode.E_600006);
+        }
+
+        String ticket = generateTicket();
+        LocalDateTime expiryTime = generateExpiryTime(expiry);
 
         ShareDTO shareDTO = new ShareDTO(null, type, ticket, index, key, expiryTime, accountDTO.getId(), name, root);
         shareDTO = shareService.create(shareDTO);
