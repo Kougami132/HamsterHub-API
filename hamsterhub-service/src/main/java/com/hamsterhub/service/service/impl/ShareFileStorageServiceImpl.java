@@ -162,10 +162,16 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
 
             vFileDTO = vFileService.query(vFileId);
 
-
             // 是目录则把文件数存入size字段
             if (vFileDTO.getType().equals(0))
                 vFileDTO.setSize(vFileService.queryCount(Long.parseLong(vFileDTO.getId()) ).longValue());
+        } else if (fileSystem.equals(REALY_FILE_SYSTEM)){
+            // 对于真实路径，获取的路径应当以分享的路径开头，防止越过权限控制
+            if (!fileIndex.startsWith(shareDTO.getFileIndex())){
+                throw new BusinessException(CommonErrorCode.E_600020);
+            }
+
+            vFileDTO = listFiler.queryFile(fileIndex,shareDTO.getAccountID()).get(0);
         }
 
         return vFileDTO;
@@ -192,6 +198,18 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
             // 是目录则把文件数存入size字段
             if (vFileDTO.getType().equals(0))
                 vFileDTO.setSize(vFileService.queryCount(Long.parseLong(vFileDTO.getId()) ).longValue());
+        } else if (fileSystem.equals(REALY_FILE_SYSTEM)){
+            // 对于真实路径，获取的路径应当以分享的路径开头，防止越过权限控制
+            if (!parentIndex.startsWith(shareDTO.getFileIndex())){
+                throw new BusinessException(CommonErrorCode.E_600020);
+            }
+
+            String fileIndex = parentIndex;
+            if (!fileIndex.endsWith("/") && !fileIndex.startsWith("\\") ){
+                fileIndex += "/";
+            }
+
+            vFileDTO = listFiler.queryFile(fileIndex + name,shareDTO.getAccountID()).get(0);
         }
 
         return vFileDTO;
@@ -211,9 +229,15 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
             if (!shareParent.equals(Long.parseLong(shareDTO.getFileIndex())))
                 throw new BusinessException(CommonErrorCode.E_600020);
 
+//            vFileDTOs = listFiler.queryDirectory(parentIndex,shareDTO.getAccountID(),page,limit);
+        } else if (fileSystem.equals(REALY_FILE_SYSTEM)){
+            // 对于真实路径，获取的路径应当以分享的路径开头，防止越过权限控制
+            if (!parentIndex.startsWith(shareDTO.getFileIndex())){
+                throw new BusinessException(CommonErrorCode.E_600020);
+            }
             vFileDTOs = listFiler.queryDirectory(parentIndex,shareDTO.getAccountID(),page,limit);
         }
-
+        vFileDTOs = listFiler.queryDirectory(parentIndex,shareDTO.getAccountID(),page,limit);
         return vFileDTOs;
     }
 
@@ -225,9 +249,9 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
         String fileIndex = index == null ? shareDTO.getFileIndex() : index;
         Integer fileSystem = listFiler.getFileSystem();
         String res = null;
-        if (fileSystem.equals(VIRTUAL_FILE_SYSTEM)){
+//        if (fileSystem.equals(VIRTUAL_FILE_SYSTEM)){
             res = listFiler.getDownloadUrl(fileIndex, shareDTO.getAccountID(), preference);
-        }
+//        }
 
         return res;
     }
