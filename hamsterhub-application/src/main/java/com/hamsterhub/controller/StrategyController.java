@@ -4,16 +4,11 @@ import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.convert.StrategyConvert;
-import com.hamsterhub.service.device.Storage;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.response.SizeResponse;
 import com.hamsterhub.response.StrategyResponse;
-import com.hamsterhub.service.StorageService;
 import com.hamsterhub.service.dto.AccountDTO;
-import com.hamsterhub.service.dto.DeviceDTO;
-import com.hamsterhub.service.dto.DeviceStrategyDTO;
 import com.hamsterhub.service.dto.StrategyDTO;
-import com.hamsterhub.service.service.DeviceService;
 import com.hamsterhub.service.service.DeviceStrategyService;
 import com.hamsterhub.service.service.FileStorageService;
 import com.hamsterhub.service.service.StrategyService;
@@ -39,13 +34,9 @@ public class StrategyController {
                          MODE = Stream.of("优先存储较大剩余容量设备", "优先存储较小剩余容量设备").collect(toList());
 
     @Autowired
-    private DeviceService deviceService;
-    @Autowired
     private StrategyService strategyService;
     @Autowired
     private DeviceStrategyService deviceStrategyService;
-    @Autowired
-    private StorageService storageService;
     @Autowired
     private FileStorageService fileStorageService;
 
@@ -94,24 +85,24 @@ public class StrategyController {
         // 不存在该策略模式
         if (strategyVO.getMode() < 0 || strategyVO.getMode() >= MODE.size())
             throw new BusinessException(CommonErrorCode.E_400005);
-        // 设备不存在
-        for (Long i: strategyVO.getDeviceIds())
-            if (!deviceService.isExist(i))
-                throw new BusinessException(CommonErrorCode.E_300001);
-        // 设备已绑定其他策略
-        for (Long i: strategyVO.getDeviceIds())
-            if (deviceStrategyService.isDeviceExist(i))
-                throw new BusinessException(CommonErrorCode.E_300003);
+//        // 设备不存在
+//        for (Long i: strategyVO.getDeviceIds())
+//            if (!deviceService.isExist(i))
+//                throw new BusinessException(CommonErrorCode.E_300001);
+//        // 设备已绑定其他策略
+//        for (Long i: strategyVO.getDeviceIds())
+//            if (deviceStrategyService.isDeviceExist(i))
+//                throw new BusinessException(CommonErrorCode.E_300003);
 
         StrategyDTO strategyDTO = StrategyConvert.INSTANCE.vo2dto(strategyVO);
         strategyDTO.setPermission(mergePermission(strategyVO.getPermissions()));
         StrategyDTO data = strategyService.create(strategyDTO);
-        for (Long i: strategyVO.getDeviceIds())
-            deviceStrategyService.create(new DeviceStrategyDTO(i, data.getId()));
+//        for (Long i: strategyVO.getDeviceIds())
+//            deviceStrategyService.create(new DeviceStrategyDTO(i, data.getId()));
         StrategyResponse res = StrategyConvert.INSTANCE.dto2res(data);
-        res.setDeviceIds(strategyVO.getDeviceIds().stream()
-                                                  .map(Objects::toString)
-                                                  .collect(toList()));
+//        res.setDeviceIds(strategyVO.getDeviceIds().stream()
+//                                                  .map(Objects::toString)
+//                                                  .collect(toList()));
         res.setPermissions(strategyVO.getPermissions());
 
         return Response.success().data(res);
@@ -131,27 +122,27 @@ public class StrategyController {
         if (strategyVO.getMode() < 0 || strategyVO.getMode() >= MODE.size())
             throw new BusinessException(CommonErrorCode.E_400005);
         // 设备不存在
-        for (Long i: strategyVO.getDeviceIds())
-            if (!deviceService.isExist(i))
-                throw new BusinessException(CommonErrorCode.E_300001);
+//        for (Long i: strategyVO.getDeviceIds())
+//            if (!deviceService.isExist(i))
+//                throw new BusinessException(CommonErrorCode.E_300001);
 
         StrategyDTO strategyDTO = StrategyConvert.INSTANCE.vo2dto(strategyVO);
         strategyDTO.setPermission(mergePermission(strategyVO.getPermissions()));
         strategyService.update(strategyDTO);
         // 获取策略已绑定的设备，多的新增，少的删除
-        List<Long> deviceIds = deviceStrategyService.queryDeviceIds(strategyVO.getId());
-        for (Long i: strategyVO.getDeviceIds())
-            if (!deviceIds.contains(i)) {
-                // 设备已绑定其他策略
-                if (deviceStrategyService.isDeviceExist(i))
-                    throw new BusinessException(CommonErrorCode.E_300003);
+//        List<Long> deviceIds = deviceStrategyService.queryDeviceIds(strategyVO.getId());
+//        for (Long i: strategyVO.getDeviceIds())
+//            if (!deviceIds.contains(i)) {
+//                // 设备已绑定其他策略
+//                if (deviceStrategyService.isDeviceExist(i))
+//                    throw new BusinessException(CommonErrorCode.E_300003);
+//
+//                deviceStrategyService.create(new DeviceStrategyDTO(strategyVO.getId(), i));
+//            }
 
-                deviceStrategyService.create(new DeviceStrategyDTO(strategyVO.getId(), i));
-            }
-
-        for (Long i: deviceIds)
-            if (!strategyVO.getDeviceIds().contains(i))
-                deviceStrategyService.deleteByDeviceId(i);
+//        for (Long i: deviceIds)
+//            if (!strategyVO.getDeviceIds().contains(i))
+//                deviceStrategyService.deleteByDeviceId(i);
         return Response.success().msg("策略修改成功");
     }
 

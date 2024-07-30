@@ -14,6 +14,7 @@ public class StrategyResponse {
     private Integer mode;
     private List<Integer> permissions;
     private String root;
-    private List<String> deviceIds;
+    private String fileSystem;
+    private String param;
     private SizeResponse size;
 }
