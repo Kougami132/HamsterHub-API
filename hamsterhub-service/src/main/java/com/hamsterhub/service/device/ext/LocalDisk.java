@@ -44,9 +44,14 @@ public class LocalDisk extends ListStorage {
         JSONObject param = JSON.parseObject(deviceDTO.getParam());
         if (param != null){
             this.path = param.getString("path");
-            if (!this.path.endsWith("/")){
+            if (StringUtil.isNotBlank(this.path) && !this.path.endsWith("/")){
                 this.path += "/";
             }
+
+        }
+
+        if (StringUtil.isBlank(this.path)){
+            this.path = "";
         }
 
         fileLinkService = GetBeanUtil.getBean(FileLinkService.class);
@@ -62,7 +67,8 @@ public class LocalDisk extends ListStorage {
         String hash = MD5Util.getMd5(file);
         String url = dir.getAbsolutePath() + File.separator + hash;
         try {
-            file.renameTo(new File(url));
+            Files.copy(file.toPath(), Paths.get(url));
+//            file.renameTo(new File(url));
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -113,14 +119,14 @@ public class LocalDisk extends ListStorage {
 
     @Override
     public Long getTotalSize() {
-        File dir = new File(path);
+        File dir = new File(path + "uploads");
         if (!dir.exists()) dir.mkdirs();
         return dir.getTotalSpace();
     }
 
     @Override
     public Long getUsableSize() {
-        File dir = new File(path);
+        File dir = new File(path + "uploads");
         if (!dir.exists()) dir.mkdirs();
         return dir.getUsableSpace();
     }

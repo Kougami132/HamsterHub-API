@@ -11,6 +11,9 @@ public interface RFileService {
     RFileDTO createTemp(RFileDTO rFileDTO) throws BusinessException;
 
     void delete(Long rFileId) throws BusinessException;
+
+    void deleteForce(Long rFileId) throws BusinessException;
+
     void update(RFileDTO rFileDTO) throws BusinessException;
     RFileDTO query(Long rFileId) throws BusinessException;
     RFileDTO query(String hash, Long strategyId) throws BusinessException;

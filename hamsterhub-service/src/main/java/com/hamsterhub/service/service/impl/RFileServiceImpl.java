@@ -37,15 +37,16 @@ public class RFileServiceImpl implements RFileService {
         if (StringUtil.isBlank(rFileDTO.getHash()))
             throw new BusinessException(CommonErrorCode.E_500003);
         // 相同hash值文件已存在
-        LambdaQueryWrapper<RFile> wrapper = new LambdaQueryWrapper<RFile>().eq(RFile::getHash, rFileDTO.getHash());
-        if (rFileMapper.selectCount(wrapper) > 0) {
-            // 同hash值文件是否在同一策略
-            Long strategyId = deviceStrategyService.queryStrategyId(rFileDTO.getDeviceId());
-            List<RFile> rFiles = rFileMapper.selectList(wrapper);
-            for (RFile rFile: rFiles)
-                if (deviceStrategyService.queryStrategyId(rFile.getDeviceId()).equals(strategyId))
-                    throw new BusinessException(CommonErrorCode.E_500002);
-        }
+//        LambdaQueryWrapper<RFile> wrapper = new LambdaQueryWrapper<RFile>().eq(RFile::getHash, rFileDTO.getHash());
+//        if (rFileMapper.selectCount(wrapper) > 0) {
+//            // 同hash值文件是否在同一策略
+//            Long strategyId = deviceStrategyService.queryStrategyId(rFileDTO.getDeviceId());
+//            List<RFile> rFiles = rFileMapper.selectList(wrapper);
+//            for (RFile rFile: rFiles)
+//                if (deviceStrategyService.queryStrategyId(rFile.getDeviceId()).equals(strategyId))
+//                    throw new BusinessException(CommonErrorCode.E_500002);
+//        }
+
         // 设备不存在
         if (!deviceService.isExist(rFileDTO.getDeviceId()))
             throw new BusinessException(CommonErrorCode.E_300001);
@@ -80,6 +81,15 @@ public class RFileServiceImpl implements RFileService {
         // 文件不存在
         if (!this.isExist(rFileId))
             throw new BusinessException(CommonErrorCode.E_500001);
+
+        rFileMapper.deleteById(rFileId);
+    }
+
+    @Override
+    public void deleteForce(Long rFileId) throws BusinessException {
+        // 传入对象为空
+        if (rFileId == null)
+            throw new BusinessException(CommonErrorCode.E_100001);
 
         rFileMapper.deleteById(rFileId);
     }
@@ -141,12 +151,14 @@ public class RFileServiceImpl implements RFileService {
 
     @Override
     public Boolean isExist(String hash, Long strategyId) throws BusinessException {
-        List<Long> deviceIds = deviceStrategyService.queryDeviceIds(strategyId);
-        List<RFile> rFiles = rFileMapper.selectList(new LambdaQueryWrapper<RFile>().eq(RFile::getHash, hash));
-        if (rFiles.size() != 0)
-            for (RFile i: rFiles)
-                if (deviceIds.contains(i.getDeviceId()))
-                    return true;
+//        List<Long> deviceIds = deviceStrategyService.queryDeviceIds(strategyId);
+        List<RFile> rFiles = rFileMapper.selectList(new LambdaQueryWrapper<RFile>()
+                .eq(RFile::getHash, hash)
+                .eq(RFile::getDeviceId, strategyId));
+//        if (rFiles.size() != 0)
+//            for (RFile i: rFiles)
+//                if (deviceIds.contains(i.getDeviceId()))
+//                    return true;
         return false;
     }
 

@@ -1,6 +1,5 @@
 package com.hamsterhub.service.device.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
@@ -490,19 +489,24 @@ public class VirtualStrategyStorage implements ListFiler {
 //        }
 
         // 创建真实文件记录
+        RFileDTO tempRFileDTO = null;
         if (!this.isExist(hash, size)){
 
             // 如果file为null说明想要秒传
             CommonErrorCode.checkAndThrow(file == null, CommonErrorCode.E_600001);
 
-            RFileDTO rFileDTO = RFileDTO.createTemp(file.getName() ,hash, file.getPath(), size);
-            rFileService.createTemp(rFileDTO);
+            tempRFileDTO = RFileDTO.createTemp(file.getName() ,hash, file.getPath(), size);
+            tempRFileDTO = rFileService.createTemp(tempRFileDTO);
         }
 
         // 记录先创建
         VFileDTO vFileDTO = VFileDTO.newFile(name, this.id, parentId, size, userId, hash);
         vFileDTO.setVersion(1); // 取消版本控制功能
         vFileDTO = vFileService.create(vFileDTO);
+
+        // todo: 把存储过程改为异步
+//        if (tempRFileDTO != null)
+        this.fileProcess(hash,file,size,tempRFileDTO);
 
         return vFileDTO;
 
@@ -634,6 +638,73 @@ public class VirtualStrategyStorage implements ListFiler {
         }
 
         return size;
+    }
+
+    private Storage chooseDevice(List<Storage> combine, Long size){
+        Storage res = null;
+        if (mode.equals(0)) { // 优先选择剩余容量大
+            Long max = 0L;
+            for (Storage device: combine){
+                Long usableSize = device.getUsableSize();
+                if (usableSize > size && usableSize > max){
+                    max = usableSize;
+                    res = device;
+                }
+            }
+        }else if (mode.equals(1)) {
+            Long min = 0L;
+            for (Storage device: combine){
+                Long usableSize = device.getUsableSize();
+                if (usableSize > size && usableSize < min){
+                    min = usableSize;
+                    res = device;
+                }
+            }
+        }
+
+        return res;
+    }
+
+    public boolean fileProcess(String hash, File file, Long size, RFileDTO tempRFileDTO){
+        int curBackupTime = 0;
+        boolean res = false;
+        for (List<Storage> combine : devices){
+
+            if (curBackupTime >= backupTime){
+                break;
+            }
+
+            Storage storage = this.chooseDevice(combine, size);
+
+            try {
+                if (!rFileService.isExist(hash, storage.getDevice().getId())){
+                    String path =  storage.upload(file,hash);
+
+                    RFileDTO rFileDTO = new RFileDTO(null, hash, hash, path,
+                            file.length(), storage.getDevice().getId());
+
+                    rFileService.create(rFileDTO);
+                }
+            } catch (Exception e){
+                continue;
+            }
+
+            curBackupTime ++;
+        }
+
+        if (curBackupTime >= backupTime){
+            res = true;
+        }
+
+        if (res){
+            // 清除临时文件
+            file.delete();
+            if (tempRFileDTO != null){
+                rFileService.deleteForce(tempRFileDTO.getId());
+            }
+        }
+
+        return res;
     }
 
 
