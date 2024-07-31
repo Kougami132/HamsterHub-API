@@ -10,4 +10,6 @@ public interface FileLinkService {
     FileLinkDTO query(String ticket) throws BusinessException;
     Boolean isExist(Long rFileId) throws BusinessException;
     Boolean isExist(String ticket) throws BusinessException;
+
+    void deleteByExpiry();
 }

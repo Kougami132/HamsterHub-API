@@ -13,6 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 @Service
 @Transactional
 public class FileLinkServiceImpl implements FileLinkService {
@@ -73,5 +76,14 @@ public class FileLinkServiceImpl implements FileLinkService {
     @Override
     public Boolean isExist(String ticket) throws BusinessException {
         return fileLinkMapper.selectCount(new LambdaQueryWrapper<FileLink>().eq(FileLink::getTicket, ticket)) > 0;
+    }
+
+    @Override
+    public void deleteByExpiry() {
+
+        LambdaQueryWrapper<FileLink> queryWrapper = new LambdaQueryWrapper<FileLink>()
+                .le(FileLink::getExpiry, LocalDateTime.now());
+
+        fileLinkMapper.delete(queryWrapper);
     }
 }
