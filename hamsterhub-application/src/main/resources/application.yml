@@ -8,9 +8,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/hamster_db?createDatabaseIfNotExist=true&autoReconnect=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     username: ${MYSQL_USERNAME:root}
-    password: ${MYSQL_PASSWORD:1329623049}
-    initialization-mode: always
-    schema: classpath:schema.sql
+    password: ${MYSQL_PASSWORD:root}
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}
@@ -21,6 +19,10 @@ spring:
     multipart:
       max-request-size: 200MB
       max-file-size: 200MB
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
 
 mybatis-plus:
   configuration:
