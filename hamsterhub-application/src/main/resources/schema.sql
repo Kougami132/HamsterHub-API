@@ -5,7 +5,7 @@ USE hamster_db;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-# DROP TABLE IF EXISTS `account`;
+-- # DROP TABLE IF EXISTS `account`;
 CREATE TABLE IF NOT EXISTS `account` (
                            `ID` bigint(20) NOT NULL COMMENT '主键',
                            `USERNAME` varchar(50) NOT NULL COMMENT '用户名',
@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS `account` (
                            PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-# DROP TABLE IF EXISTS `device`;
+-- # DROP TABLE IF EXISTS `device`;
 CREATE TABLE IF NOT EXISTS `device` (
                           `ID` bigint(20) NOT NULL COMMENT '主键',
                           `NAME` varchar(50) NOT NULL UNIQUE COMMENT '设备名称',
@@ -27,8 +27,8 @@ CREATE TABLE IF NOT EXISTS `device` (
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-# DROP TABLE IF EXISTS `strategy`;
-CREATE TABLE `strategy` (
+-- # DROP TABLE IF EXISTS `strategy`;
+CREATE TABLE IF NOT EXISTS `strategy` (
                             `ID` bigint(20) NOT NULL COMMENT '主键',
                             `NAME` varchar(50) NOT NULL COMMENT '配置名称',
                             `TYPE` bigint(10) NOT NULL COMMENT '存储策略（聚合、备份）',
@@ -40,7 +40,7 @@ CREATE TABLE `strategy` (
                             PRIMARY KEY (`ID`) USING BTREE,
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC
 
-# DROP TABLE IF EXISTS `r_file`;
+-- # DROP TABLE IF EXISTS `r_file`;
 CREATE TABLE IF NOT EXISTS `r_file` (
                           `ID` bigint(20) NOT NULL COMMENT '主键',
                           `NAME` varchar(50) NOT NULL COMMENT '文件名',
@@ -51,8 +51,8 @@ CREATE TABLE IF NOT EXISTS `r_file` (
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-# DROP TABLE IF EXISTS `v_file`;
-CREATE TABLE `v_file` (
+-- # DROP TABLE IF EXISTS `v_file`;
+CREATE TABLE IF NOT EXISTS `v_file` (
                           `ID` bigint(20) NOT NULL COMMENT '主键',
                           `TYPE` bigint(10) NOT NULL COMMENT '文件类型',
                           `NAME` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '文件名',
@@ -69,7 +69,7 @@ CREATE TABLE `v_file` (
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC
 
-# DROP TABLE IF EXISTS `file_link`;
+-- # DROP TABLE IF EXISTS `file_link`;
 CREATE TABLE IF NOT EXISTS `file_link` (
                           `ID` bigint(20) NOT NULL COMMENT '主键',
                           `TICKET` varchar(50) NOT NULL UNIQUE COMMENT '分享码',
@@ -79,7 +79,7 @@ CREATE TABLE IF NOT EXISTS `file_link` (
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-# DROP TABLE IF EXISTS `share`;
+-- # DROP TABLE IF EXISTS `share`;
 CREATE TABLE IF NOT EXISTS `share` (
                           `ID` bigint(20) NOT NULL COMMENT '主键',
                           `TYPE` bigint(10) NOT NULL COMMENT '分享类型(公开、私有)',
@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS `share` (
                           PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
-# DROP TABLE IF EXISTS `sys_config`;
+-- # DROP TABLE IF EXISTS `sys_config`;
 CREATE TABLE IF NOT EXISTS `sys_config` (
                               `key` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
                               `value` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
