@@ -249,9 +249,7 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
         String fileIndex = index == null ? shareDTO.getFileIndex() : index;
         Integer fileSystem = listFiler.getFileSystem();
         String res = null;
-//        if (fileSystem.equals(VIRTUAL_FILE_SYSTEM)){
-            res = listFiler.getDownloadUrl(fileIndex, shareDTO.getAccountID(), preference);
-//        }
+        res = listFiler.getDownloadUrl(fileIndex, shareDTO.getAccountID(), preference);
 
         return res;
     }

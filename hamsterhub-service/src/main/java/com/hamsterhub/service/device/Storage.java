@@ -4,6 +4,7 @@ import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MatchUtil;
 import com.hamsterhub.service.dto.DeviceDTO;
+import com.hamsterhub.service.dto.RFileDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +17,11 @@ public class Storage implements WRFiler {
     private String name;
     private DeviceDTO device = null;
     private Boolean ready = false;
+
+    public String downloadIndexAdapt(RFileDTO rFileDTO){
+        // 默认使用path的内容作为文件的索引
+        return rFileDTO.getPath();
+    }
 
     public Storage(DeviceDTO deviceDTO) {
         // json格式校验

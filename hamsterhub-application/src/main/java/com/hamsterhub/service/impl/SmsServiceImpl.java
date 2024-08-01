@@ -15,9 +15,11 @@ import com.tencentcloudapi.common.profile.HttpProfile;
 import com.tencentcloudapi.sms.v20210111.SmsClient;
 import com.tencentcloudapi.sms.v20210111.models.SendSmsRequest;
 import com.tencentcloudapi.sms.v20210111.models.SendSmsResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+@Slf4j
 @Service
 public class SmsServiceImpl implements SmsService {
 
@@ -102,8 +104,7 @@ public class SmsServiceImpl implements SmsService {
             SendSmsResponse res = client.SendSms(req);
 
             // 输出json格式的字符串回包
-            System.out.println(SendSmsResponse.toJsonString(res));
-
+            log.info(SendSmsResponse.toJsonString(res));
         } catch (TencentCloudSDKException e) {
             e.printStackTrace();
         }

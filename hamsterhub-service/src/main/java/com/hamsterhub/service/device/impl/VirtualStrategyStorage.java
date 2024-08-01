@@ -561,7 +561,7 @@ public class VirtualStrategyStorage implements ListFiler {
             selectedRFileDTO = findRFileDTOInDevices(rFileDTOS);
 
             // 如果全部查不到就尝试从临时设备找
-            if (preference == null){
+            if (selectedRFileDTO == null){
                 selectedRFileDTO = selectRFileDTO(rFileDTOS, -1L);
             }
         }else { // 如果指定偏好
@@ -582,7 +582,8 @@ public class VirtualStrategyStorage implements ListFiler {
 
         Storage storage = deviceMap.get(selectedRFileDTO.getDeviceId());
 
-        String url = storage.downLoad(selectedRFileDTO.getPath());
+        String downloadIndex = storage.downloadIndexAdapt(selectedRFileDTO);
+        String url = storage.downLoad(downloadIndex);
 
         if (storage.getDevice().getType().equals(0)){ // 本地硬盘时，为统一接口，不把东西传进去
             url = url + "&fileName=" + vFileDTO.getName();

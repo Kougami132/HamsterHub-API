@@ -16,6 +16,7 @@ import com.hamsterhub.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
@@ -40,6 +41,7 @@ import static java.util.stream.Collectors.toList;
 
 @RestController
 @Tag(name = "文件传输 数据接口")
+@Slf4j
 public class FileController {
 
     @Autowired
@@ -277,7 +279,7 @@ public class FileController {
                 if (!deviceDTO.getType().equals(0))
                     throw new BusinessException(CommonErrorCode.E_500001);
 
-                result = fileService.download(rFileDTO);
+                result = rFileDTO.getPath();
             }
         }
 
@@ -286,9 +288,8 @@ public class FileController {
         File file = new File(result);
         if (!file.exists()) {
             throw new BusinessException(CommonErrorCode.E_500001);
-//            System.out.println("实际文件不存在");
-//            return;
         }
+
         try (OutputStream outputStream = response.getOutputStream();
              RandomAccessFile targetFile = new RandomAccessFile(file, "r")) {
             response.reset();
@@ -358,12 +359,12 @@ public class FileController {
             catch (IOException e) {
                 // tomcat原话。写操作IO异常几乎总是由于客户端主动关闭连接导致，所以直接吃掉异常打日志
                 // 比如使用video播放视频时经常会发送Range为0- 的范围只是为了获取视频大小，之后就中断连接了
-                System.out.println(e.getMessage());
+                log.info(e.getMessage());
             }
             outputStream.flush();
         }
         catch (Exception e) {
-            System.out.println("文件传输错误");
+            log.info("文件传输错误");
         }
 
     }

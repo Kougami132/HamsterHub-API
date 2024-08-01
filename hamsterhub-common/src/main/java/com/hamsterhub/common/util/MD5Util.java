@@ -1,5 +1,6 @@
 package com.hamsterhub.common.util;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
@@ -9,7 +10,7 @@ import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-
+@Slf4j
 public class MD5Util {
     /**
      * 获取字符串的MD5摘要计算结果
@@ -59,7 +60,7 @@ public class MD5Util {
             //转换为16进制
             return new BigInteger(1, digest).toString(16);
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            log.info(e.getMessage());
         }
         return null;
     }

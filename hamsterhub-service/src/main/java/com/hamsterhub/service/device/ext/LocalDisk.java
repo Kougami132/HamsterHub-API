@@ -9,6 +9,7 @@ import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.service.device.ListStorage;
 import com.hamsterhub.service.dto.DeviceDTO;
 import com.hamsterhub.service.dto.FileLinkDTO;
+import com.hamsterhub.service.dto.RFileDTO;
 import com.hamsterhub.service.dto.VFileDTO;
 import com.hamsterhub.service.service.FileLinkService;
 import lombok.Data;
@@ -36,6 +37,12 @@ public class LocalDisk extends ListStorage {
     private String path = "";
 
     private FileLinkService fileLinkService;
+
+    @Override
+    public String downloadIndexAdapt(RFileDTO rFileDTO){
+        // 默认使用path的内容作为文件的索引
+        return rFileDTO.getId().toString();
+    }
 
     public LocalDisk(DeviceDTO deviceDTO) {
         super(deviceDTO);
@@ -294,7 +301,6 @@ public class LocalDisk extends ListStorage {
 
     @Override
     public String downLoadByPath(String fileIndex) {
-        // 传入的变量应当是 rFileDTO id
         String filePath = mergePath(fileIndex);
         Path path = Paths.get(filePath);
 
