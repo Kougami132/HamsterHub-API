@@ -26,7 +26,7 @@ public class ListStorage extends Storage {
     }
 
     // 返回path
-    public String upload(File file, String name) {
+    public String upload(File file, String name, String hash) {
         return null;
     }
 

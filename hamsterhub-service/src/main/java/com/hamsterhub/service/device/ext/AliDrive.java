@@ -101,7 +101,7 @@ public class AliDrive extends Storage {
 //    }
 
     @Override
-    public String upload(File file, String name) {
+    public String upload(File file, String name, String hash) {
         String today = LocalDate.now().format(DateTimeFormatter.ofPattern("/yyyy/MM/dd"));
         String path = "hamster-hub/uploads" + today;
         String[] folders = path.split("/");

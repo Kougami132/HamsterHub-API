@@ -18,6 +18,8 @@ public interface ListFiler {
 
     List<VFileDTO> queryFile(String url, Long userId);
 
+    VFileDTO getFile(String index, Long userId);
+
     // 查询目录下的文件
     public List<VFileDTO> queryDirectory(String parentId, Long userId, Integer page, Integer limit);
 

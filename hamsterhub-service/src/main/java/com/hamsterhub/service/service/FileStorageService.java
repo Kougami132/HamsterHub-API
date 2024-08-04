@@ -20,6 +20,9 @@ public interface FileStorageService {
     // 通过url查询文件
     List<VFileDTO> queryFile(String root, String url, AccountDTO accountDTO);
 
+    // 通过凭据获取文件
+    VFileDTO getFile(String root, String index, AccountDTO accountDTO);
+
     // 获取parent下的文件列表，当虚拟文件目录系统时应当传递parentId，真实的文件目录系统可用直接传父目录url
     List<VFileDTO> queryDirectory(String root, String parent, AccountDTO accountDTO, Integer page, Integer limit);
 

@@ -170,8 +170,27 @@ public class VFileServiceImpl implements VFileService {
         if (vFileId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
 
-
         VFile entity = vFileMapper.selectById(vFileId);
+
+        // 文件不存在
+        if (entity == null){
+            throw new BusinessException(CommonErrorCode.E_600001);
+        }
+
+        return VFileConvert.INSTANCE.entity2dto(entity);
+    }
+
+    @Override
+    public VFileDTO query(Long vFileId, Long accountId) throws BusinessException {
+        // 传入对象为空
+        if (vFileId == null)
+            throw new BusinessException(CommonErrorCode.E_100001);
+
+        LambdaQueryWrapper<VFile> wrapper = new LambdaQueryWrapper<VFile>()
+                .eq(VFile::getAccountID, accountId)
+                .eq(VFile::getId, vFileId);
+
+        VFile entity = vFileMapper.selectOne(wrapper);
 
         // 文件不存在
         if (entity == null){

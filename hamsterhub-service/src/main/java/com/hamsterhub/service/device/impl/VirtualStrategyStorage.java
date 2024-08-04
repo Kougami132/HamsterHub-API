@@ -265,6 +265,17 @@ public class VirtualStrategyStorage implements ListFiler {
     }
 
     @Override
+    public VFileDTO getFile(String index, Long userId){
+        VFileDTO vFileDTO;
+        if ("0".equals(index)) {
+            vFileDTO = VFileDTO.rootFileDTO(userId, this.id);
+        }else {
+            vFileDTO = vFileService.query(Long.parseLong(index));
+        }
+        return vFileDTO;
+    }
+
+    @Override
     public List<VFileDTO> queryDirectory(String parentId, Long userId, Integer page, Integer limit) {
 //        vFileDTOs = vFileService.queryBatch(userId, root, Long.parseLong(parentId) , page, limit);
         // 暂时不考虑分页
@@ -453,12 +464,13 @@ public class VirtualStrategyStorage implements ListFiler {
     public void uploadBefore(String parent, String name, Long userId) {
 
         // 获取父目录id
-        VFileDTO vFileDTO;
-        if ("0".equals(parent)) {
-            vFileDTO = VFileDTO.rootFileDTO(userId, this.id);
-        }else {
-            vFileDTO = vFileService.query(Long.parseLong(parent));
-        }
+        VFileDTO vFileDTO = this.getFile(parent, userId);
+//        if ("0".equals(parent)) {
+//            vFileDTO = VFileDTO.rootFileDTO(userId, this.id);
+//        }else {
+//            vFileDTO = vFileService.query(Long.parseLong(parent));
+//        }
+
 
         // root与策略id不一致，大概率初始化时出现错误
         CommonErrorCode.checkAndThrow(!vFileDTO.getStrategyId().equals(this.id), CommonErrorCode.E_600024);
@@ -573,11 +585,17 @@ public class VirtualStrategyStorage implements ListFiler {
         CommonErrorCode.checkAndThrow(selectedRFileDTO == null, CommonErrorCode.E_500001);
 
         Long deviceId = selectedRFileDTO.getDeviceId();
+        String encodeName = null;
+
+        try {
+            encodeName = StringUtil.encodeUrl(vFileDTO.getName());
+        }catch (Exception e){
+            CommonErrorCode.checkAndThrow(false, CommonErrorCode.UNKNOWN);
+        }
 
         if (deviceId == -1L){
             return this.tempDevice.downLoad(selectedRFileDTO.getId().toString()) +
-                    "&fileName=" +
-                    vFileDTO.getName();
+                    "&fileName=" + encodeName;
         }
 
         Storage storage = deviceMap.get(selectedRFileDTO.getDeviceId());
@@ -586,7 +604,7 @@ public class VirtualStrategyStorage implements ListFiler {
         String url = storage.downLoad(downloadIndex);
 
         if (storage.getDevice().getType().equals(0)){ // 本地硬盘时，为统一接口，不把东西传进去
-            url = url + "&fileName=" + vFileDTO.getName();
+            url = url + "&fileName=" + encodeName;
         }
 
         return url;
@@ -679,7 +697,7 @@ public class VirtualStrategyStorage implements ListFiler {
 
             try {
                 if (!rFileService.isExist(hash, storage.getDevice().getId())){
-                    String path =  storage.upload(file,hash);
+                    String path =  storage.upload(file,hash,hash);
 
                     RFileDTO rFileDTO = new RFileDTO(null, hash, hash, path,
                             file.length(), storage.getDevice().getId());

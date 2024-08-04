@@ -30,7 +30,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Part;
 import java.io.*;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -80,14 +82,16 @@ public class FileController {
     @GetMapping(value = "/queryFile")
     @Token
     public Response queryFile(@RequestParam("root") String root,
-                              @RequestParam("url") String url) {
+                              @RequestParam("url") String url) throws UnsupportedEncodingException {
         AccountDTO accountDTO = SecurityUtil.getAccount();
 
+        String decodedUrl = URLDecoder.decode(url, StandardCharsets.UTF_8.name());
+
         // 路径格式错误
-        if (!MatchUtil.isPathMatches(url))
+        if (!MatchUtil.isPathMatches(decodedUrl))
             throw new BusinessException(CommonErrorCode.E_600002);
 
-        List<VFileDTO> vFileDTOs = fileStorageService.queryFile(root, url, accountDTO);
+        List<VFileDTO> vFileDTOs = fileStorageService.queryFile(root, decodedUrl, accountDTO);
         List<VFileResponse> dataList = VFileConvert.INSTANCE.dto2resBatch(vFileDTOs);
         return Response.success().data(dataList);
     }
@@ -238,13 +242,16 @@ public class FileController {
     @Token
     public Response getDownloadUrl(@RequestParam("root") String root,
                                    @RequestParam("vFileId") String index,
-                                   @RequestParam(value = "preference", required = false) Long preference){
+                                   @RequestParam(value = "preference", required = false) Long preference
+    ) throws UnsupportedEncodingException {
+
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(root), CommonErrorCode.E_100001);
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(index), CommonErrorCode.E_100001);
+
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        String url;
 
-        url = fileStorageService.getDownloadUrl(root,index,accountDTO,preference);
-
-
+        String decodedIndex = URLDecoder.decode(index, StandardCharsets.UTF_8.name());
+        String url = fileStorageService.getDownloadUrl(root,decodedIndex,accountDTO,preference);
         return Response.success().data(url);
     }
 
@@ -253,7 +260,11 @@ public class FileController {
     public void download(@RequestParam("ticket") String ticket,
                              @RequestParam("fileName") String fileName,
                              HttpServletRequest request,
-                             HttpServletResponse response) {
+                             HttpServletResponse response) throws UnsupportedEncodingException {
+
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(ticket), CommonErrorCode.E_100001);
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(fileName), CommonErrorCode.E_100001);
+
         FileLinkDTO fileLinkDTO = fileLinkService.query(ticket);
         // 直链已过期
         if (fileLinkDTO.getExpiry().isBefore(LocalDateTime.now()))

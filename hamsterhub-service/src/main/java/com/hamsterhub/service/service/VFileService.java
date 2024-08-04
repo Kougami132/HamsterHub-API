@@ -14,6 +14,9 @@ public interface VFileService {
     List<String> delete(Long vFileId) throws BusinessException; // 返回要删除实际文件的ID
     void update(VFileDTO vFileDTO) throws BusinessException;
     VFileDTO query(Long vFileId) throws BusinessException;
+
+    VFileDTO query(Long vFileId, Long accountId) throws BusinessException;
+
     VFileDTO query(Long strategyId, Long parentId, String name) throws BusinessException;
     List<VFileDTO> query(Long accountId, Long strategyId, Long parentId, String name) throws BusinessException;
     List<VFileDTO> query(Long accountId, String root, Long parentId, String name) throws BusinessException;

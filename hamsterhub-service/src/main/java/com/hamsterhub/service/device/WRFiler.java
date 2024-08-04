@@ -9,7 +9,7 @@ public interface WRFiler {
 //    public Storage withDevice(DeviceDTO device);
 
     // 返回path
-    public String upload(File file, String name);
+    public String upload(File file, String name, String hash);
 
     // 返回下载直链，本地则返回文件路径
     public String downLoad(String url);

@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +83,12 @@ public class FileStorageServiceImpl implements FileStorageService {
     public List<VFileDTO> queryFile(String root, String url, AccountDTO accountDTO){
         ListFiler listFiler = getListFiler(root);
         return listFiler.queryFile(url,accountDTO.getId());
+    }
+
+    @Override
+    public VFileDTO getFile(String root, String index, AccountDTO accountDTO){
+        ListFiler listFiler = getListFiler(root);
+        return listFiler.getFile(index,accountDTO.getId());
     }
 
     @Override

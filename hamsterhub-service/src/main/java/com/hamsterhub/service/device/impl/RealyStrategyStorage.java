@@ -132,6 +132,13 @@ public class RealyStrategyStorage implements ListFiler {
     }
 
     @Override
+    public VFileDTO getFile(String index, Long userId) {
+        String filePath = pathCheck(index);
+        ListStorage listStorage = devices.get(0);
+        return listStorage.queryFile(filePath);
+    }
+
+    @Override
     public List<VFileDTO> queryDirectory(String parentId, Long userId, Integer page, Integer limit){
         // 暂时不考虑分页
         String filePath = pathCheck(parentId);

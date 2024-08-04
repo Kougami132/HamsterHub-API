@@ -85,7 +85,7 @@ public class FileServiceImpl implements FileService {
             throw new BusinessException(CommonErrorCode.E_300007);
         Storage storage = storageService.getInstance(deviceDTO);
         // 上传文件
-        String url = storage.upload(file, hash);
+        String url = storage.upload(file, hash, hash);
         RFileDTO rFileDTO = new RFileDTO(null, hash, hash, url, file.length(), deviceDTO.getId());
         rFileDTO = rFileService.create(rFileDTO);
         return rFileDTO;

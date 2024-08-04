@@ -30,7 +30,7 @@ public class Storage implements WRFiler {
     }
 
     // 返回path
-    public String upload(File file, String name) {
+    public String upload(File file, String name, String hash) {
         return null;
     }
 
