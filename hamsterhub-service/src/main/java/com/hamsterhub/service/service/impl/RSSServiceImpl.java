@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.service.convert.RSSListConvert;
 import com.hamsterhub.service.convert.RSSTaskConvert;
+import com.hamsterhub.service.downloader.DownloadState;
 import com.hamsterhub.service.dto.RSSListDTO;
 import com.hamsterhub.service.dto.RSSTaskDTO;
 import com.hamsterhub.service.entity.RSSList;
@@ -92,14 +93,26 @@ public class RSSServiceImpl implements RSSService {
     @Override
     public void createRSSTasks(List<RSSTaskDTO> rssLists) throws BusinessException {
         for (RSSTaskDTO rssList : rssLists) {
+            // 存在则标记id为null，表示该任务已经存在(因为后面需要这个id，没这个id无法创建任务)
             if (isExistTask(rssList.getUserId(), rssList.getUrl())) {
+                rssList.setId(null);
                 continue;
             }
 
             RSSTask entity = RSSTaskConvert.INSTANCE.dto2entity(rssList);
             entity.setId(null);
             rssTaskMapper.insert(entity);
+            // 回传id备用
+            rssList.setId(entity.getId());
         }
+    }
+
+    @Override
+    public void setTaskFinish(Long rssTaskId) throws BusinessException {
+        RSSTask entity = new RSSTask();
+        entity.setId(rssTaskId);
+        entity.setState(DownloadState.FINISH.ordinal());
+        rssTaskMapper.updateById(entity);
     }
 
 

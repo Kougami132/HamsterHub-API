@@ -84,4 +84,6 @@ public class ListStorage extends Storage {
     public void copyTo(String index, String parent){}
 
     public void moveTo(String index, String parent, String name){}
+
+    public String getQueryUrl(String index, Long userId){return index;}
 }

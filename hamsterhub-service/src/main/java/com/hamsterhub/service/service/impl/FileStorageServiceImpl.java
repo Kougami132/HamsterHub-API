@@ -171,6 +171,12 @@ public class FileStorageServiceImpl implements FileStorageService {
         return listFiler.getUsableSize(combineOption);
     }
 
+    @Override
+    public String getQueryUrl(String root, String index, AccountDTO accountDTO){
+        ListFiler listFiler = getListFiler(root);
+        return listFiler.getQueryUrl(index, accountDTO.getId());
+    }
+
 
 
 

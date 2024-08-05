@@ -659,6 +659,30 @@ public class VirtualStrategyStorage implements ListFiler {
         return size;
     }
 
+    @Override
+    public String getQueryUrl(String index, Long userId){
+        // 如果本来就是根目录则立即返回
+        if ("0".equals(index)){
+            return "/";
+        }
+
+        List<String> temp = new ArrayList<>();
+        String curIndex = index;
+        while (!"0".equals(curIndex)){
+            VFileDTO file = this.getFile(curIndex, userId);
+            temp.add(file.getName());
+            curIndex = file.getParentId().toString();
+        }
+
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = temp.size() - 1; i >= 0; i--) {
+            builder.append("/").append(temp.get(i));
+        }
+
+        return builder.toString();
+    }
+
     private Storage chooseDevice(List<Storage> combine, Long size){
         Storage res = null;
         if (mode.equals(0)) { // 优先选择剩余容量大

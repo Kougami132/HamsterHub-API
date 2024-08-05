@@ -49,4 +49,6 @@ public interface FileStorageService {
     Long getTotalSize(String root, Integer combineOption);
 
     Long getUsableSize(String root, Integer combineOption);
+
+    String getQueryUrl(String root, String index, AccountDTO accountDTO);
 }

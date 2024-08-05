@@ -33,4 +33,7 @@ public class RSSListDTO {
 
     @Schema(description = "上一次获取时的文本的hash")
     private String lastHash;
+
+    @Schema(description = "用于替换的域名，如果不为空，则会替换掉种子下载地址中的域名")
+    private String replaceHost;
 }

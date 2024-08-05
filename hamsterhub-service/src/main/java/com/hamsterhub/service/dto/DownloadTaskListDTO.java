@@ -3,7 +3,10 @@ package com.hamsterhub.service.dto;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.hamsterhub.common.util.StringUtil;
+import com.hamsterhub.service.downloader.DownloadOrigin;
 import com.hamsterhub.service.downloader.DownloadState;
+import com.hamsterhub.service.downloader.DownloadType;
 import com.hamsterhub.service.entity.DownloadTaskList;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -76,4 +79,23 @@ public class DownloadTaskListDTO {
         dto.setTag (tag);
         return dto;
     }
+
+    public static DownloadTaskListDTO createTask(RSSListDTO rssListDTO,RSSTaskDTO rssTaskDTO,String parentIndex){
+
+        DownloadTaskListDTO dto = new DownloadTaskListDTO();
+        dto.setName(rssTaskDTO.getTitle());
+        dto.setRoot(rssListDTO.getRoot());
+        dto.setParentIndex (parentIndex);
+        dto.setOriginType(DownloadOrigin.RSS.ordinal());
+        dto.setOriginId (rssTaskDTO.getId());
+        dto.setType(DownloadType.TORRENT_URL.ordinal());
+        dto.setUrl (rssTaskDTO.getUrl());
+        dto.setDownloader(1);
+        dto.setState(DownloadState.WAIT.ordinal());
+        dto.setUserId (rssTaskDTO.getUserId());
+        dto.setTag(StringUtil.generateRandomString(16));
+
+        return dto;
+    }
+
 }

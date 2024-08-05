@@ -240,4 +240,10 @@ public class RealyStrategyStorage implements ListFiler {
         return listStorage.getUsableSize();
     }
 
+    @Override
+    public String getQueryUrl(String index, Long userId) {
+        VFileDTO file = this.getFile(index, userId);
+        return file.getId();
+    }
+
 }

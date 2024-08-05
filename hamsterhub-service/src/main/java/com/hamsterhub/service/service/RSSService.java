@@ -27,4 +27,6 @@ public interface RSSService {
     RSSTaskDTO queryRSSTask(Long rssTaskId) throws BusinessException;
 
     void createRSSTasks(List<RSSTaskDTO> rssLists) throws BusinessException;
+
+    void setTaskFinish(Long rssTaskId) throws BusinessException;
 }

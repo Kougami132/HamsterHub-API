@@ -46,4 +46,6 @@ public interface ListFiler {
     Long getTotalSize(Integer combineOption);
 
     Long getUsableSize(Integer combineOption);
+
+    String getQueryUrl(String index, Long userId);
 }

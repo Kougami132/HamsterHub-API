@@ -37,4 +37,7 @@ public class RSSList implements Serializable {
     @TableField("LAST_HASH")
     private String lastHash;
 
+    @TableField("REPLACE_HOST")
+    private String replaceHost;
+
 }

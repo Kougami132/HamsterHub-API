@@ -27,7 +27,8 @@ public class CorsProxyServiceImpl implements CorsProxyService {
     private static final String BILIBILI_PAGE_LIST = "https://api.bilibili.com/x/player/pagelist?";
     private static final String BILIBILI_DANMA_LIST = "https://api.bilibili.com/x/v1/dm/list.so?";
 
-    private String toPost(String url, String json) throws IOException {
+    @Override
+    public String toPost(String url, String json) throws IOException {
         RequestBody body = RequestBody.create(json, JSON);
         Request request = new Request.Builder()
                 .url(url)
@@ -38,7 +39,8 @@ public class CorsProxyServiceImpl implements CorsProxyService {
         }
     }
 
-    private String toGet(String url) throws IOException {
+    @Override
+    public String toGet(String url) throws IOException {
         Request request = new Request.Builder()
                 .url(url)
                 .header("Accept-Encoding", "gzip,deflate")

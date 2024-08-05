@@ -21,7 +21,7 @@ public class DownloadTaskSchedule {
     }
 
     @Transactional
-    @Scheduled(cron = "0/10 * * * * ?")
+    @Scheduled(cron = "0/2 * * * * ?")
     public void taskCheck(){
         log.info("Checking task...");
         downloadService.checkDownloaderTask();

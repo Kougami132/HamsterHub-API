@@ -15,6 +15,7 @@ import com.hamsterhub.service.downloader.ext.impl.QBittorrentDownloader;
 import com.hamsterhub.service.dto.*;
 import com.hamsterhub.service.service.DownloadTaskListService;
 import com.hamsterhub.service.service.FileStorageService;
+import com.hamsterhub.service.service.RSSService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,6 +41,9 @@ public class DownloadServiceImpl implements DownloadService {
 
     @Autowired
     private DownloadTaskListService downloadTaskListService;
+
+    @Autowired
+    private RSSService rssService;
 
     private final Map<Integer, Downloader> downloaders = new HashMap<>();
 
@@ -90,6 +94,24 @@ public class DownloadServiceImpl implements DownloadService {
         downloadTaskListService.create(taskDTO);
         return tag;
     }
+
+//    public String addDownloadTaskForRSS(DownloadTaskListDTO taskDTO){
+//        // 获取下载器
+//        Downloader downloader = getDownloader(downloaderId);
+//
+//        // 检查父目录
+//        VFileDTO file = fileStorageService.getFile(root, parent, user);
+//        CommonErrorCode.checkAndThrow(file == null, CommonErrorCode.E_600001);
+//        CommonErrorCode.checkAndThrow(!file.isDir(), CommonErrorCode.E_600013);
+//
+//        String tag = StringUtil.generateRandomString(16);
+//
+//        DownloadTaskListDTO taskDTO = DownloadTaskListDTO.createTask(root,parent, DownloadOrigin.USER.ordinal(),
+//                user.getId(), DownloadType.URL.ordinal(),url ,downloaderId,user.getId(), tag);
+//
+//        downloadTaskListService.create(taskDTO);
+//        return tag;
+//    }
 
     @Override
     public List<DownloadTaskListDTO> getList(AccountDTO user){
@@ -186,6 +208,12 @@ public class DownloadServiceImpl implements DownloadService {
                         taskDTO.setState(DownloadState.FINISH.ordinal());
                         downloadTaskListService.update(taskDTO);
                         downloader.deleteTask(tags);
+
+                        // 如果是rss发起的任务则需设置rss任务完成
+                        if (taskDTO.getOriginType().equals(DownloadOrigin.RSS.ordinal())){
+                            rssService.setTaskFinish(taskDTO.getOriginId());
+                        }
+
                     } else {
                         taskCount++;
                     }
