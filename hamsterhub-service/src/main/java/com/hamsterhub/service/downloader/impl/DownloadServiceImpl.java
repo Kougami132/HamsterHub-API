@@ -77,7 +77,8 @@ public class DownloadServiceImpl implements DownloadService {
     }
 
     @Override
-    public String addDownloadTaskForUser(AccountDTO user, Integer downloaderId, String root, String parent, String url){
+    public String addDownloadTaskForUser(AccountDTO user, Integer downloaderId, String root,
+                                         String parent, String url, String name){
         // 获取下载器
         Downloader downloader = getDownloader(downloaderId);
 
@@ -89,7 +90,7 @@ public class DownloadServiceImpl implements DownloadService {
         String tag = StringUtil.generateRandomString(16);
 
         DownloadTaskListDTO taskDTO = DownloadTaskListDTO.createTask(root,parent, DownloadOrigin.USER.ordinal(),
-                user.getId(), DownloadType.URL.ordinal(),url ,downloaderId,user.getId(), tag);
+                user.getId(), DownloadType.URL.ordinal(),url ,downloaderId,user.getId(), tag, name);
 
         downloadTaskListService.create(taskDTO);
         return tag;
@@ -128,7 +129,7 @@ public class DownloadServiceImpl implements DownloadService {
                 try {
                     // 将有进度的部分存入
                     Downloader downloader = getDownloader(taskDTO.getDownloader());
-                    downloaderTask = downloader.getTask(taskDTO.getName());
+                    downloaderTask = downloader.getTask(taskDTO.getTag());
                 } catch (Exception e) {
                     continue;
                 }

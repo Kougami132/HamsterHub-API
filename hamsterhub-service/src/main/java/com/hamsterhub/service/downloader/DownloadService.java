@@ -16,7 +16,8 @@ public interface DownloadService {
 
     Map<Integer, Downloader> getAllDownloaders();
 
-    String addDownloadTaskForUser(AccountDTO user, Integer downloaderId, String root, String parent, String url);
+    String addDownloadTaskForUser(AccountDTO user, Integer downloaderId, String root,
+                                  String parent, String url, String name);
 
     List<DownloadTaskListDTO> getList(AccountDTO user);
 

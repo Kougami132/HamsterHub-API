@@ -63,8 +63,8 @@ public class DownloadTaskListDTO {
 
     public static DownloadTaskListDTO createTask(String root, String parentIndex,
                                                   Integer originType, Long originId,
-                                                  Integer type, String url,
-                                                  Integer downloader, Long userId, String tag){
+                                                  Integer type, String url, Integer downloader,
+                                                   Long userId, String tag, String name){
 
         DownloadTaskListDTO dto = new DownloadTaskListDTO();
         dto.setRoot (root);
@@ -77,6 +77,7 @@ public class DownloadTaskListDTO {
         dto.setState(DownloadState.WAIT.ordinal());
         dto.setUserId (userId);
         dto.setTag (tag);
+        dto.setName (name);
         return dto;
     }
 
