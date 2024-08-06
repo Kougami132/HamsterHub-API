@@ -42,7 +42,8 @@ public class RSSController {
                             @RequestParam("url") String url,
                             @RequestParam(value = "name", required = false) String name,
                             @RequestParam(value = "downloadId", required = false) Integer downloadId,
-                           @RequestParam(value = "replaceHost", required = false) String replaceHost
+                           @RequestParam(value = "replaceHost", required = false) String replaceHost,
+                           @RequestParam(value = "mirrorHost", required = false) String mirrorHost
 
     ) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
@@ -56,7 +57,9 @@ public class RSSController {
             name = formatter.format(date) + " RSS";
         }
 
-        RSSListDTO rssListDTO = RSSListDTO.createRSSListDTO(url, accountDTO.getId(), root, parent, name, replaceHost);
+        RSSListDTO rssListDTO = RSSListDTO.createRSSListDTO(url, accountDTO.getId(), root,
+                parent, name, replaceHost,mirrorHost);
+
         rssService.createRSSList(rssListDTO);
         return Response.success().msg("创建成功");
     }

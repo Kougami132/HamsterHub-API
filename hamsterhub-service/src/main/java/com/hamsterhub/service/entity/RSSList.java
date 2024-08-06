@@ -40,4 +40,7 @@ public class RSSList implements Serializable {
     @TableField("REPLACE_HOST")
     private String replaceHost;
 
+    @TableField("MIRROR_HOST")
+    private String mirrorHost;
+
 }

@@ -37,16 +37,21 @@ public class RSSListDTO {
     @Schema(description = "用于替换的域名，如果不为空，则会替换掉种子下载地址中的域名")
     private String replaceHost;
 
-    public static RSSListDTO createRSSListDTO(String url, Long userId, String root, String parentIndex, String name, String replaceHost){
+    @Schema(description = "镜像代理的网址,作用于replaceHost之后，效果为mirrorHost + url")
+    private String mirrorHost;
+
+    public static RSSListDTO createRSSListDTO(String url, Long userId, String root, String parentIndex,
+                                              String name, String replaceHost,String mirrorHost){
         RSSListDTO dto = new RSSListDTO();
-        dto.url = url;
-        dto.userId = userId;
-        dto.root = root;
-        dto.parentIndex = parentIndex;
-        dto.name = name;
-        dto.replaceHost = replaceHost;
-        dto.state = 1; // 默认启用
-        dto.lastHash = null;
+        dto.setUrl (url);
+        dto.setUserId (userId);
+        dto.setRoot (root);
+        dto.setParentIndex (parentIndex);
+        dto.setName(name);
+        dto.setReplaceHost(replaceHost);
+        dto.setState (1); // 默认启用
+        dto.setLastHash(null);
+        dto.setMirrorHost(mirrorHost);
         return dto;
     }
 }

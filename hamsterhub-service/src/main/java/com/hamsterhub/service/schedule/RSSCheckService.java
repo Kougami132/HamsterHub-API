@@ -50,7 +50,7 @@ public class RSSCheckService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Scheduled(cron = "0 * * * * ?") // 每小时查询一次RSS订阅
+    @Scheduled(cron = "0 30 * * * ?") // 每小时查询一次RSS订阅
     public void RSSCheck() throws Exception {
 
         log.info("RSS定时任务开始执行");
@@ -66,8 +66,8 @@ public class RSSCheckService {
             AccountDTO accountDTO = accountService.query(rssListDTO.getUserId());
 
             try {
-                List<RSSTaskDTO> rssTaskDTOS =
-                        parseRSSXml(rssContent, rssListDTO.getId(),rssListDTO.getUserId(),rssListDTO.getReplaceHost());
+                List<RSSTaskDTO> rssTaskDTOS = parseRSSXml(rssContent, rssListDTO.getId(),rssListDTO.getUserId(),
+                        rssListDTO.getReplaceHost(),rssListDTO.getMirrorHost());
 
                 rssService.createRSSTasks(rssTaskDTOS);
                 // 创建对应下载任务
@@ -115,7 +115,9 @@ public class RSSCheckService {
     }
 
 
-    private List<RSSTaskDTO> parseRSSXml(String xml, Long rssListId, Long userId, String replaceHost) throws Exception {
+    private List<RSSTaskDTO> parseRSSXml(String xml, Long rssListId, Long userId, String replaceHost, String mirrorHost)
+            throws Exception {
+
         List<RSSTaskDTO> rssListDTOS = new ArrayList<>();
 
         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -147,7 +149,13 @@ public class RSSCheckService {
             String url = e.getAttribute("url");
             // 替换域名，用于处理镜像站的场景
             if (StringUtil.isNotEmpty(url)) {
-                url = StringUtil.replaceDomain(url, replaceHost);
+                if (StringUtil.isNotEmpty(replaceHost)) {
+                    url = StringUtil.replaceDomain(url, replaceHost);
+                }
+
+                if (StringUtil.isNotEmpty(mirrorHost)) {
+                    url = mirrorHost + url;
+                }
             }
 
             temp.setUrl(url);

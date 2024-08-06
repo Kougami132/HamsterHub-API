@@ -19,4 +19,5 @@ public class RSSListResponse {
     private Integer state;
     private String lastHash;
     private String replaceHost;
+    private String mirrorHost;
 }
