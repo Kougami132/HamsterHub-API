@@ -103,5 +103,45 @@ CREATE TABLE IF NOT EXISTS `sys_config` (
                               PRIMARY KEY (`key`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
+CREATE TABLE IF NOT EXISTS `rss_list` (
+                            `ID` bigint(20) NOT NULL,
+                            `URL` varchar(512) NOT NULL COMMENT 'rss的订阅地址',
+                            `USER_ID` bigint(20) NOT NULL COMMENT '用户id',
+                            `ROOT` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '存储的策略root',
+                            `PARENT_INDEX` varchar(512) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '绑定的存储位置',
+                            `NAME` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '名称',
+                            `STATE` int(4) NOT NULL COMMENT '状态',
+                            `LAST_HASH` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '最后一次获取的文本hash',
+                            `REPLACE_HOST` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '用于替换的域名，不为空时将替换种子的域名',
+                            PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE IF NOT EXISTS `rss_task` (
+                            `ID` bigint(20) NOT NULL,
+                            `USER_ID` bigint(20) NOT NULL COMMENT '用户id',
+                            `RSS_LIST_ID` bigint(20) NOT NULL,
+                            `TITLE` varchar(255) NOT NULL,
+                            `URL` varchar(512) NOT NULL COMMENT '种子地址',
+                            `PUB_DATE` datetime NOT NULL,
+                            `SIZE` bigint(20) NOT NULL COMMENT 'rss订阅的声明尺寸',
+                            `STATE` int(4) NOT NULL COMMENT '状态',
+                            PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
+
+CREATE TABLE IF NOT EXISTS `download_task` (
+                                 `ID` bigint(20) NOT NULL,
+                                 `NAME` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '文件名称',
+                                 `STATE` int(4) NOT NULL COMMENT '当前状态',
+                                 `DOWNLOADER` int(4) NOT NULL COMMENT '使用的下载器',
+                                 `TYPE` int(4) NOT NULL COMMENT '类型',
+                                 `URL` varchar(1024) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL COMMENT '下载的地址',
+                                 `ORIGIN_TYPE` int(4) NOT NULL COMMENT '来源的类型',
+                                 `ORIGIN_ID` bigint(20) NOT NULL COMMENT '来源的id',
+                                 `ROOT` varchar(50) DEFAULT NULL COMMENT '下载结束后存储的策略',
+                                 `PARENT_INDEX` varchar(255) DEFAULT NULL COMMENT '下载结束后存储的位置',
+                                 `USER_ID` bigint(20) NOT NULL COMMENT '用户id',
+                                 `TAG` varchar(32) NOT NULL COMMENT '下载的标记',
+                                 PRIMARY KEY (`ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
 SET FOREIGN_KEY_CHECKS = 1;
