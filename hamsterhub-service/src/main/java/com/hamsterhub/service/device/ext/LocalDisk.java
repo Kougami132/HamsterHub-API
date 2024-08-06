@@ -234,6 +234,8 @@ public class LocalDisk extends ListStorage {
     public VFileDTO makeDirectory(String parentIndex, String name){
         String parentPathId = createParentPathId(parentIndex);
         String filePath = mergePath(parentPathId + name);
+        // 去掉前导和尾随的空格
+        filePath = filePath.trim();
         Path path = Paths.get(filePath);
 
         // 创建目录
@@ -292,7 +294,14 @@ public class LocalDisk extends ListStorage {
         Path path = Paths.get(filePath);
         // 父目录不存在
         CommonErrorCode.checkAndThrow(!Files.exists(parentPath),CommonErrorCode.E_500001);
-        file.renameTo(new File(filePath));
+        try {
+            Files.copy(file.toPath(), Paths.get(filePath), StandardCopyOption.REPLACE_EXISTING);
+            file.delete();
+        }catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+//        file.renameTo(new File(filePath));
         VFileDTO vFileDTO = createVFileDTOByPath(path);
         vFileDTO.setId(filePath);
         return vFileDTO;

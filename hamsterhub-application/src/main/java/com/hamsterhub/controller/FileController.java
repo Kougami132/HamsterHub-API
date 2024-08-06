@@ -102,12 +102,15 @@ public class FileController {
     public Response queryList(@RequestParam("root") String root,
                               @RequestParam("parentId") String parentId,
                               @RequestParam(value = "page", required = false) Integer page,
-                              @RequestParam(value = "limit", required = false) Integer limit) {
+                              @RequestParam(value = "limit", required = false) Integer limit
+    ) throws UnsupportedEncodingException {
         if (limit == null)
             limit = 10;
 
         if (page == null)
             page = 0;
+
+        parentId = URLDecoder.decode(parentId, StandardCharsets.UTF_8.name());
 
         AccountDTO accountDTO = SecurityUtil.getAccount();
         List<VFileDTO> vFileDTOs;

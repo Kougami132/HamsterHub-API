@@ -209,6 +209,7 @@ public class DownloadServiceImpl implements DownloadService {
                         taskDTO.setState(DownloadState.FINISH.ordinal());
                         downloadTaskListService.update(taskDTO);
                         downloader.deleteTask(tags);
+                        dir.delete();// 删除临时目录
 
                         // 如果是rss发起的任务则需设置rss任务完成
                         if (taskDTO.getOriginType().equals(DownloadOrigin.RSS.ordinal())){
@@ -236,6 +237,7 @@ public class DownloadServiceImpl implements DownloadService {
                 }
 
             }catch (Exception e){
+                log.error(e.getMessage());
                 continue;
             }
         }

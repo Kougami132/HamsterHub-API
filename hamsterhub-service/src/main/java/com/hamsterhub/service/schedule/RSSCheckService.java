@@ -50,7 +50,7 @@ public class RSSCheckService {
     @Autowired
     private RestTemplate restTemplate;
 
-    @Scheduled(cron = "0 30 * * * ?") // 每小时查询一次RSS订阅
+    @Scheduled(cron = "0 * * * * ?") // 每小时查询一次RSS订阅
     public void RSSCheck() throws Exception {
 
         log.info("RSS定时任务开始执行");
@@ -185,7 +185,7 @@ public class RSSCheckService {
             if (!queryUrl.endsWith("/")){
                 queryUrl += "/";
             }
-            queryUrl += split[i];
+            queryUrl += split[i].trim();
             List<VFileDTO> vFileDTOS = null;
             VFileDTO dir;
             try {

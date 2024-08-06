@@ -119,7 +119,7 @@ public class RealyStrategyStorage implements ListFiler {
         if (path == null || "0".equals(path)){
             return "";
         }
-        return path.replace("../","");
+        return path.replace("../","").trim();
     }
 
     @Override
