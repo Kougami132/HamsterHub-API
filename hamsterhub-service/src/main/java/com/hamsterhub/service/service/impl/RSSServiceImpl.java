@@ -2,6 +2,7 @@ package com.hamsterhub.service.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.hamsterhub.common.domain.BusinessException;
+import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.service.convert.RSSListConvert;
 import com.hamsterhub.service.convert.RSSTaskConvert;
 import com.hamsterhub.service.downloader.DownloadState;
@@ -40,8 +41,29 @@ public class RSSServiceImpl implements RSSService {
     }
 
     @Override
-    public void deleteRSSList(Long rssListId) throws BusinessException {
-        rssListMapper.deleteById(rssListId);
+    public void updateRSSListForUser(RSSListDTO rssList) throws BusinessException {
+        LambdaQueryWrapper<RSSList> wrapper = new LambdaQueryWrapper<RSSList>()
+                .eq(RSSList::getId, rssList.getId())
+                .eq(RSSList::getUserId, rssList.getUserId()); // 防止越权
+
+        RSSList entity = RSSListConvert.INSTANCE.dto2entity(rssList);
+
+        // 防御性编程
+        entity.setId(null);
+        entity.setUserId(null);
+
+        int updateNum = rssListMapper.update(entity, wrapper);
+
+        // 不存在则报错
+        CommonErrorCode.checkAndThrow(updateNum == 0,CommonErrorCode.E_110001);
+    }
+
+    @Override
+    public void deleteRSSList(Long rssListId, Long userId) throws BusinessException {
+        LambdaQueryWrapper<RSSList> wrapper = new LambdaQueryWrapper<RSSList>()
+                .eq(RSSList::getId, rssListId)
+                .eq(RSSList::getUserId, userId);
+        rssListMapper.delete(wrapper);
     }
 
     @Override
@@ -51,10 +73,30 @@ public class RSSServiceImpl implements RSSService {
     }
 
     @Override
+    public List <RSSListDTO> queryRSSListByUser(Long userId) throws BusinessException {
+        LambdaQueryWrapper<RSSList> wrapper = new LambdaQueryWrapper<RSSList>()
+                .eq(RSSList::getUserId, userId);
+
+        List<RSSList> rssLists = rssListMapper.selectList(wrapper);
+        return RSSListConvert.INSTANCE.entity2dtoBatch(rssLists);
+    }
+
+    @Override
     public List <RSSListDTO> fetchAllRSSList() throws BusinessException {
         LambdaQueryWrapper<RSSList> wrapper = new LambdaQueryWrapper<RSSList>().eq(RSSList::getState, 1);
         List<RSSList> rssLists = rssListMapper.selectList(wrapper);
         return RSSListConvert.INSTANCE.entity2dtoBatch(rssLists);
+    }
+
+    @Override
+    public void setEnable(Long id, Boolean enable, Long userId) throws BusinessException {
+        LambdaQueryWrapper<RSSList> wrapper = new LambdaQueryWrapper<RSSList>()
+                .eq(RSSList::getUserId, userId)// 防止越权
+                .eq(RSSList::getId,id);
+        Integer state = enable ? 1 : 0;
+        RSSList entity = new RSSList();
+        entity.setState(state);
+        rssListMapper.update(entity, wrapper);
     }
 
     // ----
@@ -81,6 +123,28 @@ public class RSSServiceImpl implements RSSService {
     public RSSTaskDTO queryRSSTask(Long rssTaskId) throws BusinessException {
         RSSTask rssTask = rssTaskMapper.selectById(rssTaskId);
         return RSSTaskConvert.INSTANCE.entity2dto(rssTask);
+    }
+
+    @Override
+    public void deleteRSSTaskForUser(Long rssTaskId, Long userId) throws BusinessException {
+        LambdaQueryWrapper<RSSTask> wrapper = new LambdaQueryWrapper<RSSTask>()
+                .eq(RSSTask::getId, rssTaskId)
+                .eq(RSSTask::getUserId, userId);// 防止越权
+
+        int deleteNum = rssTaskMapper.delete(wrapper);
+        CommonErrorCode.checkAndThrow(deleteNum == 0,CommonErrorCode.E_110001);
+    }
+
+    @Override
+    public List<RSSTaskDTO> queryRSSTasks(Long rssTaskId, Long userId) throws BusinessException {
+        LambdaQueryWrapper<RSSTask> wrapper = new LambdaQueryWrapper<RSSTask>()
+                .eq(RSSTask::getUserId, userId);// 防止越权
+
+        if (rssTaskId !=null){
+            wrapper.eq(RSSTask::getRssListId, rssTaskId);
+        }
+        List<RSSTask> rssLists = rssTaskMapper.selectList(wrapper);
+        return RSSTaskConvert.INSTANCE.entity2dtoBatch (rssLists);
     }
 
     public boolean isExistTask(Long userID, String url) throws BusinessException {

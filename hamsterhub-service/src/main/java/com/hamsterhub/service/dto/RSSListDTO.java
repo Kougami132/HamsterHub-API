@@ -36,4 +36,17 @@ public class RSSListDTO {
 
     @Schema(description = "用于替换的域名，如果不为空，则会替换掉种子下载地址中的域名")
     private String replaceHost;
+
+    public static RSSListDTO createRSSListDTO(String url, Long userId, String root, String parentIndex, String name, String replaceHost){
+        RSSListDTO dto = new RSSListDTO();
+        dto.url = url;
+        dto.userId = userId;
+        dto.root = root;
+        dto.parentIndex = parentIndex;
+        dto.name = name;
+        dto.replaceHost = replaceHost;
+        dto.state = 1; // 默认启用
+        dto.lastHash = null;
+        return dto;
+    }
 }
