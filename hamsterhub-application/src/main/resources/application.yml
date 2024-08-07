@@ -1,7 +1,7 @@
 server:
   port: 8080
   servlet:
-    context-path: /api/
+    context-path: /
 
 spring:
   datasource:
@@ -14,14 +14,15 @@ spring:
     port: ${REDIS_PORT:6379}
     password: ${REDIS_PASSWORD:1329623049}
   tomcat:
-    max-http-form-post-size: 200MB
+    max-http-form-post-size: 2048MB
   servlet:
     multipart:
-      max-request-size: 200MB
-      max-file-size: 200MB
+      enabled: true
+      max-request-size: 2048MB
+      max-file-size: 2048MB
   sql:
     init:
-      mode: always
+      mode: never
       schema-locations: classpath:schema.sql
 
 mybatis-plus:

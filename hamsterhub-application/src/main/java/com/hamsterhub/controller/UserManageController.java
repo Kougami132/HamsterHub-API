@@ -18,6 +18,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "用户管理 数据接口")
+@RequestMapping("api")
 public class UserManageController {
 
     @Autowired

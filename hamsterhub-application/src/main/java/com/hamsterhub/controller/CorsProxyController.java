@@ -16,7 +16,7 @@ import java.io.IOException;
 
 
 @RestController
-@RequestMapping(value = "proxy")
+@RequestMapping(value = "/api/proxy")
 @Tag(name = "用于中转部分依赖外部的api")
 public class CorsProxyController {
 

@@ -16,34 +16,26 @@ import com.hamsterhub.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 
 @RestController
 @Tag(name = "分享文件 数据接口")
+@RequestMapping("api")
 public class ShareController {
 
     @Autowired
     private VFileService vFileService;
     @Autowired
-    private RFileService rFileService;
-    @Autowired
     private ShareService shareService;
-    @Autowired
-    private DeviceService deviceService;
-    @Autowired
-    private FileLinkService fileLinkService;
-    @Autowired
-    private FileService fileService;
     @Autowired
     private ShareFileStorageService shareFileStorageService;
 
@@ -54,10 +46,13 @@ public class ShareController {
                               @RequestParam("root") String root,
                               @RequestParam(value = "key", required = false) String key,
                               @RequestParam(value = "expiry", required = false) Long expiry,
-                              @RequestParam(value = "name", required = false) String name) {
+                              @RequestParam(value = "name", required = false) String name
+    ) throws UnsupportedEncodingException {
+
         AccountDTO accountDTO = SecurityUtil.getAccount();
         CommonErrorCode.checkAndThrow(StringUtil.isBlank(index),CommonErrorCode.E_100001);
         CommonErrorCode.checkAndThrow(StringUtil.isBlank(root),CommonErrorCode.E_100001);
+        index = URLDecoder.decode(index, StandardCharsets.UTF_8.name());
         ShareDTO shareDTO = shareFileStorageService.shareFile(root, index, accountDTO, key, expiry, name);
         return Response.success().data(shareDTO);
     }
@@ -125,7 +120,14 @@ public class ShareController {
     @GetMapping(value = "/queryShareFile")
     public Response queryShareFile( @RequestParam("ticket") String ticket,
                                @RequestParam(value = "key", required = false) String key,
-                               @RequestParam(value = "vFileId", required = false) String index) {
+                               @RequestParam(value = "vFileId", required = false) String index
+    ) throws UnsupportedEncodingException {
+
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(ticket),CommonErrorCode.E_100001);
+
+        if (StringUtil.isNotBlank(index)){
+            index = URLDecoder.decode(index, StandardCharsets.UTF_8.name());
+        }
 
         VFileDTO vFileDTO = shareFileStorageService.queryShareFile(ticket, key, index);
         VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileDTO);
@@ -137,7 +139,15 @@ public class ShareController {
     public Response searchShareFile(@RequestParam("ticket") String ticket,
                                    @RequestParam(value = "key", required = false) String key,
                                    @RequestParam("parentId") String parentIndex,
-                                    @RequestParam("name") String name) {
+                                    @RequestParam("name") String name
+    ) throws UnsupportedEncodingException {
+
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(ticket),CommonErrorCode.E_100001);
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(parentIndex),CommonErrorCode.E_100001);
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(name),CommonErrorCode.E_100001);
+
+        parentIndex = URLDecoder.decode(parentIndex, StandardCharsets.UTF_8.name());
+        name = URLDecoder.decode(name, StandardCharsets.UTF_8.name());
 
         VFileDTO vFileDTO = shareFileStorageService.searchShareFile(ticket, key, parentIndex, name);
         VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileDTO);
@@ -150,7 +160,13 @@ public class ShareController {
                               @RequestParam(value = "key", required = false) String key,
                               @RequestParam("parentId") String parentIndex,
                               @RequestParam(value = "page", required = false) Integer page,
-                              @RequestParam(value = "limit", required = false) Integer limit) {
+                              @RequestParam(value = "limit", required = false) Integer limit
+    ) throws UnsupportedEncodingException {
+
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(ticket),CommonErrorCode.E_100001);
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(parentIndex),CommonErrorCode.E_100001);
+
+        parentIndex = URLDecoder.decode(parentIndex, StandardCharsets.UTF_8.name());
         List<VFileDTO> vFileDTOs = shareFileStorageService.queryList(ticket, key, parentIndex, page, limit);
         List<VFileResponse> data = VFileConvert.INSTANCE.dto2resBatch(vFileDTOs);
         return Response.success().data(data);
@@ -161,7 +177,14 @@ public class ShareController {
     public Response downloadShare(@RequestParam("ticket") String ticket,
                                   @RequestParam(value = "key", required = false) String key,
                                   @RequestParam(value = "vFileId", required = false) String fileIndex,
-                                  @RequestParam(value = "preference", required = false) Long preference){
+                                  @RequestParam(value = "preference", required = false) Long preference
+    ) throws UnsupportedEncodingException {
+
+        CommonErrorCode.checkAndThrow(StringUtil.isBlank(ticket),CommonErrorCode.E_100001);
+
+        if (StringUtil.isNotBlank(fileIndex)){
+            fileIndex = URLDecoder.decode(fileIndex, StandardCharsets.UTF_8.name());
+        }
 
         String url = shareFileStorageService.downloadShare(ticket, key, fileIndex, preference);
         return Response.success().data(url);

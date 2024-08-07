@@ -20,10 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -44,24 +41,17 @@ import static java.util.stream.Collectors.toList;
 @RestController
 @Tag(name = "文件传输 数据接口")
 @Slf4j
+@RequestMapping("api")
 public class FileController {
 
     @Autowired
     private RFileService rFileService;
     @Autowired
-    private VFileService vFileService;
-    @Autowired
     private DeviceService deviceService;
-    @Autowired
-    private StrategyService strategyService;
-    @Autowired
-    private ShareService shareService;
     @Autowired
     private FileLinkService fileLinkService;
     @Autowired
     private FileService fileService;
-    @Autowired
-    private RedisService redisService;
     @Autowired
     private FileStorageService fileStorageService;
 
@@ -401,6 +391,9 @@ public class FileController {
     public Response rename(@RequestParam("root") String root,
                            @RequestParam("vFileId") String vFileId,
                            @RequestParam("name") String name) {
+        // 部分文件系统不支持头尾存在空格
+        name = name.trim();
+
         AccountDTO accountDTO = SecurityUtil.getAccount();
         CommonErrorCode.checkAndThrow(StringUtil.isBlank(name),CommonErrorCode.E_100001);
         fileStorageService.rename(root,vFileId,name,accountDTO);

@@ -28,6 +28,7 @@ import static java.util.stream.Collectors.toList;
 
 @RestController
 @Tag(name = "存储策略 数据接口")
+@RequestMapping("api")
 public class StrategyController {
 
     private List<String> TYPE = Stream.of("聚合", "备份").collect(toList()),

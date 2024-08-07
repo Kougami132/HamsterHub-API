@@ -29,6 +29,7 @@ import static java.util.stream.Collectors.toList;
 
 @RestController
 @Tag(name = "用户 数据接口")
+@RequestMapping("api")
 public class AccountController {
 
     private List<String> TYPE = Stream.of("管理员", "普通用户").collect(toList());

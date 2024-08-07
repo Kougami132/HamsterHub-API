@@ -15,8 +15,9 @@ public class DownloadTaskSchedule {
     private DownloadService downloadService;
 
 
-    @Scheduled(cron = "30 0 * * * ?")
+    @Scheduled(cron = "30 0/20 * * * ?")
     public void renewConnect() {
+        log.info("Renew Connect");
         downloadService.renewDownloader();
     }
 

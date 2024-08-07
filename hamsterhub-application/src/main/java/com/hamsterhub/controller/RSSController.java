@@ -28,6 +28,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "任务管理 数据接口")
+@RequestMapping("api")
 public class RSSController {
 
     @Autowired

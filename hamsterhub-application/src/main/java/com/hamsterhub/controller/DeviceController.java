@@ -23,6 +23,7 @@ import java.util.List;
 
 @RestController
 @Tag(name = "存储设备 数据接口")
+@RequestMapping("api")
 public class DeviceController {
     @Autowired
     private StorageService storageService;
