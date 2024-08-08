@@ -105,14 +105,18 @@ public class FileTool {
         List<WebFileResource> data = new ArrayList<>();
 
         String parentId = "0";
-        if (!"".equals(fileUrl) && !"/".equals(fileUrl)){
+        VFileDTO vFileDTO = queryFile(root, fileUrl, accountDTO);
+        if (!"".equals(fileUrl) && !"/".equals(fileUrl) && !"\\".equals(fileUrl)){
             // 如果为空说明是根目录查询,否则需要获取父目录id
-            VFileDTO vFileDTO = queryFile(root, fileUrl, accountDTO);
-            if(depth<=0){
-                data.add(new WebFileResource(url,vFileDTO));
-                return data;
-            }
+            data.add(new WebFileResource(url,vFileDTO,true));
             parentId = vFileDTO.getId();
+        }else {
+            WebFileResource rootWebFileResource= createWebFileResourceForRoot(root, accountDTO);
+            data.add(rootWebFileResource);
+        }
+
+        if(depth<=0){
+            return data;
         }
 
         // 获取列表
@@ -126,17 +130,38 @@ public class FileTool {
         return data;
     }
 
+    public boolean hasPermissionRoot(StrategyDTO strategyDTO,AccountDTO accountDTO){
+        return accountDTO.isAdmin() ||
+                separatePermission(strategyDTO.getPermission()).contains(accountDTO.getType());
+    }
+
+    public WebFileResource createWebFileResourceForRoot(String root , AccountDTO accountDTO)
+            throws UnsupportedEncodingException {
+
+        WebFileResource res = null;
+
+        StrategyDTO strategyDTO = strategyService.query(root);
+        if (hasPermissionRoot(strategyDTO,accountDTO)){
+            res = new WebFileResource();
+            res.setName(strategyDTO.getRoot());
+            res.setIsCollection(true); // 策略一定是文件夹
+            res.setHref("/" + encodeUrl(strategyDTO.getRoot()) + "/");
+        }
+
+        return res;
+    }
+
 
     public List<WebFileResource> queryRoot(AccountDTO accountDTO) throws UnsupportedEncodingException {
         List<StrategyDTO> strategyDTOs = strategyService.queryBatch();
         List<WebFileResource> data = new ArrayList<>();
         for (StrategyDTO i:strategyDTOs) {
             // 验证访问权限
-            if (accountDTO.isAdmin() || separatePermission(i.getPermission()).contains(accountDTO.getType())){
+            if (hasPermissionRoot(i,accountDTO)){
                 WebFileResource temp = new WebFileResource();
                 temp.setName(i.getRoot());
                 temp.setIsCollection(true); // 策略一定是文件夹
-                temp.setHrefAndEncode("/" + i.getRoot() + "/");
+                temp.setHref("/" + encodeUrl(i.getRoot()) + "/");
                 data.add(temp);
             }
         }
@@ -154,9 +179,19 @@ public class FileTool {
         String fileUrl = paths[1];
         // 返回值
         List<WebFileResource> data = new ArrayList<>();
-        VFileDTO vFileDTO = queryFile(root, fileUrl, accountDTO);
-        WebFileResource temp = new WebFileResource(url,vFileDTO);
-        data.add(temp);
+        WebFileResource temp;
+
+        if ( "".equals(fileUrl) || "/".equals(fileUrl) || "\\".equals(fileUrl)){
+            // 如果为根目录
+            temp = createWebFileResourceForRoot(root, accountDTO);
+        }else{
+            VFileDTO vFileDTO = queryFile(root, fileUrl, accountDTO);
+            temp = new WebFileResource(url,vFileDTO,true);
+        }
+
+        if (temp != null){
+            data.add(temp);
+        }
         return data;
     }
 

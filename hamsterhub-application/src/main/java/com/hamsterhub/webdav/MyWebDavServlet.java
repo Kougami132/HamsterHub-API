@@ -2,6 +2,7 @@ package com.hamsterhub.webdav;
 
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
+import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.service.FileService;
 import com.hamsterhub.service.dto.*;
 import com.hamsterhub.service.service.*;
@@ -57,10 +58,15 @@ public class MyWebDavServlet extends WebdavServlet {
         AccountDTO user = getUser(req,resp);
 
         String depthStr = req.getHeader("Depth");
-        int depth = maxDepth;
+        int depth;
 
-        if("0".equals(depthStr)){
+        if(StringUtil.isBlank(depthStr) || "0".equals(depthStr)){
             depth = 0;
+        }else {
+            depth = Integer.parseInt(depthStr);
+            if(depth > maxDepth){
+                depth = maxDepth;
+            }
         }
 
         Node propNode = null;
@@ -124,11 +130,10 @@ public class MyWebDavServlet extends WebdavServlet {
         List<WebFileResource> data = null;
 
         if ("/".equals(path)) {// 根目录请求
-
-            if (depth == 0) {// 根目录默认值，主要兼容RaiDrive，其余客户端都不会查询根目录是否为目录
-                data = WebFileResource.CreateRootFile();
-            }else{
-                data = fileTool.queryRoot(user);
+            // 根目录默认值。
+            data = WebFileResource.CreateRootFile();
+            if (depth > 0) {
+                data.addAll(fileTool.queryRoot(user));
             }
 
         } else if (req.getPathInfo().endsWith("/")) {// 子目录请求

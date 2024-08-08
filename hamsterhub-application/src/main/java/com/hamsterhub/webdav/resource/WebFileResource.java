@@ -30,8 +30,8 @@ public class WebFileResource {
         List<WebFileResource> data = new ArrayList<>();
         WebFileResource temp = new WebFileResource();
         // 根目录属性默认值
-        temp.setName("Home");
-        temp.setHrefAndEncode("/");
+        temp.setName("dav");
+        temp.setHref("/");
         temp.setIsCollection(true);
         data.add(temp);
         return data;
@@ -53,7 +53,7 @@ public class WebFileResource {
         isCollection = vFileDTO.isDir();
 //        String path = url + "/" + vFileDTO.getName() + (vFileDTO.isDir() ? "/" : "");
         // 避免特殊字符的影响需要url编码，同时由于历史原因需要将+ 转为为%20 以保证解码结果正确
-        href = encodeUrl(url + "/" + vFileDTO.getName() + (vFileDTO.isDir() ? "/" : ""));
+        href = encodeUrl(url).replace("%2F","/")+ "/" + encodeUrl(vFileDTO.getName()) + (vFileDTO.isDir() ? "/" : "");
         downloadHref = null;
         prop = new HashMap<>();
         prop.put("creationdate",dateAdaptor(vFileDTO.getCreated()));
@@ -63,6 +63,28 @@ public class WebFileResource {
             prop.put("getcontentlength",vFileDTO.getSize().toString());
         }
     }
+
+    public WebFileResource(String url, VFileDTO vFileDTO, boolean isParent) throws UnsupportedEncodingException {
+        name = vFileDTO.getName();
+        isCollection = vFileDTO.isDir();
+//        String path = url + "/" + vFileDTO.getName() + (vFileDTO.isDir() ? "/" : "");
+        // 避免特殊字符的影响需要url编码，同时由于历史原因需要将+ 转为为%20 以保证解码结果正确
+        href = encodeUrl(url).replace("%2F","/");
+        if (!isParent){
+            href += "/" + encodeUrl(vFileDTO.getName()) + (vFileDTO.isDir() ? "/" : "");
+        }
+
+        downloadHref = null;
+        prop = new HashMap<>();
+        prop.put("creationdate",dateAdaptor(vFileDTO.getCreated()));
+        prop.put("getlastmodified",dateAdaptor(vFileDTO.getModified()));
+        // 目录不加入尺寸
+        if (!vFileDTO.isDir()){
+            prop.put("getcontentlength",vFileDTO.getSize().toString());
+        }
+    }
+
+
 
     public void setHrefAndEncode(String url) throws UnsupportedEncodingException {
         // 避免特殊字符的影响需要url编码，同时由于历史原因需要将+ 转为为%20 以保证解码结果正确
