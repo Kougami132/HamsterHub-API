@@ -340,7 +340,9 @@ public class FileController {
             }
             else {
                 // 如果Range为空则下载整个视频
-                response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + URLEncoder.encode(fileName, "UTF-8"));
+                response.setHeader(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment;filename=" + StringUtil.encodeUrl(fileName));
+
                 // 设置文件长度
                 response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(fileLength));
             }

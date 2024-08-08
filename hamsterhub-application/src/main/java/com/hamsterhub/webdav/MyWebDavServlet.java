@@ -185,7 +185,7 @@ public class MyWebDavServlet extends WebdavServlet {
 //        }
 
 
-        resp.sendRedirect(baseUrl.toString() +downloadUrl);
+        resp.sendRedirect(baseUrl.toString() + "/api" +downloadUrl);
 
 
 //        RFileDTO rFileDTO = fileTool.getRFileObj(path);

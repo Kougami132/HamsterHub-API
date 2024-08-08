@@ -55,7 +55,11 @@ public class FileLinkServiceImpl implements FileLinkService {
         if (!isExist(rFileId))
             throw new BusinessException(CommonErrorCode.E_600017);
 
-        FileLink entity = fileLinkMapper.selectOne(new LambdaQueryWrapper<FileLink>().eq(FileLink::getRFileId, rFileId));
+        LambdaQueryWrapper<FileLink> wrapper = new LambdaQueryWrapper<FileLink>()
+                .eq(FileLink::getRFileId, rFileId)
+                .last("limit 1");
+
+        FileLink entity = fileLinkMapper.selectOne(wrapper);
         return FileLinkConvert.INSTANCE.entity2dto(entity);
     }
 

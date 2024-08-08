@@ -97,7 +97,7 @@ public class LocalDisk extends ListStorage {
                 }
                 while (fileLinkService.isExist(fileLinkDTO.getTicket()));
             }
-            fileLinkDTO.setExpiry(LocalDateTime.now().plusMinutes(10));
+            fileLinkDTO.setExpiry(LocalDateTime.now().plusMinutes(60));
             fileLinkService.update(fileLinkDTO);
         }
         else {
@@ -106,7 +106,7 @@ public class LocalDisk extends ListStorage {
             }
             while (fileLinkService.isExist(ticket));
 
-            fileLinkDTO = new FileLinkDTO(ticket, rFileDTOId, LocalDateTime.now().plusMinutes(10));
+            fileLinkDTO = new FileLinkDTO(ticket, rFileDTOId, LocalDateTime.now().plusMinutes(60));
             fileLinkService.create(fileLinkDTO);
         }
         return String.format("/download?ticket=%s", fileLinkDTO.getTicket());
