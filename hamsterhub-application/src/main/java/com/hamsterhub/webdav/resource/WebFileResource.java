@@ -82,18 +82,6 @@ public class WebFileResource {
         }
     }
 
-
-
-    public void setHrefAndEncode(String url) throws UnsupportedEncodingException {
-        // 避免特殊字符的影响需要url编码，同时由于历史原因需要将+ 转为为%20 以保证解码结果正确
-        href = encodeUrl(url);
-    }
-
-    public void setDownloadHrefAndEncode(String url) throws UnsupportedEncodingException {
-        // 避免特殊字符的影响需要url编码，同时由于历史原因需要将+ 转为为%20 以保证解码结果正确
-        downloadHref = encodeUrl(url);
-    }
-
     // url编码
     public String encodeUrl(String url) throws UnsupportedEncodingException {
         // 避免特殊字符的影响需要url编码，同时由于历史原因需要将+ 转为为%20 以保证解码结果正确

@@ -21,9 +21,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -58,7 +56,7 @@ public class LocalDisk extends ListStorage {
         }
 
         if (StringUtil.isBlank(this.path)){
-            this.path = "";
+            this.path = "./";
         }
 
         fileLinkService = GetBeanUtil.getBean(FileLinkService.class);
@@ -125,14 +123,16 @@ public class LocalDisk extends ListStorage {
 
     @Override
     public Long getTotalSize() {
-        File dir = new File(path + "uploads");
+//        File dir = new File(path + "uploads");
+        File dir = new File(path);
         if (!dir.exists()) dir.mkdirs();
         return dir.getTotalSpace();
     }
 
     @Override
     public Long getUsableSize() {
-        File dir = new File(path + "uploads");
+//        File dir = new File(path + "uploads");
+        File dir = new File(path);
         if (!dir.exists()) dir.mkdirs();
         return dir.getUsableSpace();
     }
