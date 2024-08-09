@@ -49,9 +49,8 @@ public class WebFileResource {
     }
 
     public WebFileResource(String url, VFileDTO vFileDTO) throws UnsupportedEncodingException {
-        name = vFileDTO.getName();
+        name = encodeUrl(vFileDTO.getName());
         isCollection = vFileDTO.isDir();
-//        String path = url + "/" + vFileDTO.getName() + (vFileDTO.isDir() ? "/" : "");
         // 避免特殊字符的影响需要url编码，同时由于历史原因需要将+ 转为为%20 以保证解码结果正确
         href = encodeUrl(url).replace("%2F","/")+ "/" + encodeUrl(vFileDTO.getName()) + (vFileDTO.isDir() ? "/" : "");
         downloadHref = null;
@@ -65,9 +64,8 @@ public class WebFileResource {
     }
 
     public WebFileResource(String url, VFileDTO vFileDTO, boolean isParent) throws UnsupportedEncodingException {
-        name = vFileDTO.getName();
+        name = encodeUrl(vFileDTO.getName());
         isCollection = vFileDTO.isDir();
-//        String path = url + "/" + vFileDTO.getName() + (vFileDTO.isDir() ? "/" : "");
         // 避免特殊字符的影响需要url编码，同时由于历史原因需要将+ 转为为%20 以保证解码结果正确
         href = encodeUrl(url).replace("%2F","/");
         if (!isParent){
