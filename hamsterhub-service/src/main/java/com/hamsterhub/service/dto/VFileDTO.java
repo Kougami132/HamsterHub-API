@@ -92,6 +92,6 @@ public class VFileDTO {
     }
 
     public static Long toTimestamp(LocalDateTime date){
-        return date.toEpochSecond(ZoneOffset.UTC);
+        return date.toInstant(ZoneOffset.UTC).toEpochMilli();
     }
 }
