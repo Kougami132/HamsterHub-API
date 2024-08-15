@@ -106,7 +106,8 @@ public class AccountServiceImpl implements AccountService {
         if (accountMapper.selectCount(exist) > 0 && !accountMapper.selectOne(exist).getId().equals(accountDTO.getId()))
             throw new BusinessException(CommonErrorCode.E_200007);
         // 手机号已存在
-        if (this.isPhoneExist(accountDTO.getPhone()))
+        exist = new LambdaQueryWrapper<Account>().eq(Account::getPhone, accountDTO.getPhone());
+        if (accountMapper.selectCount(exist) > 0 && !accountMapper.selectOne(exist).getId().equals(accountDTO.getId()))
             throw new BusinessException(CommonErrorCode.E_200008);
 
         Account entity = AccountConvert.INSTANCE.dto2entity(accountDTO);
