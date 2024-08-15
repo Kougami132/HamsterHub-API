@@ -12,6 +12,7 @@ public class DownloaderTask {
     private String save_path;
     private String state;
     private String tags;
+    private String taskIndex;
     private Long total_size;
 
     public Boolean isCompleted() {

@@ -49,4 +49,7 @@ public class DownloadTaskList implements Serializable {
     @TableField("TAG")
     private String tag;
 
+    @TableField("TASK_INDEX")
+    private String taskIndex;
+
 }

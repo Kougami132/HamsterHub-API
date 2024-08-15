@@ -12,11 +12,17 @@ public interface Downloader {
 
     Integer getAvailable();
 
+    void setName(String name);
+
+    String getName();
+
+    Integer getType();
+
     Boolean connect() throws BusinessException;
 
     List<DownloaderTask> getAllTask() throws BusinessException;
 
-    Boolean addTask(String tag, String magnet) throws BusinessException;
+    String addTask(String tag, String magnet) throws BusinessException;
 
     Boolean deleteTask(String tag) throws BusinessException;
 

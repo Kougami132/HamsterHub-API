@@ -112,6 +112,7 @@ public enum CommonErrorCode implements ErrorCode {
 	// 离线下载异常编码 120
 	E_120001(120001,"指定下载器不存在"),
 	E_120002(120002,"指定下载器未就绪"),
+	E_120003(120003,"删除异常"),
 
 	// 其它
 	E_NETWORK_ERROR(999996, "网络错误"),

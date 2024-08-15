@@ -134,6 +134,7 @@ CREATE TABLE IF NOT EXISTS `download_task` (
     `PARENT_INDEX` varchar(255) DEFAULT NULL COMMENT '下载结束后存储的位置',
     `USER_ID` bigint(20) NOT NULL COMMENT '用户id',
     `TAG` varchar(32) NOT NULL COMMENT '下载的标记',
+    `TASK_INDEX` varchar(32) NOT NULL COMMENT '用于获取下载器的任务的索引',
     PRIMARY KEY (`ID`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 

@@ -3,6 +3,7 @@ package com.hamsterhub.controller;
 import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.convert.TaskConvert;
+import com.hamsterhub.response.DownloaderOptionResponse;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.response.TaskResponse;
 import com.hamsterhub.service.BitTorrentService;
@@ -10,6 +11,7 @@ import com.hamsterhub.common.service.RedisService;
 import com.hamsterhub.service.downloader.DownloadService;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.dto.DownloadTaskListDTO;
+import com.hamsterhub.service.dto.DownloaderOptionDTO;
 import com.hamsterhub.service.service.StrategyService;
 import com.hamsterhub.service.service.VFileService;
 import com.hamsterhub.util.SecurityUtil;
@@ -82,5 +84,15 @@ public class TaskController {
 
         downloadService.deleteDownloadTask(downloadId,tag,accountDTO);
         return Response.success().msg("删除成功");
+    }
+
+    @Operation(summary ="获取下载器")
+    @GetMapping(value = "/downloaderList")
+    @Token
+    public Response getDownloaderList() {
+        AccountDTO accountDTO = SecurityUtil.getAccount();
+        List<DownloaderOptionDTO> list = downloadService.getDownloaderOption(accountDTO);
+        List<DownloaderOptionResponse> res  = TaskConvert.INSTANCE.dto2resBatchForOption(list);
+        return Response.success().data(res);
     }
 }

@@ -64,6 +64,15 @@ public class DownloadTaskListServiceImpl implements DownloadTaskListService {
     }
 
     @Override
+    public DownloadTaskListDTO queryByIndex(String index) throws BusinessException {
+        LambdaQueryWrapper<DownloadTaskList> wrapper = new LambdaQueryWrapper<DownloadTaskList>()
+                .eq(DownloadTaskList::getTaskIndex,index);
+
+        DownloadTaskList downloadTaskList = downloadTaskListMapper.selectOne(wrapper);
+        return DownloadTaskListConvert.INSTANCE.entity2dto(downloadTaskList);
+    }
+
+    @Override
     public List<DownloadTaskListDTO> fetchByState(Integer state,Integer originType, Long originId) throws BusinessException {
         LambdaQueryWrapper<DownloadTaskList> wrapper = new LambdaQueryWrapper<DownloadTaskList>()
                 .eq(DownloadTaskList::getState, state)
@@ -85,13 +94,14 @@ public class DownloadTaskListServiceImpl implements DownloadTaskListService {
     }
 
     @Override
-    public List<DownloadTaskListDTO> fetchWait(Integer num) throws BusinessException {
+    public List<DownloadTaskListDTO> fetchWait(Integer num, Integer DownloaderId) throws BusinessException {
 
         if (num == null || num <= 0) {
             return null;
         }
 
         LambdaQueryWrapper<DownloadTaskList> wrapper = new LambdaQueryWrapper<DownloadTaskList>()
+                .eq(DownloadTaskList::getDownloader,DownloaderId)
                 .eq(DownloadTaskList::getState,0) // 仅获取等待状态的任务
                 .last("limit "+num);
 

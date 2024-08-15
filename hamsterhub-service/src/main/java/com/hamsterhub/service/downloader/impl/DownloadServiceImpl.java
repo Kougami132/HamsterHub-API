@@ -11,6 +11,7 @@ import com.hamsterhub.service.downloader.DownloadState;
 import com.hamsterhub.service.downloader.DownloadType;
 import com.hamsterhub.service.downloader.ext.Downloader;
 import com.hamsterhub.service.downloader.ext.DownloaderTask;
+import com.hamsterhub.service.downloader.ext.impl.AriaDownloader;
 import com.hamsterhub.service.downloader.ext.impl.QBittorrentDownloader;
 import com.hamsterhub.service.dto.*;
 import com.hamsterhub.service.service.DownloadTaskListService;
@@ -53,12 +54,14 @@ public class DownloadServiceImpl implements DownloadService {
         downloaders.clear();
 
         Downloader downloader = new QBittorrentDownloader(qBitAddress, qBitUsername, qBitPassword);
+        downloader.setName("QBittorrent");
+        downloaders.put(1, downloader);
 
-        if (downloader.connect()){
-            downloader.setReady(true);
-            downloaders.put(1, downloader);
-        }
+        downloader = new AriaDownloader("http://localhost:6800/jsonrpc","");
+        downloader.setName("Aria2");
+        downloaders.put(2, downloader);
 
+        this.renewDownloader();
     }
 
     @Override
@@ -74,6 +77,28 @@ public class DownloadServiceImpl implements DownloadService {
     @Override
     public Map<Integer, Downloader> getAllDownloaders(){
         return downloaders;
+    }
+
+    @Override
+    public List<DownloaderOptionDTO> getDownloaderOption(AccountDTO user){
+        List<DownloaderOptionDTO> res = new ArrayList<>();
+
+        for (Map.Entry<Integer, Downloader> entry : downloaders.entrySet()) {
+            // 不返回未就绪的下载器
+            if (!entry.getValue().isReady()){
+                continue;
+            }
+
+            DownloaderOptionDTO downloaderOptionDTO = new DownloaderOptionDTO();
+
+            downloaderOptionDTO.setId(entry.getKey());
+            downloaderOptionDTO.setName(entry.getValue().getName());
+            downloaderOptionDTO.setType(entry.getValue().getType());
+
+            res.add(downloaderOptionDTO);
+        }
+
+        return res;
     }
 
     @Override
@@ -129,7 +154,7 @@ public class DownloadServiceImpl implements DownloadService {
                 try {
                     // 将有进度的部分存入
                     Downloader downloader = getDownloader(taskDTO.getDownloader());
-                    downloaderTask = downloader.getTask(taskDTO.getTag());
+                    downloaderTask = downloader.getTask(taskDTO.getTaskIndex());
                 } catch (Exception e) {
                     continue;
                 }
@@ -152,8 +177,30 @@ public class DownloadServiceImpl implements DownloadService {
         // 防止越权
         CommonErrorCode.checkAndThrow(TaskDTO == null, CommonErrorCode.E_100007);
 
-        downloader.deleteTask(tag);
+        Boolean result = downloader.deleteTask(TaskDTO.getTaskIndex());
+
+        // 删除不成功则报错
+        CommonErrorCode.checkAndThrow(!result, CommonErrorCode.E_120003);
+
         downloadTaskListService.delete(tag);
+
+        // 同时删除文件
+        String savePath = "temp/downloads/" + tag;
+        File dir = new File(savePath);
+        if (dir.exists()) deleteDirectory(dir);
+
+    }
+
+    private void deleteDirectory(File dir) {
+        if (dir.isDirectory()) {
+            File[] files = dir.listFiles();
+            if (files != null) {
+                for (File file : files) {
+                    deleteDirectory(file);
+                }
+            }
+        }
+        dir.delete(); // 删除空目录或文件
     }
 
     @Override
@@ -170,8 +217,12 @@ public class DownloadServiceImpl implements DownloadService {
 
     @Override
     public void checkDownloaderTask(){
+
         // 检查下载器内的任务状态
-        for (Downloader downloader : downloaders.values()){
+        for (Map.Entry<Integer,Downloader> entry: downloaders.entrySet()){
+            Integer downloaderId = entry.getKey();
+            Downloader downloader = entry.getValue();
+
             if (!downloader.isReady()){
                 continue;
             }
@@ -182,17 +233,25 @@ public class DownloadServiceImpl implements DownloadService {
                 for (DownloaderTask task : tasks){
                     // 任务异常状态时
                     if (task.getState().equals("error")){
-                        String tags = task.getTags();
+                        String index = task.getTaskIndex();
+
                         // 更改任务列表为异常
-                        DownloadTaskListDTO taskDTO = downloadTaskListService.query(tags);
+                        DownloadTaskListDTO taskDTO = downloadTaskListService.queryByIndex(index);
+
+                        if (taskDTO == null){
+                            // 说明不是程序添加的
+                            continue;
+                        }
+
                         taskDTO.setState(DownloadState.DOWNLOADING.ordinal());
                         downloadTaskListService.update(taskDTO);
 
                         // 在任务异常时删除下载器内的，由用户发起重试
-                        downloader.deleteTask(tags);
+                        downloader.deleteTask(index);
                     }else if (task.isCompleted()){
-                        String tags = task.getTags();
-                        DownloadTaskListDTO taskDTO = downloadTaskListService.query(tags);
+                        String index = task.getTaskIndex();
+//                        String tags = task.getTags();
+                        DownloadTaskListDTO taskDTO = downloadTaskListService.queryByIndex(index);
 
                         if (taskDTO == null){
                             // 说明不是程序添加的
@@ -202,14 +261,20 @@ public class DownloadServiceImpl implements DownloadService {
                         String savePath = "temp/downloads/" + taskDTO.getTag();
                         File dir = new File(savePath);
 
-                        File[] files = dir.listFiles();
-                        for (File i: files)
-                            createFileInfo(i, taskDTO.getRoot(), taskDTO.getParentIndex(), taskDTO.getUserId());
+                        // 只有未完成的任务需要处理
+                        if (!taskDTO.getState().equals(DownloadState.FINISH.ordinal())){
+                            File[] files = dir.listFiles();
+                            for (File i: files)
+                                createFileInfo(i, taskDTO.getRoot(), taskDTO.getParentIndex(), taskDTO.getUserId());
 
-                        taskDTO.setState(DownloadState.FINISH.ordinal());
-                        downloadTaskListService.update(taskDTO);
-                        downloader.deleteTask(tags);
-                        dir.delete();// 删除临时目录
+                            taskDTO.setState(DownloadState.FINISH.ordinal());
+                            downloadTaskListService.update(taskDTO);
+                        }
+
+                        downloader.deleteTask(index);
+
+                        if (dir.exists())
+                            dir.delete();// 删除临时目录
 
                         // 如果是rss发起的任务则需设置rss任务完成
                         if (taskDTO.getOriginType().equals(DownloadOrigin.RSS.ordinal())){
@@ -226,11 +291,18 @@ public class DownloadServiceImpl implements DownloadService {
                 // 如果存在空余位置
                 if(taskCount < downloader.getAvailable()){
                     List<DownloadTaskListDTO> taskDTOs =
-                            downloadTaskListService.fetchWait(downloader.getAvailable() - taskCount);
+                            downloadTaskListService.fetchWait(downloader.getAvailable() - taskCount,downloaderId);
 
                     for (DownloadTaskListDTO taskDTO : taskDTOs){
-                        downloader.addTask(taskDTO.getTag(),taskDTO.getUrl());
-                        taskDTO.setState(DownloadState.DOWNLOADING.ordinal());
+                        String taskIndex = downloader.addTask(taskDTO.getTag(), taskDTO.getUrl());
+                        if (StringUtil.isBlank(taskIndex)){
+                            // 无法获得索引说明异常
+                            taskDTO.setTaskIndex(taskIndex);
+                            taskDTO.setState(DownloadState.ERROR.ordinal());
+                        }else{
+                            taskDTO.setTaskIndex(taskIndex);
+                            taskDTO.setState(DownloadState.DOWNLOADING.ordinal());
+                        }
                         downloadTaskListService.update(taskDTO);
                     }
 
@@ -242,28 +314,6 @@ public class DownloadServiceImpl implements DownloadService {
             }
         }
     }
-
-//    private void createFileInfo(File file, Long strategyId, Long parentId, Long accountId) {
-//        if (file.isDirectory()) {
-//            VFileDTO dir = VFileDTO.newDir(file.getName(), strategyId, parentId, accountId);
-//            dir = vFileService.createDir(dir);
-//
-//            File[] files = file.listFiles();
-//            for (File i: files)
-//                createFileInfo(i, strategyId, Long.parseLong(dir.getId()), accountId);
-//        }
-//        else if (file.isFile()) {
-//            StrategyDTO strategyDTO = strategyService.query(strategyId);
-//            String hash = MD5Util.getMd5(file);
-//            RFileDTO rFileDTO;
-//            if (rFileService.isExist(hash, strategyId))
-//                rFileDTO = rFileService.query(hash, strategyId);
-//            else
-//                rFileDTO = fileService.upload(file, strategyDTO);
-//            VFileDTO f = VFileDTO.newFile(file.getName(), strategyId, parentId, rFileDTO, accountId);
-//            vFileService.create(f);
-//        }
-//    }
 
     private void createFileInfo(File file, String root, String parent, Long userId) {
         ListFiler listFiler = fileStorageService.getListFiler(root);

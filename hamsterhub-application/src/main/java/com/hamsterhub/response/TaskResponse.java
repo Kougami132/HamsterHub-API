@@ -15,4 +15,5 @@ public class TaskResponse {
     private String name;
     private Long completed;
     private Long total;
+    private Integer downloader;
 }

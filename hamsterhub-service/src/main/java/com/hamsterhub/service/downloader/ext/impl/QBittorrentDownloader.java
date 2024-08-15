@@ -19,6 +19,9 @@ import java.util.List;
 
 @Slf4j
 public class QBittorrentDownloader implements Downloader {
+    private String name;
+    private Integer type = 1;
+
     private String address;
     private String username;
     private String password;
@@ -54,6 +57,21 @@ public class QBittorrentDownloader implements Downloader {
     @Override
     public Integer getAvailable() {
         return available;
+    }
+
+    @Override
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public Integer getType() {
+        return type;
     }
 
     @Override
@@ -99,7 +117,7 @@ public class QBittorrentDownloader implements Downloader {
     }
 
     @Override
-    public Boolean addTask(String tag, String magnet) throws BusinessException {
+    public String addTask(String tag, String magnet) throws BusinessException {
         String url = this.address + "/api/v2/torrents/add";
 
         // header
@@ -118,16 +136,19 @@ public class QBittorrentDownloader implements Downloader {
         try {
             ResponseEntity<String> response = restTemplate.postForEntity(url, entity, String.class);
             if (!response.getStatusCode().is2xxSuccessful())
-                return false;
-            return response.getBody().equals("Ok.");
+                return "";
+            if (response.getBody().equals("Ok."))
+                return tag;
         }
         catch (Exception e) {
             e.printStackTrace();
-            return false;
+            return "";
         }
+
+        return "";
     }
 
-    public Boolean addTask(String tag, File file) throws BusinessException {
+    public String addTask(String tag, File file) throws BusinessException {
         String url = this.address + "/api/v2/torrents/add";
 
         // 创建请求体
@@ -150,7 +171,12 @@ public class QBittorrentDownloader implements Downloader {
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) throw new IOException("Unexpected code " + response);
             String responseBody = response.body().string();
-            return "Ok.".equals(responseBody.trim());
+
+            if ("Ok.".equals(responseBody.trim()))
+                return tag;
+            else
+                return "";
+
         } catch (Exception e) {
             e.printStackTrace();
             throw new BusinessException("Failed to add torrent task", e);

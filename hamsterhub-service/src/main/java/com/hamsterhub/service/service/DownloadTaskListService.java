@@ -18,11 +18,13 @@ public interface DownloadTaskListService {
 
     DownloadTaskListDTO query(String tag) throws BusinessException;
 
+    DownloadTaskListDTO queryByIndex(String index) throws BusinessException;
+
     List<DownloadTaskListDTO> fetchByState(Integer state, Integer originType, Long originId) throws BusinessException;
 
     List<DownloadTaskListDTO> fetchByUser(Long userId) throws BusinessException;
 
-    List<DownloadTaskListDTO> fetchWait(Integer num) throws BusinessException;
+    List<DownloadTaskListDTO> fetchWait(Integer num, Integer DownloaderId) throws BusinessException;
 
     void delete(String tag) throws BusinessException;
 }

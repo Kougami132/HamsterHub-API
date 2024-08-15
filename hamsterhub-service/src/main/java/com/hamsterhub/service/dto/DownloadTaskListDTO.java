@@ -55,6 +55,9 @@ public class DownloadTaskListDTO {
     @Schema(description = "总进度")
     private String tag;
 
+    @Schema(description = "对应任务在下载器中的索引")
+    private String taskIndex;
+
     @Schema(description = "完成的进度")
     private Long completed;
 
@@ -78,6 +81,7 @@ public class DownloadTaskListDTO {
         dto.setUserId (userId);
         dto.setTag (tag);
         dto.setName (name);
+        dto.setTaskIndex("");
         return dto;
     }
 
@@ -95,7 +99,7 @@ public class DownloadTaskListDTO {
         dto.setState(DownloadState.WAIT.ordinal());
         dto.setUserId (rssTaskDTO.getUserId());
         dto.setTag(StringUtil.generateRandomString(16));
-
+        dto.setTaskIndex("");
         return dto;
     }
 
