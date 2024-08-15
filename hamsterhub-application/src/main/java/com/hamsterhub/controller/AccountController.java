@@ -112,12 +112,11 @@ public class AccountController {
         accountDTO.setPassModified(LocalDateTime.now());
         accountService.update(accountDTO);
 
-        // 更换token
-        String oldToken = request.getHeader("Authorization").replace("Bearer ", "");
-        long expiryDay = Duration.between(JwtUtil.getExpiryTime(oldToken), LocalDateTime.now()).toDays() + 1;
-        String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), (int)expiryDay);
-
-        return Response.success().msg("密码修改成功").data(token);
+//        // 更换token
+//        String oldToken = request.getHeader("Authorization").replace("Bearer ", "");
+//        long expiryDay = Duration.between(LocalDateTime.now(), JwtUtil.getExpiryTime(oldToken)).toDays() + 1;
+//        String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), (int)expiryDay);
+        return Response.success().msg("密码修改成功");
     }
 
     @Operation(summary ="注销(token)")
