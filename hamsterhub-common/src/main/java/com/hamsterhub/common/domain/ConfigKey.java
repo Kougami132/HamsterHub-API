@@ -8,6 +8,7 @@ public class ConfigKey  {
 	public final static String CAN_REGISTER = "user.register";
 	public final static String JWT_SECRET_KEY = "jwt.secretKey";
 	public final static String PROXY_DANMA_BILI = "proxy.bilibili.danma";
+	public final static String BOT_GOCQ_URL = "bot.gocq.url";
 
 	public static boolean isTrue(String value){
 		return "true".equalsIgnoreCase(value);
