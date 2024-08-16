@@ -46,4 +46,7 @@ public class RSSList implements Serializable {
     @TableField("DOWNLOADER")
     private Integer downloader;
 
+    @TableField("FILTER")
+    private String filter;
+
 }

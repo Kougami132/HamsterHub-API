@@ -29,6 +29,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j
@@ -66,8 +68,7 @@ public class RSSCheckService {
             AccountDTO accountDTO = accountService.query(rssListDTO.getUserId());
 
             try {
-                List<RSSTaskDTO> rssTaskDTOS = parseRSSXml(rssContent, rssListDTO.getId(),rssListDTO.getUserId(),
-                        rssListDTO.getReplaceHost(),rssListDTO.getMirrorHost());
+                List<RSSTaskDTO> rssTaskDTOS = parseRSSXml(rssContent, rssListDTO);
 
                 rssService.createRSSTasks(rssTaskDTOS);
                 // 创建对应下载任务
@@ -115,8 +116,7 @@ public class RSSCheckService {
     }
 
 
-    private List<RSSTaskDTO> parseRSSXml(String xml, Long rssListId, Long userId, String replaceHost, String mirrorHost)
-            throws Exception {
+    private List<RSSTaskDTO> parseRSSXml(String xml, RSSListDTO rssListDTO) throws Exception {
 
         List<RSSTaskDTO> rssListDTOS = new ArrayList<>();
 
@@ -127,18 +127,27 @@ public class RSSCheckService {
         doc.getDocumentElement().normalize();
         NodeList itemList = doc.getElementsByTagName("item");
 
+        // 初始化表达式
+        Pattern pattern = null;
+        if (StringUtil.isNotBlank(rssListDTO.getFilter())){
+            pattern = Pattern.compile(rssListDTO.getFilter());
+        }
 
         for (int i = 0; i < itemList.getLength(); i++) {
             RSSTaskDTO temp = new RSSTaskDTO();
-
-            temp.setUserId(userId);
-            temp.setRssListId(rssListId);
-            temp.setState(0);
-
             Element item = (Element) itemList.item(i);
-
             Element e = getElementByTagName("title",item);
-            temp.setTitle(e.getTextContent());
+            String title = e.getTextContent();
+            if (pattern !=null){
+                Matcher matcher = pattern.matcher(title);
+                // 不符合过滤条件则跳过
+                if (!matcher.matches()) continue;
+            }
+            temp.setTitle(title);
+
+            temp.setUserId(rssListDTO.getUserId());
+            temp.setRssListId(rssListDTO.getId());
+            temp.setState(0);
 
             e = getElementByTagName("torrent",item);
             e = getElementByTagName("pubDate",e);
@@ -149,12 +158,12 @@ public class RSSCheckService {
             String url = e.getAttribute("url");
             // 替换域名，用于处理镜像站的场景
             if (StringUtil.isNotEmpty(url)) {
-                if (StringUtil.isNotEmpty(replaceHost)) {
-                    url = StringUtil.replaceDomain(url, replaceHost);
+                if (StringUtil.isNotEmpty(rssListDTO.getReplaceHost())) {
+                    url = StringUtil.replaceDomain(url, rssListDTO.getReplaceHost());
                 }
 
-                if (StringUtil.isNotEmpty(mirrorHost)) {
-                    url = mirrorHost + url;
+                if (StringUtil.isNotEmpty(rssListDTO.getMirrorHost())) {
+                    url = rssListDTO.getMirrorHost() + url;
                 }
             }
 

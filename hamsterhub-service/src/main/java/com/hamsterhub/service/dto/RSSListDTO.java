@@ -1,5 +1,6 @@
 package com.hamsterhub.service.dto;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -43,8 +44,11 @@ public class RSSListDTO {
     @Schema(description = "指定的下载器")
     private Integer downloader;
 
+    @Schema(description = "过滤器")
+    private String filter;
+
     public static RSSListDTO createRSSListDTO(String url, Long userId, String root, String parentIndex, String name,
-                                              String replaceHost,String mirrorHost, Integer downloader){
+                                              String replaceHost,String mirrorHost, Integer downloader, String filter){
         RSSListDTO dto = new RSSListDTO();
         dto.setUrl (url);
         dto.setUserId (userId);
@@ -56,6 +60,7 @@ public class RSSListDTO {
         dto.setLastHash(null);
         dto.setMirrorHost(mirrorHost);
         dto.setDownloader(downloader);
+        dto.setFilter(filter);
         return dto;
     }
 }

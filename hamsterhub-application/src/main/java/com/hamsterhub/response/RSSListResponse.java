@@ -21,4 +21,5 @@ public class RSSListResponse {
     private String replaceHost;
     private String mirrorHost;
     private Integer downloader;
+    private String filter;
 }

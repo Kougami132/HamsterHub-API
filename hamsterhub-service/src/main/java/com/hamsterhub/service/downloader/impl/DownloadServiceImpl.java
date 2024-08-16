@@ -179,9 +179,6 @@ public class DownloadServiceImpl implements DownloadService {
 
         Boolean result = downloader.deleteTask(TaskDTO.getTaskIndex());
 
-        // 删除不成功则报错
-        CommonErrorCode.checkAndThrow(!result, CommonErrorCode.E_120003);
-
         downloadTaskListService.delete(tag);
 
         // 同时删除文件
@@ -233,10 +230,10 @@ public class DownloadServiceImpl implements DownloadService {
                 for (DownloaderTask task : tasks){
                     // 任务异常状态时
                     if (task.getState().equals("error")){
-                        String index = task.getTaskIndex();
+                        String tag = task.getTags();
 
                         // 更改任务列表为异常
-                        DownloadTaskListDTO taskDTO = downloadTaskListService.queryByIndex(index);
+                        DownloadTaskListDTO taskDTO = downloadTaskListService.query(tag);
 
                         if (taskDTO == null){
                             // 说明不是程序添加的
@@ -247,11 +244,10 @@ public class DownloadServiceImpl implements DownloadService {
                         downloadTaskListService.update(taskDTO);
 
                         // 在任务异常时删除下载器内的，由用户发起重试
-                        downloader.deleteTask(index);
+                        downloader.deleteTask(taskDTO.getTaskIndex());
                     }else if (task.isCompleted()){
-                        String index = task.getTaskIndex();
-//                        String tags = task.getTags();
-                        DownloadTaskListDTO taskDTO = downloadTaskListService.queryByIndex(index);
+                        String tag = task.getTags();
+                        DownloadTaskListDTO taskDTO = downloadTaskListService.query(tag);
 
                         if (taskDTO == null){
                             // 说明不是程序添加的
@@ -264,14 +260,19 @@ public class DownloadServiceImpl implements DownloadService {
                         // 只有未完成的任务需要处理
                         if (!taskDTO.getState().equals(DownloadState.FINISH.ordinal())){
                             File[] files = dir.listFiles();
-                            for (File i: files)
-                                createFileInfo(i, taskDTO.getRoot(), taskDTO.getParentIndex(), taskDTO.getUserId(),downloader);
+
+                            if (files != null) {
+                                for (File i: files)
+                                    createFileInfo(i, taskDTO.getRoot(), taskDTO.getParentIndex(),
+                                            taskDTO.getUserId(),downloader);
+
+                            }
 
                             taskDTO.setState(DownloadState.FINISH.ordinal());
                             downloadTaskListService.update(taskDTO);
                         }
 
-                        downloader.deleteTask(index);
+                        downloader.deleteTask(taskDTO.getTaskIndex());
 
                         if (dir.exists())
                             dir.delete();// 删除临时目录

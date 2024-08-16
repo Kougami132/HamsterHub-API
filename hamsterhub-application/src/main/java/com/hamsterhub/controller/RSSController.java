@@ -1,6 +1,7 @@
 package com.hamsterhub.controller;
 
 import com.hamsterhub.annotation.Token;
+import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.convert.RSSConvert;
 import com.hamsterhub.convert.TaskConvert;
@@ -38,29 +39,23 @@ public class RSSController {
     @Operation(summary ="添加RSS列表")
     @PostMapping(value = "/rss/add")
     @Token
-    public Response addRSS(@RequestParam("root") String root,
-                            @RequestParam("parent") String parent,
-                            @RequestParam("url") String url,
-                            @RequestParam(value = "name", required = false) String name,
-                            @RequestParam(value = "downloadId", required = false) Integer downloadId,
-                           @RequestParam(value = "replaceHost", required = false) String replaceHost,
-                           @RequestParam(value = "mirrorHost", required = false) String mirrorHost
-
-    ) {
+    public Response addRSS(@RequestBody RSSListVO rssList) {
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        if (downloadId == null) {
-            downloadId = 1;
-        }
+        CommonErrorCode.checkAndThrow(rssList.getDownloader() == null,CommonErrorCode.E_100010);
+        CommonErrorCode.checkAndThrow( StringUtil.isBlank(rssList.getUrl()),CommonErrorCode.E_100010);
+        CommonErrorCode.checkAndThrow( StringUtil.isBlank(rssList.getRoot()),CommonErrorCode.E_100010);
+        CommonErrorCode.checkAndThrow( StringUtil.isBlank(rssList.getParentIndex()),CommonErrorCode.E_100010);
 
-        if (StringUtil.isBlank(name)){
+        if (StringUtil.isBlank(rssList.getName())){
             Date date = new Date();
             SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            name = formatter.format(date) + " RSS";
+            rssList.setName(formatter.format(date) + " RSS");
         }
 
-        RSSListDTO rssListDTO = RSSListDTO.createRSSListDTO(url, accountDTO.getId(), root,
-                parent, name, replaceHost,mirrorHost, downloadId);
+        RSSListDTO rssListDTO = RSSConvert.INSTANCE.vo2dto(rssList);
 
+        rssListDTO.setUserId(accountDTO.getId());
+        rssListDTO.setState(1);
         rssService.createRSSList(rssListDTO);
         return Response.success().msg("创建成功");
     }

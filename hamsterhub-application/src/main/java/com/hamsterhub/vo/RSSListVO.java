@@ -23,11 +23,14 @@ public class RSSListVO {
     String name;
 
     @Schema(description = "绑定的下载器")
-    Integer downloadId;
+    Integer downloader;
 
     @Schema(description = "用于替换种子下载地址的域名")
     String replaceHost;
 
     @Schema(description = "镜像代理的网址,作用于replaceHost之后，效果为mirrorHost + url")
     String mirrorHost;
+
+    @Schema(description = "过滤器")
+    String filter;
 }
