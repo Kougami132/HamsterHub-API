@@ -10,14 +10,8 @@ import com.hamsterhub.service.downloader.ext.Downloader;
 import com.hamsterhub.service.downloader.ext.DownloaderTask;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
-import org.springframework.http.*;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
@@ -348,6 +342,17 @@ public class AriaDownloader implements Downloader {
         DownloaderTask downloaderTask = createDownloaderTask(status);
         downloaderTask.setTaskIndex(gid);
         return downloaderTask;
+    }
+
+    @Override
+    public boolean filter(String fileName){
+        if (StringUtil.isBlank(fileName)){
+            return false;
+        }else if (fileName.endsWith(".aria2") || "get".equals(fileName)){ // 过滤aria2产生的文件
+            return false;
+        }
+
+        return true;
     }
 
 }

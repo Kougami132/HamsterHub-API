@@ -265,7 +265,7 @@ public class DownloadServiceImpl implements DownloadService {
                         if (!taskDTO.getState().equals(DownloadState.FINISH.ordinal())){
                             File[] files = dir.listFiles();
                             for (File i: files)
-                                createFileInfo(i, taskDTO.getRoot(), taskDTO.getParentIndex(), taskDTO.getUserId());
+                                createFileInfo(i, taskDTO.getRoot(), taskDTO.getParentIndex(), taskDTO.getUserId(),downloader);
 
                             taskDTO.setState(DownloadState.FINISH.ordinal());
                             downloadTaskListService.update(taskDTO);
@@ -315,18 +315,21 @@ public class DownloadServiceImpl implements DownloadService {
         }
     }
 
-    private void createFileInfo(File file, String root, String parent, Long userId) {
+    private void createFileInfo(File file, String root, String parent, Long userId, Downloader downloader) {
         ListFiler listFiler = fileStorageService.getListFiler(root);
         if (file.isDirectory()){
             VFileDTO dir = listFiler.makeDirectory(parent, file.getName(), userId);
 
             File[] files = file.listFiles();
             for (File i: files)
-                createFileInfo(i, root, parent, userId);
+                createFileInfo(i, root, parent, userId, downloader);
         }
         else if (file.isFile()){
-            String hash = MD5Util.getMd5(file);
-            listFiler.upload(parent,file,file.getName(),file.length(),userId,hash);
+            // 过滤一部分无用文件
+            if (downloader.filter(file.getName())){
+                String hash = MD5Util.getMd5(file);
+                listFiler.upload(parent,file,file.getName(),file.length(),userId,hash);
+            }
         }
     }
 

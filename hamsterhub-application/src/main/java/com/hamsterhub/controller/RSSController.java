@@ -59,7 +59,7 @@ public class RSSController {
         }
 
         RSSListDTO rssListDTO = RSSListDTO.createRSSListDTO(url, accountDTO.getId(), root,
-                parent, name, replaceHost,mirrorHost);
+                parent, name, replaceHost,mirrorHost, downloadId);
 
         rssService.createRSSList(rssListDTO);
         return Response.success().msg("创建成功");

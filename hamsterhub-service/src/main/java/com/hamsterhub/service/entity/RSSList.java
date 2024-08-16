@@ -43,4 +43,7 @@ public class RSSList implements Serializable {
     @TableField("MIRROR_HOST")
     private String mirrorHost;
 
+    @TableField("DOWNLOADER")
+    private Integer downloader;
+
 }

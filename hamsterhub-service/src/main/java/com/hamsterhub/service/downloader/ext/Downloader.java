@@ -27,4 +27,6 @@ public interface Downloader {
     Boolean deleteTask(String tag) throws BusinessException;
 
     DownloaderTask getTask(String tag) throws BusinessException;
+
+    boolean filter(String fileName);
 }

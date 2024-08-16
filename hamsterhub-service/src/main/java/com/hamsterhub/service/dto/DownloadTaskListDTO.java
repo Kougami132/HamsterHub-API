@@ -95,7 +95,7 @@ public class DownloadTaskListDTO {
         dto.setOriginId (rssTaskDTO.getId());
         dto.setType(DownloadType.TORRENT_URL.ordinal());
         dto.setUrl (rssTaskDTO.getUrl());
-        dto.setDownloader(1);
+        dto.setDownloader(rssListDTO.getDownloader());
         dto.setState(DownloadState.WAIT.ordinal());
         dto.setUserId (rssTaskDTO.getUserId());
         dto.setTag(StringUtil.generateRandomString(16));

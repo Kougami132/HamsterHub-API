@@ -224,4 +224,9 @@ public class QBittorrentDownloader implements Downloader {
         return null;
     }
 
+    @Override
+    public boolean filter(String fileName) {
+        return true;
+    }
+
 }

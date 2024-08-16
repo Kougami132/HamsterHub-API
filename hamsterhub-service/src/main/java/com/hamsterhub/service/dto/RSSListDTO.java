@@ -40,8 +40,11 @@ public class RSSListDTO {
     @Schema(description = "镜像代理的网址,作用于replaceHost之后，效果为mirrorHost + url")
     private String mirrorHost;
 
-    public static RSSListDTO createRSSListDTO(String url, Long userId, String root, String parentIndex,
-                                              String name, String replaceHost,String mirrorHost){
+    @Schema(description = "指定的下载器")
+    private Integer downloader;
+
+    public static RSSListDTO createRSSListDTO(String url, Long userId, String root, String parentIndex, String name,
+                                              String replaceHost,String mirrorHost, Integer downloader){
         RSSListDTO dto = new RSSListDTO();
         dto.setUrl (url);
         dto.setUserId (userId);
@@ -52,6 +55,7 @@ public class RSSListDTO {
         dto.setState (1); // 默认启用
         dto.setLastHash(null);
         dto.setMirrorHost(mirrorHost);
+        dto.setDownloader(downloader);
         return dto;
     }
 }
