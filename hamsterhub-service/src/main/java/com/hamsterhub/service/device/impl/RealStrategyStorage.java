@@ -6,10 +6,7 @@ import com.hamsterhub.common.util.GetBeanUtil;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.service.device.ListFiler;
 import com.hamsterhub.service.device.ListStorage;
-import com.hamsterhub.service.device.Storage;
-import com.hamsterhub.service.device.ext.AliDrive;
 import com.hamsterhub.service.device.ext.LocalDisk;
-import com.hamsterhub.service.device.ext.OneDrive;
 import com.hamsterhub.service.dto.DeviceDTO;
 import com.hamsterhub.service.dto.VFileDTO;
 import com.hamsterhub.service.entity.Strategy;
@@ -22,7 +19,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class RealyStrategyStorage implements ListFiler {
+public class RealStrategyStorage implements ListFiler {
     public static final Integer fileSystemType = 1;
 
     private DeviceService deviceService;
@@ -57,7 +54,7 @@ public class RealyStrategyStorage implements ListFiler {
 
 
 
-    public RealyStrategyStorage(Strategy strategy){
+    public RealStrategyStorage(Strategy strategy){
         this.id = strategy.getId();
         this.name = strategy.getName();
         this.type = strategy.getType();

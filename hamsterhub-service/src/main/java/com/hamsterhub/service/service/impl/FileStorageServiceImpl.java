@@ -5,7 +5,7 @@ import com.hamsterhub.common.util.GetBeanUtil;
 import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.service.device.ListFiler;
-import com.hamsterhub.service.device.impl.RealyStrategyStorage;
+import com.hamsterhub.service.device.impl.RealStrategyStorage;
 import com.hamsterhub.service.device.impl.VirtualStrategyStorage;
 import com.hamsterhub.service.dto.AccountDTO;
 import com.hamsterhub.service.dto.VFileDTO;
@@ -55,7 +55,7 @@ public class FileStorageServiceImpl implements FileStorageService {
             if(fileSystemType == VIRTUAL_FILE_SYSTEM){
                 filer = new VirtualStrategyStorage(temp);
             }else if (fileSystemType == REALY_FILE_SYSTEM){
-                filer = new RealyStrategyStorage(temp);
+                filer = new RealStrategyStorage(temp);
             }
 
             if(filer != null){

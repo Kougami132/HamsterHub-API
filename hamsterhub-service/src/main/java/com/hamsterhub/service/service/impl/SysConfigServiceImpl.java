@@ -35,6 +35,8 @@ public class SysConfigServiceImpl implements SysConfigService {
             sysConfigMapper.insert(new SysConfig(ConfigKey.PROXY_DANMA_BILI, "true", 0, "bool", false));
         if (!this.isExist(ConfigKey.JWT_SECRET_KEY))
             sysConfigMapper.insert(new SysConfig(ConfigKey.JWT_SECRET_KEY, UUID.randomUUID().toString(), 0, "str", true));
+        if (!this.isExist(ConfigKey.BOT_GOCQ_URL))
+            sysConfigMapper.insert(new SysConfig(ConfigKey.BOT_GOCQ_URL, "https://bot.kougami.cn", 0, "str", true));
     }
 
 
