@@ -107,6 +107,7 @@ CREATE TABLE IF NOT EXISTS `rss_list` (
     `REPLACE_HOST` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '用于替换的域名，不为空时将替换种子的域名',
     `MIRROR_HOST` varchar(255) DEFAULT NULL COMMENT '使用镜像站代理种子下载',
     `DOWNLOADER` int(4) NOT NULL DEFAULT '1' COMMENT '指定下载器',
+    `FILTER` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '使用正则，当不为空时，匹配这条规则才会被加入任务列表',
     PRIMARY KEY (`ID`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
