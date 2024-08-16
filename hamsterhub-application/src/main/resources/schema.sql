@@ -106,6 +106,7 @@ CREATE TABLE IF NOT EXISTS `rss_list` (
     `LAST_HASH` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '最后一次获取的文本hash',
     `REPLACE_HOST` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '用于替换的域名，不为空时将替换种子的域名',
     `MIRROR_HOST` varchar(255) DEFAULT NULL COMMENT '使用镜像站代理种子下载',
+    `DOWNLOADER` int(4) NOT NULL DEFAULT '1' COMMENT '指定下载器',
     PRIMARY KEY (`ID`)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 ROW_FORMAT=DYNAMIC;
 
