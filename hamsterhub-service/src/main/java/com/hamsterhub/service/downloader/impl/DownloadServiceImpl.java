@@ -230,13 +230,13 @@ public class DownloadServiceImpl implements DownloadService {
                 for (DownloaderTask task : tasks){
                     // 任务异常状态时
                     if (task.getState().equals("error")){
-                        String tag = task.getTags();
+                        String index = task.getTaskIndex();
 
                         // 更改任务列表为异常
-                        DownloadTaskListDTO taskDTO = downloadTaskListService.query(tag);
+                        DownloadTaskListDTO taskDTO = downloadTaskListService.queryByIndex(index);
 
                         if (taskDTO == null){
-                            // 说明不是程序添加的
+                            // 说明不是程序添加的，同样也删除
                             continue;
                         }
 
@@ -246,8 +246,8 @@ public class DownloadServiceImpl implements DownloadService {
                         // 在任务异常时删除下载器内的，由用户发起重试
                         downloader.deleteTask(taskDTO.getTaskIndex());
                     }else if (task.isCompleted()){
-                        String tag = task.getTags();
-                        DownloadTaskListDTO taskDTO = downloadTaskListService.query(tag);
+                        String index = task.getTaskIndex();
+                        DownloadTaskListDTO taskDTO = downloadTaskListService.queryByIndex(index);
 
                         if (taskDTO == null){
                             // 说明不是程序添加的
@@ -275,7 +275,7 @@ public class DownloadServiceImpl implements DownloadService {
                         downloader.deleteTask(taskDTO.getTaskIndex());
 
                         if (dir.exists())
-                            dir.delete();// 删除临时目录
+                            deleteDirectory(dir);// 删除本地文件
 
                         // 如果是rss发起的任务则需设置rss任务完成
                         if (taskDTO.getOriginType().equals(DownloadOrigin.RSS.ordinal())){

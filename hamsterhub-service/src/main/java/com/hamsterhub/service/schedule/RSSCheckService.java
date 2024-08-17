@@ -163,7 +163,7 @@ public class RSSCheckService {
                 }
 
                 if (StringUtil.isNotEmpty(rssListDTO.getMirrorHost())) {
-                    url = rssListDTO.getMirrorHost() + url;
+                    url = rssListDTO.getMirrorHost() + StringUtil.encodeUrl(url);
                 }
             }
 

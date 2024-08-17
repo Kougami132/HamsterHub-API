@@ -113,7 +113,10 @@ public class QBittorrentDownloader implements Downloader {
         ParameterizedTypeReference<List<DownloaderTask>> typeRef = new ParameterizedTypeReference<List<DownloaderTask>>() {};
         HttpEntity<String> entity = new HttpEntity<>(null, headers);
         ResponseEntity<List<DownloaderTask>> response = restTemplate.exchange(url, HttpMethod.POST, entity, typeRef);
-        return response.getBody();
+        List<DownloaderTask> res = response.getBody();
+        for (DownloaderTask task : res)
+            task.setTaskIndex(task.getTags());
+        return res;
     }
 
     @Override

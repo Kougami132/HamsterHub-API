@@ -66,7 +66,7 @@ public class DownloadTaskListServiceImpl implements DownloadTaskListService {
     @Override
     public DownloadTaskListDTO queryByIndex(String index) throws BusinessException {
         LambdaQueryWrapper<DownloadTaskList> wrapper = new LambdaQueryWrapper<DownloadTaskList>()
-                .eq(DownloadTaskList::getTaskIndex,index);
+                .eq(DownloadTaskList::getTaskIndex,index).last("limit 1");
 
         DownloadTaskList downloadTaskList = downloadTaskListMapper.selectOne(wrapper);
         return DownloadTaskListConvert.INSTANCE.entity2dto(downloadTaskList);
