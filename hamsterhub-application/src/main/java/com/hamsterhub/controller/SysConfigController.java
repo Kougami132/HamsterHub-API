@@ -6,7 +6,9 @@ import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.config.SystemConfig;
+import com.hamsterhub.convert.SysConfigConvert;
 import com.hamsterhub.response.Response;
+import com.hamsterhub.response.SysConfigResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,19 @@ public class SysConfigController {
 
         this.cache = false;
         return Response.success().msg("设置成功");
+    }
+
+    @Operation(summary ="获取系统变量(admin)，可获取hide为true的设置")
+    @GetMapping(value = "/getSysConfig")
+    @Token("0")
+    public Response getSysConfig(@RequestParam("key") String key) {
+
+        if (StringUtil.isBlank(key)) {
+            throw new BusinessException(CommonErrorCode.E_800001);
+        }
+
+        SysConfigResponse sysConfigResponse = SysConfigConvert.INSTANCE.dto2res(systemConfig.getForSetting(key));
+        return Response.success().data(sysConfigResponse);
     }
 
     @Operation(summary ="获取系统变量")

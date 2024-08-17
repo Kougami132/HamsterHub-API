@@ -67,6 +67,10 @@ public class SystemConfig {
         return configs.get(key).getValue();
     }
 
+    public SysConfigDTO getForSetting(String key){
+        return configs.get(key);
+    }
+
     public void set(String key, String value){
         sysConfigService.set(new SysConfigDTO(key,value));
 
