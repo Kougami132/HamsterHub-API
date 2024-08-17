@@ -18,7 +18,6 @@ public class DataCleanupService {
     @Transactional
     @Scheduled(cron = "0 0 4 * * ?") // 每天早上4点执行,清理过期临时直链
     public void deleteByExpiry() {
-//        System.out.println("定时任务");
         log.info("定时任务");
         fileLinkService.deleteByExpiry();
     }

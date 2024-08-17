@@ -301,38 +301,26 @@ public class FileController {
             String rangeString = request.getHeader(HttpHeaders.RANGE);
 
             long fileLength = targetFile.length();
-            long requestSize = (int) fileLength;
+            long requestSize = fileLength;
             // 分段下载视频
             if (StringUtils.hasText(rangeString)) {
                 // 从Range中提取需要获取数据的开始和结束位置
-                long requestStart = 0, requestEnd = 0;
-                String[] ranges = rangeString.split("=");
-                if (ranges.length > 1) {
-                    String[] rangeDatas = ranges[1].split("-");
-                    requestStart = Integer.parseInt(rangeDatas[0]);
-                    if (rangeDatas.length > 1)
-                        requestEnd = Integer.parseInt(rangeDatas[1]);
+                long requestStart = 0, requestEnd = fileLength - 1;
+                String[] ranges = rangeString.substring("bytes=".length()).split("-");
+                requestStart = Long.parseLong(ranges[0]);
+                if (ranges.length > 1 && !ranges[1].isEmpty()) {
+                    requestEnd = Long.parseLong(ranges[1]);
                 }
-                if (requestEnd != 0 && requestEnd > requestStart)
-                    requestSize = requestEnd - requestStart + 1;
+
                 // 根据协议设置请求头
                 response.setHeader(HttpHeaders.ACCEPT_RANGES, "bytes");
                 response.setHeader(HttpHeaders.CONTENT_TYPE, "video/mp4");
-                if (!StringUtils.hasText(rangeString))
-                    response.setHeader(HttpHeaders.CONTENT_LENGTH, fileLength + "");
-                else {
-                    long length;
-                    if (requestEnd > 0) {
-                        length = requestEnd - requestStart + 1;
-                        response.setHeader(HttpHeaders.CONTENT_LENGTH, "" + length);
-                        response.setHeader(HttpHeaders.CONTENT_RANGE, "bytes " + requestStart + "-" + requestEnd + "/" + fileLength);
-                    }
-                    else {
-                        length = fileLength - requestStart;
-                        response.setHeader(HttpHeaders.CONTENT_LENGTH, "" + length);
-                        response.setHeader(HttpHeaders.CONTENT_RANGE, "bytes " + requestStart + "-" + (fileLength - 1) + "/" + fileLength);
-                    }
-                }
+
+                long length = requestEnd - requestStart + 1;
+                response.setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(length));
+                response.setHeader(HttpHeaders.CONTENT_RANGE, "bytes " + requestStart +
+                        "-" + requestEnd + "/" + fileLength);
+
                 // 断点传输下载视频返回206
                 response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
                 //设置targetFile，从自定义位置开始读取数据
