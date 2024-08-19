@@ -1,7 +1,7 @@
 package com.hamsterhub.convert;
 
 import com.hamsterhub.response.StrategyResponse;
-import com.hamsterhub.service.dto.StrategyDTO;
+import com.hamsterhub.database.dto.StrategyDTO;
 import com.hamsterhub.vo.StrategyVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

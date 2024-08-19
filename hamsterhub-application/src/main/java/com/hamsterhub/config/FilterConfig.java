@@ -1,6 +1,6 @@
 package com.hamsterhub.config;
 
-import com.hamsterhub.service.service.AccountService;
+import com.hamsterhub.database.service.AccountService;
 import com.hamsterhub.webdav.WebDavAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;

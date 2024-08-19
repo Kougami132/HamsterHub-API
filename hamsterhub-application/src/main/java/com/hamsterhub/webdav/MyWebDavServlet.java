@@ -3,15 +3,13 @@ package com.hamsterhub.webdav;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.StringUtil;
-import com.hamsterhub.service.FileService;
-import com.hamsterhub.service.dto.*;
+import com.hamsterhub.database.dto.AccountDTO;
 import com.hamsterhub.service.service.*;
 import com.hamsterhub.webdav.resource.FilePathData;
 import com.hamsterhub.webdav.resource.WebFileResource;
 import org.apache.catalina.servlets.WebdavServlet;
 import org.apache.tomcat.util.buf.UDecoder;
 import org.apache.tomcat.util.http.RequestUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -26,7 +24,6 @@ import javax.xml.parsers.DocumentBuilder;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
-import java.util.regex.Pattern;
 
 public class MyWebDavServlet extends WebdavServlet {
 

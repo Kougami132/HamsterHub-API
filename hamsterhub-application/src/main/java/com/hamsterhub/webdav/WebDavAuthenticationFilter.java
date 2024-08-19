@@ -1,20 +1,13 @@
 package com.hamsterhub.webdav;
 
-import com.hamsterhub.common.domain.BusinessException;
-import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MD5Util;
-import com.hamsterhub.service.FileService;
-import com.hamsterhub.service.dto.AccountDTO;
-import com.hamsterhub.service.service.AccountService;
-import com.hamsterhub.service.service.DeviceService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.service.AccountService;
+import com.hamsterhub.database.service.DeviceService;
 
 import javax.servlet.*;
-import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.swing.text.StyledEditorKit;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

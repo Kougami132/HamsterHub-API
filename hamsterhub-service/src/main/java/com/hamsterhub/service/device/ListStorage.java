@@ -3,8 +3,8 @@ package com.hamsterhub.service.device;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MatchUtil;
-import com.hamsterhub.service.dto.DeviceDTO;
-import com.hamsterhub.service.dto.VFileDTO;
+import com.hamsterhub.database.dto.DeviceDTO;
+import com.hamsterhub.database.dto.VFileDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -1,7 +1,6 @@
 package com.hamsterhub.service.schedule;
 
-import com.hamsterhub.service.mapper.FileLinkMapper;
-import com.hamsterhub.service.service.FileLinkService;
+import com.hamsterhub.database.service.FileLinkService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;

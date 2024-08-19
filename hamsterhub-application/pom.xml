@@ -18,6 +18,10 @@
         </dependency>
         <dependency>
             <groupId>com.hamsterhub</groupId>
+            <artifactId>hamsterhub-database</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.hamsterhub</groupId>
             <artifactId>hamsterhub-service</artifactId>
         </dependency>
 

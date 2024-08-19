@@ -2,8 +2,11 @@ package com.hamsterhub.service.schedule;
 
 import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.common.util.StringUtil;
-import com.hamsterhub.service.downloader.DownloadState;
-import com.hamsterhub.service.dto.*;
+import com.hamsterhub.database.dto.*;
+import com.hamsterhub.database.enums.DownloadState;
+import com.hamsterhub.database.service.AccountService;
+import com.hamsterhub.database.service.DownloadTaskService;
+import com.hamsterhub.database.service.RSSService;
 import com.hamsterhub.service.service.*;
 
 import lombok.extern.slf4j.Slf4j;
@@ -42,7 +45,7 @@ public class RSSCheckService {
     private FileStorageService fileStorageService;
 
     @Autowired
-    private DownloadTaskListService downloadTaskListService;
+    private DownloadTaskService downloadTaskService;
 
     @Autowired
     private AccountService accountService;
@@ -87,10 +90,10 @@ public class RSSCheckService {
                         rssService.updateRSSTask(rssTaskDTO);// 更改状态为异常
                         continue;
                     }
-                    DownloadTaskListDTO downloadTaskListDTO =
-                            DownloadTaskListDTO.createTask(rssListDTO,rssTaskDTO,parentIndex);
+                    DownloadTaskDTO downloadTaskDTO =
+                            DownloadTaskDTO.createTask(rssListDTO,rssTaskDTO,parentIndex);
 
-                    downloadTaskListService.create(downloadTaskListDTO);
+                    downloadTaskService.create(downloadTaskDTO);
                 }
 
             } catch (Exception e){

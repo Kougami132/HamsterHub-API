@@ -1,9 +1,9 @@
 package com.hamsterhub.service.downloader;
 
 import com.hamsterhub.service.downloader.ext.Downloader;
-import com.hamsterhub.service.dto.AccountDTO;
-import com.hamsterhub.service.dto.DownloadTaskListDTO;
-import com.hamsterhub.service.dto.DownloaderOptionDTO;
+import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.DownloadTaskDTO;
+import com.hamsterhub.service.entity.DownloaderOption;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
@@ -17,12 +17,12 @@ public interface DownloadService {
 
     Map<Integer, Downloader> getAllDownloaders();
 
-    List<DownloaderOptionDTO> getDownloaderOption(AccountDTO user);
+    List<DownloaderOption> getDownloaderOption(AccountDTO user);
 
     String addDownloadTaskForUser(AccountDTO user, Integer downloaderId, String root,
                                   String parent, String url, String name);
 
-    List<DownloadTaskListDTO> getList(AccountDTO user);
+    List<DownloadTaskDTO> getList(AccountDTO user);
 
     void deleteDownloadTask(Integer downloaderId, String tag, AccountDTO user);
 

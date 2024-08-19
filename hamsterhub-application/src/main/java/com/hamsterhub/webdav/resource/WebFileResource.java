@@ -1,9 +1,8 @@
 package com.hamsterhub.webdav.resource;
 
-import com.hamsterhub.service.dto.VFileDTO;
+import com.hamsterhub.database.dto.VFileDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
@@ -14,7 +13,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 
 @Data

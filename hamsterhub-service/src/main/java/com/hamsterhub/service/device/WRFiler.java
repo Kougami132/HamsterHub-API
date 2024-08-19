@@ -1,6 +1,6 @@
 package com.hamsterhub.service.device;
 
-import com.hamsterhub.service.dto.DeviceDTO;
+import com.hamsterhub.database.dto.DeviceDTO;
 
 import java.io.File;
 

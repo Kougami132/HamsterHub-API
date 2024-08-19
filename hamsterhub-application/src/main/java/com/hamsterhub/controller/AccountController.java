@@ -10,8 +10,8 @@ import com.hamsterhub.config.SystemConfig;
 import com.hamsterhub.response.LoginResponse;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.common.service.RedisService;
-import com.hamsterhub.service.dto.AccountDTO;
-import com.hamsterhub.service.service.AccountService;
+import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.service.AccountService;
 import com.hamsterhub.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;

@@ -4,19 +4,22 @@ package com.hamsterhub.service.downloader.impl;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.common.util.StringUtil;
+import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.DownloadTaskDTO;
+import com.hamsterhub.database.dto.VFileDTO;
 import com.hamsterhub.service.device.ListFiler;
-import com.hamsterhub.service.downloader.DownloadOrigin;
+import com.hamsterhub.database.enums.DownloadOrigin;
 import com.hamsterhub.service.downloader.DownloadService;
-import com.hamsterhub.service.downloader.DownloadState;
-import com.hamsterhub.service.downloader.DownloadType;
+import com.hamsterhub.database.enums.DownloadState;
+import com.hamsterhub.database.enums.DownloadType;
 import com.hamsterhub.service.downloader.ext.Downloader;
 import com.hamsterhub.service.downloader.ext.DownloaderTask;
 import com.hamsterhub.service.downloader.ext.impl.AriaDownloader;
 import com.hamsterhub.service.downloader.ext.impl.QBittorrentDownloader;
-import com.hamsterhub.service.dto.*;
-import com.hamsterhub.service.service.DownloadTaskListService;
+import com.hamsterhub.service.entity.DownloaderOption;
+import com.hamsterhub.database.service.DownloadTaskService;
 import com.hamsterhub.service.service.FileStorageService;
-import com.hamsterhub.service.service.RSSService;
+import com.hamsterhub.database.service.RSSService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +44,7 @@ public class DownloadServiceImpl implements DownloadService {
     private FileStorageService fileStorageService;
 
     @Autowired
-    private DownloadTaskListService downloadTaskListService;
+    private DownloadTaskService downloadTaskService;
 
     @Autowired
     private RSSService rssService;
@@ -80,8 +83,8 @@ public class DownloadServiceImpl implements DownloadService {
     }
 
     @Override
-    public List<DownloaderOptionDTO> getDownloaderOption(AccountDTO user){
-        List<DownloaderOptionDTO> res = new ArrayList<>();
+    public List<DownloaderOption> getDownloaderOption(AccountDTO user){
+        List<DownloaderOption> res = new ArrayList<>();
 
         for (Map.Entry<Integer, Downloader> entry : downloaders.entrySet()) {
             // 不返回未就绪的下载器
@@ -89,13 +92,13 @@ public class DownloadServiceImpl implements DownloadService {
                 continue;
             }
 
-            DownloaderOptionDTO downloaderOptionDTO = new DownloaderOptionDTO();
+            DownloaderOption downloaderOption = new DownloaderOption();
 
-            downloaderOptionDTO.setId(entry.getKey());
-            downloaderOptionDTO.setName(entry.getValue().getName());
-            downloaderOptionDTO.setType(entry.getValue().getType());
+            downloaderOption.setId(entry.getKey());
+            downloaderOption.setName(entry.getValue().getName());
+            downloaderOption.setType(entry.getValue().getType());
 
-            res.add(downloaderOptionDTO);
+            res.add(downloaderOption);
         }
 
         return res;
@@ -114,14 +117,14 @@ public class DownloadServiceImpl implements DownloadService {
 
         String tag = StringUtil.generateRandomString(16);
 
-        DownloadTaskListDTO taskDTO = DownloadTaskListDTO.createTask(root,parent, DownloadOrigin.USER.ordinal(),
+        DownloadTaskDTO taskDTO = DownloadTaskDTO.createTask(root,parent, DownloadOrigin.USER.ordinal(),
                 user.getId(), DownloadType.URL.ordinal(),url ,downloaderId,user.getId(), tag, name);
 
-        downloadTaskListService.create(taskDTO);
+        downloadTaskService.create(taskDTO);
         return tag;
     }
 
-//    public String addDownloadTaskForRSS(DownloadTaskListDTO taskDTO){
+//    public String addDownloadTaskForRSS(DownloadTaskDTO taskDTO){
 //        // 获取下载器
 //        Downloader downloader = getDownloader(downloaderId);
 //
@@ -132,18 +135,18 @@ public class DownloadServiceImpl implements DownloadService {
 //
 //        String tag = StringUtil.generateRandomString(16);
 //
-//        DownloadTaskListDTO taskDTO = DownloadTaskListDTO.createTask(root,parent, DownloadOrigin.USER.ordinal(),
+//        DownloadTaskDTO taskDTO = DownloadTaskDTO.createTask(root,parent, DownloadOrigin.USER.ordinal(),
 //                user.getId(), DownloadType.URL.ordinal(),url ,downloaderId,user.getId(), tag);
 //
-//        downloadTaskListService.create(taskDTO);
+//        downloadTaskService.create(taskDTO);
 //        return tag;
 //    }
 
     @Override
-    public List<DownloadTaskListDTO> getList(AccountDTO user){
-        List<DownloadTaskListDTO> downloadTaskListDTOS = downloadTaskListService.fetchByUser(user.getId());
+    public List<DownloadTaskDTO> getList(AccountDTO user){
+        List<DownloadTaskDTO> downloadTaskDTOS = downloadTaskService.fetchByUser(user.getId());
 
-        for (DownloadTaskListDTO taskDTO : downloadTaskListDTOS){
+        for (DownloadTaskDTO taskDTO : downloadTaskDTOS){
             if (taskDTO.getState().equals(0)){
                 // 等于0就不用获取信息了
                 break;
@@ -166,20 +169,20 @@ public class DownloadServiceImpl implements DownloadService {
             }
         }
 
-        return downloadTaskListDTOS;
+        return downloadTaskDTOS;
     }
 
     @Override
     public void deleteDownloadTask(Integer downloaderId, String tag, AccountDTO user){
         Downloader downloader = getDownloader(downloaderId);
-        DownloadTaskListDTO TaskDTO = downloadTaskListService.query(user.getId(), tag);
+        DownloadTaskDTO TaskDTO = downloadTaskService.query(user.getId(), tag);
 
         // 防止越权
         CommonErrorCode.checkAndThrow(TaskDTO == null, CommonErrorCode.E_100007);
 
         Boolean result = downloader.deleteTask(TaskDTO.getTaskIndex());
 
-        downloadTaskListService.delete(tag);
+        downloadTaskService.delete(tag);
 
         // 同时删除文件
         String savePath = "temp/downloads/" + tag;
@@ -233,7 +236,7 @@ public class DownloadServiceImpl implements DownloadService {
                         String index = task.getTaskIndex();
 
                         // 更改任务列表为异常
-                        DownloadTaskListDTO taskDTO = downloadTaskListService.queryByIndex(index);
+                        DownloadTaskDTO taskDTO = downloadTaskService.queryByIndex(index);
 
                         if (taskDTO == null){
                             // 说明不是程序添加的，同样也删除
@@ -241,13 +244,13 @@ public class DownloadServiceImpl implements DownloadService {
                         }
 
                         taskDTO.setState(DownloadState.DOWNLOADING.ordinal());
-                        downloadTaskListService.update(taskDTO);
+                        downloadTaskService.update(taskDTO);
 
                         // 在任务异常时删除下载器内的，由用户发起重试
                         downloader.deleteTask(taskDTO.getTaskIndex());
                     }else if (task.isCompleted()){
                         String index = task.getTaskIndex();
-                        DownloadTaskListDTO taskDTO = downloadTaskListService.queryByIndex(index);
+                        DownloadTaskDTO taskDTO = downloadTaskService.queryByIndex(index);
 
                         if (taskDTO == null){
                             // 说明不是程序添加的
@@ -269,7 +272,7 @@ public class DownloadServiceImpl implements DownloadService {
                             }
 
                             taskDTO.setState(DownloadState.FINISH.ordinal());
-                            downloadTaskListService.update(taskDTO);
+                            downloadTaskService.update(taskDTO);
                         }
 
                         downloader.deleteTask(taskDTO.getTaskIndex());
@@ -291,10 +294,10 @@ public class DownloadServiceImpl implements DownloadService {
                 }
                 // 如果存在空余位置
                 if(taskCount < downloader.getAvailable()){
-                    List<DownloadTaskListDTO> taskDTOs =
-                            downloadTaskListService.fetchWait(downloader.getAvailable() - taskCount,downloaderId);
+                    List<DownloadTaskDTO> taskDTOs =
+                            downloadTaskService.fetchWait(downloader.getAvailable() - taskCount,downloaderId);
 
-                    for (DownloadTaskListDTO taskDTO : taskDTOs){
+                    for (DownloadTaskDTO taskDTO : taskDTOs){
                         String taskIndex = downloader.addTask(taskDTO.getTag(), taskDTO.getUrl());
                         if (StringUtil.isBlank(taskIndex)){
                             // 无法获得索引说明异常
@@ -304,7 +307,7 @@ public class DownloadServiceImpl implements DownloadService {
                             taskDTO.setTaskIndex(taskIndex);
                             taskDTO.setState(DownloadState.DOWNLOADING.ordinal());
                         }
-                        downloadTaskListService.update(taskDTO);
+                        downloadTaskService.update(taskDTO);
                     }
 
                 }

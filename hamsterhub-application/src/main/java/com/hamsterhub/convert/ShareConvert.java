@@ -1,7 +1,7 @@
 package com.hamsterhub.convert;
 
 import com.hamsterhub.response.ShareResponse;
-import com.hamsterhub.service.dto.ShareDTO;
+import com.hamsterhub.database.dto.ShareDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

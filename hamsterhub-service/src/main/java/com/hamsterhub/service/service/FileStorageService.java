@@ -1,11 +1,10 @@
 package com.hamsterhub.service.service;
 
 import com.hamsterhub.service.device.ListFiler;
-import com.hamsterhub.service.dto.AccountDTO;
-import com.hamsterhub.service.dto.VFileDTO;
+import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.VFileDTO;
 
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 public interface FileStorageService {

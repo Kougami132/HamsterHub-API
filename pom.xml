@@ -7,6 +7,7 @@
         <module>hamsterhub-application</module>
         <module>hamsterhub-common</module>
         <module>hamsterhub-service</module>
+        <module>hamsterhub-database</module>
     </modules>
 
     <parent>
@@ -27,6 +28,11 @@
             <dependency>
                 <groupId>com.hamsterhub</groupId>
                 <artifactId>hamsterhub-common</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hamsterhub</groupId>
+                <artifactId>hamsterhub-database</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
             <dependency>

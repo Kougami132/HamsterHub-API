@@ -1,7 +1,7 @@
 package com.hamsterhub.service.device.ext;
 
 import com.hamsterhub.service.device.Storage;
-import com.hamsterhub.service.dto.DeviceDTO;
+import com.hamsterhub.database.dto.DeviceDTO;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

@@ -1,7 +1,7 @@
 package com.hamsterhub.util;
 
-import com.hamsterhub.service.service.AccountService;
-import com.hamsterhub.service.dto.AccountDTO;
+import com.hamsterhub.database.service.AccountService;
+import com.hamsterhub.database.dto.AccountDTO;
 import com.hamsterhub.common.util.JwtUtil;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;

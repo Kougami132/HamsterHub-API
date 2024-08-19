@@ -7,11 +7,11 @@ import com.hamsterhub.convert.StrategyConvert;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.response.SizeResponse;
 import com.hamsterhub.response.StrategyResponse;
-import com.hamsterhub.service.dto.AccountDTO;
-import com.hamsterhub.service.dto.StrategyDTO;
-import com.hamsterhub.service.service.DeviceStrategyService;
+import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.StrategyDTO;
+import com.hamsterhub.database.service.DeviceStrategyService;
 import com.hamsterhub.service.service.FileStorageService;
-import com.hamsterhub.service.service.StrategyService;
+import com.hamsterhub.database.service.StrategyService;
 import com.hamsterhub.util.SecurityUtil;
 import com.hamsterhub.vo.StrategyVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Stream;
 
 import static java.util.stream.Collectors.toList;

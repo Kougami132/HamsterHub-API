@@ -10,7 +10,7 @@ import com.hamsterhub.common.util.GetBeanUtil;
 import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.service.device.Storage;
 
-import com.hamsterhub.service.dto.DeviceDTO;
+import com.hamsterhub.database.dto.DeviceDTO;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import okhttp3.OkHttpClient;

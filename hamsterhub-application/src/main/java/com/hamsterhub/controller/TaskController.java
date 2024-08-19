@@ -2,14 +2,14 @@ package com.hamsterhub.controller;
 
 import com.hamsterhub.annotation.Token;
 import com.hamsterhub.common.util.StringUtil;
-import com.hamsterhub.convert.TaskConvert;
+import com.hamsterhub.convert.DownloadTaskConvert;
 import com.hamsterhub.response.DownloaderOptionResponse;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.response.TaskResponse;
 import com.hamsterhub.service.downloader.DownloadService;
-import com.hamsterhub.service.dto.AccountDTO;
-import com.hamsterhub.service.dto.DownloadTaskListDTO;
-import com.hamsterhub.service.dto.DownloaderOptionDTO;
+import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.DownloadTaskDTO;
+import com.hamsterhub.service.entity.DownloaderOption;
 import com.hamsterhub.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -62,8 +62,8 @@ public class TaskController {
     @Token
     public Response taskList() {
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        List<DownloadTaskListDTO> list = downloadService.getList(accountDTO);
-        List<TaskResponse> res  = TaskConvert.INSTANCE.dto2resBatch(list);
+        List<DownloadTaskDTO> list = downloadService.getList(accountDTO);
+        List<TaskResponse> res  = DownloadTaskConvert.INSTANCE.dto2resBatch(list);
         return Response.success().data(res);
     }
 
@@ -87,8 +87,8 @@ public class TaskController {
     @Token
     public Response getDownloaderList() {
         AccountDTO accountDTO = SecurityUtil.getAccount();
-        List<DownloaderOptionDTO> list = downloadService.getDownloaderOption(accountDTO);
-        List<DownloaderOptionResponse> res  = TaskConvert.INSTANCE.dto2resBatchForOption(list);
+        List<DownloaderOption> list = downloadService.getDownloaderOption(accountDTO);
+        List<DownloaderOptionResponse> res  = DownloadTaskConvert.INSTANCE.dto2resBatchForOption(list);
         return Response.success().data(res);
     }
 }

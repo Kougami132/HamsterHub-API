@@ -1,7 +1,7 @@
 package com.hamsterhub.convert;
 
 import com.hamsterhub.response.DeviceResponse;
-import com.hamsterhub.service.dto.DeviceDTO;
+import com.hamsterhub.database.dto.DeviceDTO;
 import com.hamsterhub.vo.DeviceVO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;

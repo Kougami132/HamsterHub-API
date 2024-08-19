@@ -7,10 +7,10 @@ import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.service.device.ListFiler;
 import com.hamsterhub.service.device.ListStorage;
 import com.hamsterhub.service.device.ext.LocalDisk;
-import com.hamsterhub.service.dto.DeviceDTO;
-import com.hamsterhub.service.dto.VFileDTO;
-import com.hamsterhub.service.entity.Strategy;
-import com.hamsterhub.service.service.DeviceService;
+import com.hamsterhub.database.dto.DeviceDTO;
+import com.hamsterhub.database.dto.VFileDTO;
+import com.hamsterhub.database.entity.Strategy;
+import com.hamsterhub.database.service.DeviceService;
 
 import java.io.File;
 import java.io.UnsupportedEncodingException;

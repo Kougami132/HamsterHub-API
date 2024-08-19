@@ -1,8 +1,8 @@
 package com.hamsterhub.service;
 
 import com.hamsterhub.common.domain.BusinessException;
-import com.hamsterhub.service.dto.RFileDTO;
-import com.hamsterhub.service.dto.StrategyDTO;
+import com.hamsterhub.database.dto.RFileDTO;
+import com.hamsterhub.database.dto.StrategyDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;

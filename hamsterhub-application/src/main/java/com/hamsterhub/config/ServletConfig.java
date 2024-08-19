@@ -3,8 +3,6 @@ package com.hamsterhub.config;
 
 import javax.servlet.Servlet;
 
-import com.hamsterhub.service.FileService;
-import com.hamsterhub.service.service.DeviceService;
 import com.hamsterhub.service.service.FileStorageService;
 import com.hamsterhub.webdav.FileTool;
 import com.hamsterhub.webdav.MyWebDavServlet;

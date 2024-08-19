@@ -6,11 +6,14 @@ import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.convert.ShareConvert;
 import com.hamsterhub.convert.VFileConvert;
+import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.ShareDTO;
+import com.hamsterhub.database.dto.VFileDTO;
+import com.hamsterhub.database.service.ShareService;
+import com.hamsterhub.database.service.VFileService;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.response.ShareResponse;
 import com.hamsterhub.response.VFileResponse;
-import com.hamsterhub.service.FileService;
-import com.hamsterhub.service.dto.*;
 import com.hamsterhub.service.service.*;
 import com.hamsterhub.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,14 +21,10 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Random;
 
 @RestController
 @Tag(name = "分享文件 数据接口")
