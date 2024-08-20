@@ -39,6 +39,12 @@
             <artifactId>okhttp</artifactId>
         </dependency>
 
+        <!-- Swagger -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-ui</artifactId>
+        </dependency>
+
         <!-- 加密 -->
         <dependency>
             <groupId>org.web3j</groupId>

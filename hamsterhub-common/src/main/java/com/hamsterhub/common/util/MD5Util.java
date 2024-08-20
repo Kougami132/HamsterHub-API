@@ -60,7 +60,7 @@ public class MD5Util {
             //转换为16进制
             return new BigInteger(1, digest).toString(16);
         } catch (Exception e) {
-            log.info(e.getMessage());
+            e.printStackTrace();
         }
         return null;
     }

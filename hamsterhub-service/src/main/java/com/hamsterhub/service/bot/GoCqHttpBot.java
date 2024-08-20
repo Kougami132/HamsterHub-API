@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.domain.ConfigKey;
-import com.hamsterhub.config.SystemConfig;
+import com.hamsterhub.service.config.SystemConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
