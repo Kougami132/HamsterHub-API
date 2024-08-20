@@ -3,6 +3,37 @@
 Hamster Hub网盘的后端程序  
 开发中......
 
+## 目录结构
+Hamster Hub/
+├── hamsterhub-application/ # 接口模块, 主程序
+│ ├── src/
+│ │ ├── main/
+│ │ │ ├── java/
+│ │ │ │ ├── com/
+│ │ │ │ │ ├── hamsterhub/
+│ │ │ │ │ │ ├── annotation/ # 自定义注解
+│ │ │ │ │ │ ├── config/ # 一些配置与 Bean
+│ │ │ │ │ │ ├── controller/ # 接口
+│ │ │ │ │ │ ├── convert/ # 自动转换类
+│ │ │ │ │ │ ├── initialize/ # 初始化
+│ │ │ │ │ │ ├── interceptor/ # 拦截器
+│ │ │ │ │ │ ├── response/ # 响应类
+│ │ │ │ │ │ ├── util/ # 工具类
+│ │ │ │ │ │ ├── vo/ # 接收类
+│ │ │ │ │ │ ├── webdav/ # WebDAV相关
+│ │ │ ├── resources/
+│ │ │ │ ├── application.yml # 配置文件
+│ │ │ │ ├── schema.sql # 数据库初始化脚本
+│ ├── pom.xml # 子模块 Maven 配置文件
+├── hamsterhub-service/ # 业务模块
+├── hamsterhub-database/ # 持久化模块
+├── hamsterhub-common/ # 通用模块
+├── pom.xml # Maven 配置文件, 统一所有依赖版本
+├── .gitignore # Git 忽略文件配置
+├── Dockerfile # Docker 镜像构建文件
+├── docker-compose.yml # Docker Compose 部署配置文件
+└── README.md # 项目说明文件
+
 ## TODO
 
 ### 基础功能
@@ -30,9 +61,6 @@ Hamster Hub网盘的后端程序
             - [ ] **修改限制时间**
             - [ ] **修改限制次数**
         - [x] **下载**
-    - [ ] **历史版本**
-        - [ ] **查看老版本文件内容**
-        - [ ] **文件版本回滚**
 - [ ] **目录操作**
     - [x] **创建**
     - [x] **删除**
@@ -68,6 +96,6 @@ Hamster Hub网盘的后端程序
 
 - [ ] **公共空间**
 - [ ] **流量管控**
-- [ ] **WebDAV**
-- [ ] **离线下载**
-- [ ] **RSS订阅**
+- [x] **WebDAV**
+- [x] **离线下载**
+- [x] **RSS订阅**
