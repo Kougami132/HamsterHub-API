@@ -1,4 +1,4 @@
-package com.hamsterhub.config;
+package com.hamsterhub.service.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

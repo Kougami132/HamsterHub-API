@@ -1,8 +1,8 @@
-package com.hamsterhub.service.impl;
+package com.hamsterhub.service.service.impl;
 
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.service.device.Storage;
-import com.hamsterhub.service.StorageService;
+import com.hamsterhub.service.service.StorageService;
 import com.hamsterhub.database.dto.DeviceDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

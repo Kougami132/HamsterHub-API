@@ -1,20 +1,26 @@
 package com.hamsterhub;
 
+import com.hamsterhub.service.service.PushService;
+import com.hamsterhub.service.bot.GoCqHttpBot;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
 @SpringBootTest
 public class TestApplication {
 
+    @Autowired
+    PushService pushService;
+    @Autowired
+    GoCqHttpBot goCqHttpBot;
+
     @SneakyThrows
     @Test
     public void test() {
-//        producerService.sendDownloadMsg("magnet:?xt=urn:btih:7FKMWXJEM4O6SHRW5JXDQQZHJJ56RDSX", "C:\\Users\\Kougami\\Desktop\\");
-//        producerService.sendDownloadMsg("magnet:?xt=urn:btih:SRTWNZQR6HXF3ZFK3PSZ52ZG3KORI4ED", "C:\\Users\\Kougami\\Desktop\\");
-        Thread.sleep(60000);
+        pushService.pushGoCq(false, 1329623049L, "test");
+//        pushService.pushGOCQ("https://bot.kougami.cn/send_msg", true, 182121190L, "test");
+//        System.out.println(goCqHttpBot.getBotQQ());;
     }
 
 }

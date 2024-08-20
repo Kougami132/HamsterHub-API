@@ -1,4 +1,4 @@
-package com.hamsterhub.service;
+package com.hamsterhub.service.service;
 
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.database.dto.RFileDTO;

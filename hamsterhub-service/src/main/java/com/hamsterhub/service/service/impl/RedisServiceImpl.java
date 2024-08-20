@@ -1,8 +1,8 @@
-package com.hamsterhub.common.service.impl;
+package com.hamsterhub.service.service.impl;
 
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.util.JwtUtil;
-import com.hamsterhub.common.service.RedisService;
+import com.hamsterhub.service.service.RedisService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.data.redis.core.RedisTemplate;

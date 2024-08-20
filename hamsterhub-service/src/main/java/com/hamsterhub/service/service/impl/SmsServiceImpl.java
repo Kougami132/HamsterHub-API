@@ -1,4 +1,4 @@
-package com.hamsterhub.service.impl;
+package com.hamsterhub.service.service.impl;
 
 //import com.aliyuncs.DefaultAcsClient;
 //import com.aliyuncs.IAcsClient;
@@ -7,11 +7,9 @@ package com.hamsterhub.service.impl;
 //import com.aliyuncs.exceptions.ClientException;
 //import com.aliyuncs.profile.DefaultProfile;
 import com.hamsterhub.common.domain.BusinessException;
-import com.hamsterhub.service.SmsService;
+import com.hamsterhub.service.service.SmsService;
 import com.tencentcloudapi.common.Credential;
 import com.tencentcloudapi.common.exception.TencentCloudSDKException;
-import com.tencentcloudapi.common.profile.ClientProfile;
-import com.tencentcloudapi.common.profile.HttpProfile;
 import com.tencentcloudapi.sms.v20210111.SmsClient;
 import com.tencentcloudapi.sms.v20210111.models.SendSmsRequest;
 import com.tencentcloudapi.sms.v20210111.models.SendSmsResponse;

@@ -1,4 +1,4 @@
-package com.hamsterhub.common.service;
+package com.hamsterhub.service.service;
 
 import com.hamsterhub.common.domain.BusinessException;
 

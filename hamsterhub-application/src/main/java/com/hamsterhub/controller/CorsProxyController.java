@@ -5,7 +5,7 @@ import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.domain.ConfigKey;
 import com.hamsterhub.common.util.StringUtil;
-import com.hamsterhub.config.SystemConfig;
+import com.hamsterhub.service.config.SystemConfig;
 import com.hamsterhub.service.service.CorsProxyService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,7 +1,7 @@
 package com.hamsterhub.controller;
 
 import com.hamsterhub.annotation.Token;
-import com.hamsterhub.config.SystemConfig;
+import com.hamsterhub.service.config.SystemConfig;
 import com.hamsterhub.convert.UserConvert;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.response.UserResponse;

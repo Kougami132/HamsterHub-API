@@ -1,11 +1,11 @@
-package com.hamsterhub.service.impl;
+package com.hamsterhub.service.service.impl;
 
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.service.device.Storage;
-import com.hamsterhub.service.FileService;
-import com.hamsterhub.service.StorageService;
+import com.hamsterhub.service.service.FileService;
+import com.hamsterhub.service.service.StorageService;
 import com.hamsterhub.database.dto.DeviceDTO;
 import com.hamsterhub.database.dto.RFileDTO;
 import com.hamsterhub.database.dto.StrategyDTO;

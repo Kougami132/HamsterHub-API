@@ -5,7 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
-import com.hamsterhub.common.service.RedisService;
+import com.hamsterhub.service.service.RedisService;
 import com.hamsterhub.common.util.GetBeanUtil;
 import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.service.device.Storage;

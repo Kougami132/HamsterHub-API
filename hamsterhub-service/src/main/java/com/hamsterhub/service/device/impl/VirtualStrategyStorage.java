@@ -3,7 +3,7 @@ package com.hamsterhub.service.device.impl;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
-import com.hamsterhub.common.service.RedisService;
+import com.hamsterhub.service.service.RedisService;
 import com.hamsterhub.common.util.GetBeanUtil;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.service.device.ListFiler;

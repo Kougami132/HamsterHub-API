@@ -12,7 +12,7 @@ import com.hamsterhub.database.service.FileLinkService;
 import com.hamsterhub.database.service.RFileService;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.response.VFileResponse;
-import com.hamsterhub.service.FileService;
+import com.hamsterhub.service.service.FileService;
 import com.hamsterhub.service.service.*;
 import com.hamsterhub.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;

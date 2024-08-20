@@ -1,8 +1,7 @@
-package com.hamsterhub.convert;
+package com.hamsterhub.service.convert;
 
-import com.hamsterhub.response.SysConfigResponse;
+import com.hamsterhub.service.entity.SysConfigResponse;
 import com.hamsterhub.database.dto.SysConfigDTO;
-import com.hamsterhub.database.dto.VFileDTO;
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 

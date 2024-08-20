@@ -1,15 +1,15 @@
-package com.hamsterhub.config;
+package com.hamsterhub.service.config;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.hamsterhub.common.domain.ConfigKey;
 import com.hamsterhub.common.util.JwtUtil;
-import com.hamsterhub.convert.SysConfigConvert;
-import com.hamsterhub.initialize.DatabaseInitialize;
-import com.hamsterhub.response.SysConfigResponse;
+import com.hamsterhub.service.convert.SysConfigConvert;
+import com.hamsterhub.service.entity.SysConfigResponse;
 import com.hamsterhub.database.dto.SysConfigDTO;
 import com.hamsterhub.database.service.SysConfigService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
@@ -19,13 +19,11 @@ import java.util.Map;
 import java.util.UUID;
 
 @Component
+@DependsOn("databaseInitialize") // 调整PostConstruct的执行顺序
 public class SystemConfig {
 
     @Autowired
     private SysConfigService sysConfigService;
-
-    @Autowired // 调整PostConstruct的执行顺序
-    private DatabaseInitialize databaseInitialize;
 
     private Map<String,SysConfigDTO> configs = null;
 

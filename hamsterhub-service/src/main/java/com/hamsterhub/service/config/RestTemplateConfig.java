@@ -1,4 +1,4 @@
-package com.hamsterhub.config;
+package com.hamsterhub.service.config;
 
 import okhttp3.OkHttpClient;
 import org.springframework.context.annotation.Bean;

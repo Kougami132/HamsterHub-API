@@ -1,7 +1,7 @@
-package com.hamsterhub.service.impl;
+package com.hamsterhub.service.service.impl;
 
 import com.hamsterhub.common.domain.BusinessException;
-import com.hamsterhub.service.PushService;
+import com.hamsterhub.service.service.PushService;
 import com.hamsterhub.service.bot.GoCqHttpBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -8,7 +8,7 @@ import com.hamsterhub.service.device.Storage;
 import com.hamsterhub.response.DeviceResponse;
 import com.hamsterhub.response.SizeResponse;
 import com.hamsterhub.response.Response;
-import com.hamsterhub.service.StorageService;
+import com.hamsterhub.service.service.StorageService;
 import com.hamsterhub.database.dto.DeviceDTO;
 import com.hamsterhub.database.service.DeviceService;
 import com.hamsterhub.database.service.DeviceStrategyService;

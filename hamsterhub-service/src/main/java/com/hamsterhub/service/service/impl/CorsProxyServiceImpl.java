@@ -27,6 +27,10 @@ public class CorsProxyServiceImpl implements CorsProxyService {
     private static final String BILIBILI_PAGE_LIST = "https://api.bilibili.com/x/player/pagelist?";
     private static final String BILIBILI_DANMA_LIST = "https://api.bilibili.com/x/v1/dm/list.so?";
 
+    private static final String ALI_QUERY_QRCODE = "https://api.nn.ci/alist/ali/qr";
+    private static final String ALI_QRCODE_IMAGE = "https://api.nn.ci/qr?size=400&text=";
+    private static final String ALI_QRCODE_STATUS = "https://api.nn.ci/alist/ali/ck";
+
     @Override
     public String toPost(String url, String json) throws IOException {
         RequestBody body = RequestBody.create(json, JSON);
