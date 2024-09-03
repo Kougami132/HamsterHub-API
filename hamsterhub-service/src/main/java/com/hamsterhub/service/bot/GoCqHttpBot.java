@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.domain.ConfigKey;
+import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.service.config.SystemConfig;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ import javax.annotation.PostConstruct;
 @Slf4j
 public class GoCqHttpBot {
 
-    private String base_url;
+    private String baseUrl;
 
     @Autowired
     private SystemConfig systemConfig;
@@ -30,20 +31,10 @@ public class GoCqHttpBot {
     private RestTemplate restTemplate;
 
     @PostConstruct
-    public void init() {
-        base_url = systemConfig.get(ConfigKey.BOT_GOCQ_URL);
-    }
-
-    public void setBaseUrl(String url) throws BusinessException {
-        if (url.charAt(url.length() - 1) == '/')
-            url = url.substring(0, url.length() - 1);
-
-        // 测试url,无效不保存
-        base_url = url;
-        if (verify())
-            systemConfig.set(ConfigKey.BOT_GOCQ_URL, url);
-        else
-            this.init();
+    public void loadUrl() {
+        baseUrl = systemConfig.get(ConfigKey.BOT_GOCQ_URL);
+        if (!StringUtil.isBlank(baseUrl) && baseUrl.charAt(baseUrl.length() - 1) == '/')
+            baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
     }
 
     public Boolean verify() {
@@ -57,7 +48,8 @@ public class GoCqHttpBot {
     }
 
     public Long getBotQQ() throws BusinessException {
-        String url = base_url + "/get_login_info";
+        loadUrl();
+        String url = baseUrl + "/get_login_info";
 
         try {
             ResponseEntity<JSONObject> response = restTemplate.getForEntity(url, JSONObject.class);
@@ -77,7 +69,8 @@ public class GoCqHttpBot {
     }
 
     public void pushMsg(Boolean isGroup, Long targetId, String message) throws BusinessException {
-        String url = base_url + "/send_msg";
+        loadUrl();
+        String url = baseUrl + "/send_msg";
 
         // header
         HttpHeaders headers = new HttpHeaders();
