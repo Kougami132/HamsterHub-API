@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Data
 @Schema(description="")
-public class AccountDTO implements Serializable {
+public class UserDTO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Schema(description = "主键")
@@ -36,7 +36,7 @@ public class AccountDTO implements Serializable {
     @Schema(description = "邮箱")
     private String email;
 
-    public AccountDTO(String username, String password, Integer type, Long phone) {
+    public UserDTO(String username, String password, Integer type, Long phone) {
         this.username = username;
         this.password = password;
         this.passModified = LocalDateTime.now();
@@ -44,7 +44,7 @@ public class AccountDTO implements Serializable {
         this.phone = phone;
     }
 
-    public AccountDTO(String username, String password, Integer type, Long phone, String email) {
+    public UserDTO(String username, String password, Integer type, Long phone, String email) {
         this.username = username;
         this.password = password;
         this.passModified = LocalDateTime.now();

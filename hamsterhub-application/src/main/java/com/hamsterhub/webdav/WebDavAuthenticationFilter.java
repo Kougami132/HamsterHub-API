@@ -1,8 +1,8 @@
 package com.hamsterhub.webdav;
 
 import com.hamsterhub.common.util.MD5Util;
-import com.hamsterhub.database.dto.AccountDTO;
-import com.hamsterhub.database.service.AccountService;
+import com.hamsterhub.database.dto.UserDTO;
+import com.hamsterhub.database.service.UserService;
 import com.hamsterhub.database.service.DeviceService;
 
 import javax.servlet.*;
@@ -16,20 +16,20 @@ import java.util.Random;
 
 // 为webdav提供认证 Filter
 public class WebDavAuthenticationFilter implements Filter {
-    private AccountService accountService;
+    private UserService userService;
 
-    public WebDavAuthenticationFilter(AccountService accountService) {
-        this.accountService = accountService;
+    public WebDavAuthenticationFilter(UserService userService) {
+        this.userService = userService;
     }
 
     private final String realm = "HamsterHub";
     private final String key = "GMXCVFWEAWT^UMUYN";
 
     private Boolean CheckPassword(String username, String password, HttpServletRequest request){
-        AccountDTO accountDTO = accountService.query(username);
-        Boolean res =accountDTO.getPassword().equals(MD5Util.getMd5(password));
+        UserDTO userDTO = userService.query(username);
+        Boolean res = userDTO.getPassword().equals(MD5Util.getMd5(password));
         if(res){
-            request.setAttribute("user", accountDTO);
+            request.setAttribute("user", userDTO);
         }
         // 密码错误
         return res;

@@ -34,7 +34,7 @@ public class ShareDTO implements Serializable {
     private LocalDateTime expiry;
 
     @Schema(description = "文件所有人ID")
-    private Long accountID;
+    private Long userId;
 
     @Schema(description = "分享的名称")
     private String name;

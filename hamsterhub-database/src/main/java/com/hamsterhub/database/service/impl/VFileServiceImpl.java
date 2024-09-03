@@ -11,7 +11,7 @@ import com.hamsterhub.database.dto.StrategyDTO;
 import com.hamsterhub.database.dto.VFileDTO;
 import com.hamsterhub.database.entity.VFile;
 import com.hamsterhub.database.mapper.VFileMapper;
-import com.hamsterhub.database.service.AccountService;
+import com.hamsterhub.database.service.UserService;
 import com.hamsterhub.database.service.StrategyService;
 import com.hamsterhub.database.service.VFileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +30,7 @@ public class VFileServiceImpl implements VFileService {
     @Autowired
     private StrategyService strategyService;
     @Autowired
-    private AccountService accountService;
+    private UserService userService;
 
     @Override
     public VFileDTO create(VFileDTO vFileDTO) throws BusinessException {
@@ -132,7 +132,7 @@ public class VFileServiceImpl implements VFileService {
 
         VFileDTO vFileDTO = this.query(vFileId);
         List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>()
-                .eq(VFile::getAccountID, vFileDTO.getAccountID())
+                .eq(VFile::getUserId, vFileDTO.getUserId())
                 .eq(VFile::getStrategyId, vFileDTO.getStrategyId())
                 .eq(VFile::getParentId, vFileDTO.getParentId())
                 .eq(VFile::getName, vFileDTO.getName()));
@@ -181,13 +181,13 @@ public class VFileServiceImpl implements VFileService {
     }
 
     @Override
-    public VFileDTO query(Long vFileId, Long accountId) throws BusinessException {
+    public VFileDTO query(Long vFileId, Long userId) throws BusinessException {
         // 传入对象为空
         if (vFileId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
 
         LambdaQueryWrapper<VFile> wrapper = new LambdaQueryWrapper<VFile>()
-                .eq(VFile::getAccountID, accountId)
+                .eq(VFile::getUserId, userId)
                 .eq(VFile::getId, vFileId);
 
         VFile entity = vFileMapper.selectOne(wrapper);
@@ -221,20 +221,20 @@ public class VFileServiceImpl implements VFileService {
     }
 
     @Override
-    public List<VFileDTO> query(Long accountId, Long strategyId, Long parentId, String name) throws BusinessException {
+    public List<VFileDTO> query(Long userId, Long strategyId, Long parentId, String name) throws BusinessException {
         // 传入对象为空
-        if (accountId == null)
+        if (userId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
         // 用户不存在
-        if (!accountService.isExist(accountId))
+        if (!userService.isExist(userId))
             throw new BusinessException(CommonErrorCode.E_200013);
         // 文件不存在
-        if (!this.isExist(accountId, strategyId, parentId, name))
+        if (!this.isExist(userId, strategyId, parentId, name))
             throw new BusinessException(CommonErrorCode.E_600001);
 
         // 取出版本最新的VFile
         List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().
-                eq(VFile::getAccountID, accountId).
+                eq(VFile::getUserId, userId).
                 eq(VFile::getStrategyId, strategyId).
                 eq(VFile::getParentId, parentId).
                 eq(VFile::getName, name));
@@ -243,20 +243,20 @@ public class VFileServiceImpl implements VFileService {
     }
 
     @Override
-    public List<VFileDTO> query(Long accountId, String root, Long parentId, String name) throws BusinessException {
+    public List<VFileDTO> query(Long userId, String root, Long parentId, String name) throws BusinessException {
         // 传入对象为空
-        if (accountId == null)
+        if (userId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
         // 用户不存在
-        if (!accountService.isExist(accountId))
+        if (!userService.isExist(userId))
             throw new BusinessException(CommonErrorCode.E_200013);
         // 文件不存在
-        if (!this.isExist(accountId, root, parentId, name))
+        if (!this.isExist(userId, root, parentId, name))
             throw new BusinessException(CommonErrorCode.E_600001);
 
         StrategyDTO strategyDTO = strategyService.query(root);
         // 取出版本最新的VFile
-        List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId).eq(VFile::getName, name));
+        List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getUserId, userId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId).eq(VFile::getName, name));
         vFiles.sort((o1, o2) -> o2.getVersion() - o1.getVersion());
         return VFileConvert.INSTANCE.entity2dtoBatch(vFiles);
     }
@@ -291,9 +291,9 @@ public class VFileServiceImpl implements VFileService {
     }
 
     @Override
-    public List<VFileDTO> queryBatch(Long accountId, Long strategyId, Long parentId) throws BusinessException {
+    public List<VFileDTO> queryBatch(Long userId, Long strategyId, Long parentId) throws BusinessException {
         // 用户不存在
-        if (!accountService.isExist(accountId))
+        if (!userService.isExist(userId))
             throw new BusinessException(CommonErrorCode.E_200013);
         // 目录不存在
         if (parentId != 0 && !this.isExist(parentId))
@@ -303,17 +303,17 @@ public class VFileServiceImpl implements VFileService {
         if (!parentId.equals(0L) && !entity.getType().equals(0))
             throw new BusinessException(CommonErrorCode.E_600003);
 
-        List<VFile> entities = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyId).eq(VFile::getParentId, parentId));
+        List<VFile> entities = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getUserId, userId).eq(VFile::getStrategyId, strategyId).eq(VFile::getParentId, parentId));
         return VFileConvert.INSTANCE.entity2dtoBatch(entities);
     }
 
     @Override
-    public List<VFileDTO> queryBatch(Long accountId, String root, Long parentId) throws BusinessException {
+    public List<VFileDTO> queryBatch(Long userId, String root, Long parentId) throws BusinessException {
         // 传入对象为空
-        if (accountId == null)
+        if (userId == null)
             throw new BusinessException(CommonErrorCode.E_100001);
         // 用户不存在
-        if (!accountService.isExist(accountId))
+        if (!userService.isExist(userId))
             throw new BusinessException(CommonErrorCode.E_200013);
         // 目录不存在
         if (parentId != 0 && !this.isExist(parentId))
@@ -324,14 +324,14 @@ public class VFileServiceImpl implements VFileService {
             throw new BusinessException(CommonErrorCode.E_600003);
 
         StrategyDTO strategyDTO = strategyService.query(root);
-        List<VFile> entities = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId));
+        List<VFile> entities = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getUserId, userId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId));
         return VFileConvert.INSTANCE.entity2dtoBatch(entities);
     }
 
     @Override
-    public List<VFileDTO> queryBatch(Long accountId, String root, Long parentId, Integer page, Integer limit) throws BusinessException {
+    public List<VFileDTO> queryBatch(Long userId, String root, Long parentId, Integer page, Integer limit) throws BusinessException {
         // 用户不存在
-        if (!accountService.isExist(accountId))
+        if (!userService.isExist(userId))
             throw new BusinessException(CommonErrorCode.E_200013);
         // 目录不存在
         if (parentId != 0 && !this.isExist(parentId))
@@ -344,7 +344,7 @@ public class VFileServiceImpl implements VFileService {
         StrategyDTO strategyDTO = strategyService.query(root);
 
         Page<VFile> rowPage = new Page(page, limit);
-        List<VFile> entities = vFileMapper.selectPage(rowPage, new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId)).getRecords();
+        List<VFile> entities = vFileMapper.selectPage(rowPage, new LambdaQueryWrapper<VFile>().eq(VFile::getUserId, userId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId)).getRecords();
         return VFileConvert.INSTANCE.entity2dtoBatch(entities);
     }
 
@@ -372,14 +372,14 @@ public class VFileServiceImpl implements VFileService {
     }
 
     @Override
-    public Boolean isExist(Long accountId, Long strategyId, Long parentId, String name) throws BusinessException {
-        return vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyId).eq(VFile::getParentId, parentId).eq(VFile::getName, name)) > 0;
+    public Boolean isExist(Long userId, Long strategyId, Long parentId, String name) throws BusinessException {
+        return vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getUserId, userId).eq(VFile::getStrategyId, strategyId).eq(VFile::getParentId, parentId).eq(VFile::getName, name)) > 0;
     }
 
     @Override
-    public Boolean isExist(Long accountId, String root, Long parentId, String name) throws BusinessException {
+    public Boolean isExist(Long userId, String root, Long parentId, String name) throws BusinessException {
         StrategyDTO strategyDTO = strategyService.query(root);
-        return vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId).eq(VFile::getName, name)) > 0;
+        return vFileMapper.selectCount(new LambdaQueryWrapper<VFile>().eq(VFile::getUserId, userId).eq(VFile::getStrategyId, strategyDTO.getId()).eq(VFile::getParentId, parentId).eq(VFile::getName, name)) > 0;
     }
 
     @Override
@@ -389,11 +389,11 @@ public class VFileServiceImpl implements VFileService {
             throw new BusinessException(CommonErrorCode.E_600001);
         VFileDTO vFileDTO = this.query(vFileId);
         // 新文件名已存在
-        if (this.isExist(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), vFileDTO.getParentId(), newName))
+        if (this.isExist(vFileDTO.getUserId(), vFileDTO.getStrategyId(), vFileDTO.getParentId(), newName))
             throw new BusinessException(CommonErrorCode.E_600015);
 
         // 所有版本的VFile都重命名
-        LambdaUpdateWrapper<VFile> updateWrapper = new LambdaUpdateWrapper<VFile>().eq(VFile::getAccountID, vFileDTO.getAccountID()).eq(VFile::getStrategyId, vFileDTO.getStrategyId()).eq(VFile::getParentId, vFileDTO.getParentId()).eq(VFile::getName, vFileDTO.getName()).set(VFile::getName, newName);
+        LambdaUpdateWrapper<VFile> updateWrapper = new LambdaUpdateWrapper<VFile>().eq(VFile::getUserId, vFileDTO.getUserId()).eq(VFile::getStrategyId, vFileDTO.getStrategyId()).eq(VFile::getParentId, vFileDTO.getParentId()).eq(VFile::getName, vFileDTO.getName()).set(VFile::getName, newName);
         vFileMapper.update(null, updateWrapper);
     }
 
@@ -416,9 +416,9 @@ public class VFileServiceImpl implements VFileService {
 //    private void rm(List<Long> result, Long vFileId) {
 //        VFile entity = vFileMapper.selectById(vFileId);
 //        if (entity.getType().equals(0)) { //文件夹
-//            Long accountId = entity.getAccountID();
+//            Long userId = entity.getUserId();
 //            Long parentId = entity.getParentId();
-//            List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getAccountID, accountId).like(VFile::getParentId, vFileId));
+//            List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>().eq(VFile::getUserID, userId).like(VFile::getParentId, vFileId));
 //            for (VFile vfile: vFiles)
 //                rm(result, vfile.getId());
 //        }
@@ -431,10 +431,10 @@ public class VFileServiceImpl implements VFileService {
     private void rm(List<String> result, Long vFileId) {
         VFile entity = vFileMapper.selectById(vFileId);
         if (entity.getType().equals(0)) { //文件夹
-            Long accountId = entity.getAccountID();
+            Long userId = entity.getUserId();
             Long parentId = entity.getParentId();
             List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>()
-                    .eq(VFile::getAccountID, accountId)
+                    .eq(VFile::getUserId, userId)
                     .like(VFile::getParentId, vFileId));
             for (VFile vfile: vFiles)
                 rm(result, vfile.getId());

@@ -77,29 +77,29 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public Long getFileId(String root, Long accountId, String path) throws BusinessException {
-        String key = this.prefix + ":" + root + ":" + accountId + ":" + path;
+    public Long getFileId(String root, Long userId, String path) throws BusinessException {
+        String key = this.prefix + ":" + root + ":" + userId + ":" + path;
         String s = redisTemplate.opsForValue().get(key);
         if (s == null) return null;
         return Long.parseLong(s);
     }
 
     @Override
-    public void setFileId(String root, Long accountId, String path, Long fileId) throws BusinessException {
-        String key = this.prefix + ":" + root + ":" + accountId + ":" + path;
+    public void setFileId(String root, Long userId, String path, Long fileId) throws BusinessException {
+        String key = this.prefix + ":" + root + ":" + userId + ":" + path;
         redisTemplate.opsForValue().set(key, fileId.toString(), this.expiry, TimeUnit.DAYS);
     }
 
     @Override
-    public void delFileId(String root, Long accountId, String path) throws BusinessException {
-        String key = this.prefix + ":" + root + ":" + accountId + ":" + path;
+    public void delFileId(String root, Long userId, String path) throws BusinessException {
+        String key = this.prefix + ":" + root + ":" + userId + ":" + path;
         Set<String> keys = redisTemplate.keys(key + "*");
         redisTemplate.delete(keys);
     }
 
     @Override
-    public void delFileId(String root, Long accountId, Long fileId) throws BusinessException {
-        Set<String> keys = redisTemplate.keys(this.prefix + ":" + root + ":" + accountId + ":*");
+    public void delFileId(String root, Long userId, Long fileId) throws BusinessException {
+        Set<String> keys = redisTemplate.keys(this.prefix + ":" + root + ":" + userId + ":*");
         for (String key: keys) {
             String value = redisTemplate.opsForValue().get(key);
             if (value != null && value.equals(fileId.toString())) {
@@ -111,8 +111,8 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public boolean isPathExist(String root, Long accountId, String path) throws BusinessException {
-        String key = this.prefix + ":" + root + ":" + accountId + ":" + path;
+    public boolean isPathExist(String root, Long userId, String path) throws BusinessException {
+        String key = this.prefix + ":" + root + ":" + userId + ":" + path;
         return redisTemplate.hasKey(key);
     }
 
@@ -149,8 +149,8 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public Map<String, String> getTasks(Long accountId) throws BusinessException {
-        String key = this.prefix + ":task:" + accountId + ":";
+    public Map<String, String> getTasks(Long userId) throws BusinessException {
+        String key = this.prefix + ":task:" + userId + ":";
         Set<String> keys = redisTemplate.keys(key + "*");
         Map<String, String> res = new HashMap<>();
         keys.stream().forEach(o -> res.put(
@@ -161,13 +161,13 @@ public class RedisServiceImpl implements RedisService {
     }
 
     @Override
-    public void addTask(Long accountId, String tag) throws BusinessException {
-        addTask(accountId, tag, "waiting");
+    public void addTask(Long userId, String tag) throws BusinessException {
+        addTask(userId, tag, "waiting");
     }
 
     @Override
-    public void addTask(Long accountId, String tag, String state) throws BusinessException {
-        String key = this.prefix + ":task:" + accountId + ":" + tag;
+    public void addTask(Long userId, String tag, String state) throws BusinessException {
+        String key = this.prefix + ":task:" + userId + ":" + tag;
         redisTemplate.opsForValue().set(key, state);
     }
 

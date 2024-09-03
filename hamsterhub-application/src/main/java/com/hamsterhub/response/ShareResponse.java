@@ -14,7 +14,7 @@ public class ShareResponse {
     private String fileIndex;
     private String key;
     private LocalDateTime expiry;
-    private String accountID;
+    private String userID;
     private String name;
     private String root;
 }

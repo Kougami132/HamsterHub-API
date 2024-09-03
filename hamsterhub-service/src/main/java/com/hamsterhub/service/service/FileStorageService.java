@@ -1,7 +1,7 @@
 package com.hamsterhub.service.service;
 
 import com.hamsterhub.service.device.ListFiler;
-import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.UserDTO;
 import com.hamsterhub.database.dto.VFileDTO;
 
 import java.io.File;
@@ -17,37 +17,37 @@ public interface FileStorageService {
     Boolean isExist(String root, String index);
 
     // 通过url查询文件
-    List<VFileDTO> queryFile(String root, String url, AccountDTO accountDTO);
+    List<VFileDTO> queryFile(String root, String url, UserDTO userDTO);
 
     // 通过凭据获取文件
-    VFileDTO getFile(String root, String index, AccountDTO accountDTO);
+    VFileDTO getFile(String root, String index, UserDTO userDTO);
 
     // 获取parent下的文件列表，当虚拟文件目录系统时应当传递parentId，真实的文件目录系统可用直接传父目录url
-    List<VFileDTO> queryDirectory(String root, String parent, AccountDTO accountDTO, Integer page, Integer limit);
+    List<VFileDTO> queryDirectory(String root, String parent, UserDTO userDTO, Integer page, Integer limit);
 
     // 创建一个目录，当虚拟文件目录系统时创建一个记录，真实的文件目录系统应当在对应设备上创建一个文件夹
-    VFileDTO makeDirectory(String root, String parent, String name, AccountDTO accountDTO);
+    VFileDTO makeDirectory(String root, String parent, String name, UserDTO userDTO);
 
     // 获取文件数量，虚拟文件系统应当传递文件id，真实文件系统应当传递url
     Integer queryFileCount(String root, String index);
 
-    void delete(String root, String index, AccountDTO accountDTO);
+    void delete(String root, String index, UserDTO userDTO);
 
-    void rename(String root, String index, String name, AccountDTO accountDTO);
+    void rename(String root, String index, String name, UserDTO userDTO);
 
-    void copyTo(String root, String index, String parent, AccountDTO accountDTO);
+    void copyTo(String root, String index, String parent, UserDTO userDTO);
 
-    void moveTo(String root, String index, String parent, String name, AccountDTO accountDTO);
+    void moveTo(String root, String index, String parent, String name, UserDTO userDTO);
 
-    void uploadBefore(String root, String parent, String name, AccountDTO accountDTO);
+    void uploadBefore(String root, String parent, String name, UserDTO userDTO);
 
-    VFileDTO upload(String root, File file, String parent, String name, Long size, String hash, AccountDTO accountDTO);
+    VFileDTO upload(String root, File file, String parent, String name, Long size, String hash, UserDTO userDTO);
 
-    String getDownloadUrl(String root, String index, AccountDTO accountDTO, Long preference);
+    String getDownloadUrl(String root, String index, UserDTO userDTO, Long preference);
 
     Long getTotalSize(String root, Integer combineOption);
 
     Long getUsableSize(String root, Integer combineOption);
 
-    String getQueryUrl(String root, String index, AccountDTO accountDTO);
+    String getQueryUrl(String root, String index, UserDTO userDTO);
 }

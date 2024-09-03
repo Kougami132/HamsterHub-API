@@ -35,8 +35,8 @@ public class Share implements Serializable {
     @TableField("`EXPIRY`")
     private LocalDateTime expiry;
 
-    @TableField("ACCOUNT_ID")
-    private Long accountID;
+    @TableField("USER_ID")
+    private Long userId;
 
     @TableField("NAME")
     private String name;

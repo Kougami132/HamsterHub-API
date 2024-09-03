@@ -12,6 +12,6 @@ public interface FileService {
     RFileDTO upload(File file, StrategyDTO strategyDTO) throws BusinessException;
     String download(RFileDTO rFileDTO) throws BusinessException;
     void delete(RFileDTO rFileDTO) throws BusinessException;
-    void uploadAvatar(Long accountId, MultipartFile file) throws BusinessException;
-    String queryAvatar(Long accountId) throws BusinessException;
+    void uploadAvatar(Long userId, MultipartFile file) throws BusinessException;
+    String queryAvatar(Long userId) throws BusinessException;
 }

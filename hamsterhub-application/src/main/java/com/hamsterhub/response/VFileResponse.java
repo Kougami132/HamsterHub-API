@@ -16,7 +16,7 @@ public class VFileResponse {
     private Integer version;
     private Long created;
     private Long modified;
-//    private String accountID;
+//    private String userID;
     private String size;
 //    private String strategyId;
     private Integer shareType;

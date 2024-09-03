@@ -1,15 +1,15 @@
 package com.hamsterhub.service.service;
 
-import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.UserDTO;
 import com.hamsterhub.database.dto.ShareDTO;
 import com.hamsterhub.database.dto.VFileDTO;
 
 import java.util.List;
 
 public interface ShareFileStorageService {
-    ShareDTO shareFile(String root, String index, AccountDTO accountDTO, String key, Long expiry, String name);
+    ShareDTO shareFile(String root, String index, UserDTO userDTO, String key, Long expiry, String name);
 
-    Boolean deleteShare(String root, Long shareId, AccountDTO accountDTO);
+    Boolean deleteShare(String root, Long shareId, UserDTO userDTO);
 
     VFileDTO queryShareFile(String ticket, String key, String vFileId);
 

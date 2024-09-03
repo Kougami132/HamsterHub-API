@@ -4,7 +4,7 @@ package com.hamsterhub.service.downloader.impl;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.common.util.StringUtil;
-import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.UserDTO;
 import com.hamsterhub.database.dto.DownloadTaskDTO;
 import com.hamsterhub.database.dto.VFileDTO;
 import com.hamsterhub.service.device.ListFiler;
@@ -83,7 +83,7 @@ public class DownloadServiceImpl implements DownloadService {
     }
 
     @Override
-    public List<DownloaderOption> getDownloaderOption(AccountDTO user){
+    public List<DownloaderOption> getDownloaderOption(UserDTO user){
         List<DownloaderOption> res = new ArrayList<>();
 
         for (Map.Entry<Integer, Downloader> entry : downloaders.entrySet()) {
@@ -105,7 +105,7 @@ public class DownloadServiceImpl implements DownloadService {
     }
 
     @Override
-    public String addDownloadTaskForUser(AccountDTO user, Integer downloaderId, String root,
+    public String addDownloadTaskForUser(UserDTO user, Integer downloaderId, String root,
                                          String parent, String url, String name){
         // 获取下载器
         Downloader downloader = getDownloader(downloaderId);
@@ -143,7 +143,7 @@ public class DownloadServiceImpl implements DownloadService {
 //    }
 
     @Override
-    public List<DownloadTaskDTO> getList(AccountDTO user){
+    public List<DownloadTaskDTO> getList(UserDTO user){
         List<DownloadTaskDTO> downloadTaskDTOS = downloadTaskService.fetchByUser(user.getId());
 
         for (DownloadTaskDTO taskDTO : downloadTaskDTOS){
@@ -173,7 +173,7 @@ public class DownloadServiceImpl implements DownloadService {
     }
 
     @Override
-    public void deleteDownloadTask(Integer downloaderId, String tag, AccountDTO user){
+    public void deleteDownloadTask(Integer downloaderId, String tag, UserDTO user){
         Downloader downloader = getDownloader(downloaderId);
         DownloadTaskDTO TaskDTO = downloadTaskService.query(user.getId(), tag);
 

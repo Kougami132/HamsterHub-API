@@ -74,7 +74,7 @@ public class FileController {
     @Token
     public Response queryFile(@RequestParam("root") String root,
                               @RequestParam("url") String url) throws UnsupportedEncodingException {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
 
         String decodedUrl = URLDecoder.decode(url, StandardCharsets.UTF_8.name());
 
@@ -82,7 +82,7 @@ public class FileController {
         if (!MatchUtil.isPathMatches(decodedUrl))
             throw new BusinessException(CommonErrorCode.E_600002);
 
-        List<VFileDTO> vFileDTOs = fileStorageService.queryFile(root, decodedUrl, accountDTO);
+        List<VFileDTO> vFileDTOs = fileStorageService.queryFile(root, decodedUrl, userDTO);
         List<VFileResponse> dataList = VFileConvert.INSTANCE.dto2resBatch(vFileDTOs);
         return Response.success().data(dataList);
     }
@@ -103,9 +103,9 @@ public class FileController {
 
         parentId = URLDecoder.decode(parentId, StandardCharsets.UTF_8.name());
 
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
         List<VFileDTO> vFileDTOs;
-        vFileDTOs = fileStorageService.queryDirectory(root,parentId,accountDTO,page,limit);
+        vFileDTOs = fileStorageService.queryDirectory(root,parentId,userDTO,page,limit);
         List<VFileResponse> data = VFileConvert.INSTANCE.dto2resBatch(vFileDTOs);
         return Response.success().data(data);
     }
@@ -116,11 +116,11 @@ public class FileController {
     public Response mkdir(@RequestParam("root") String root,
                           @RequestParam("parentId") String parent,
                           @RequestParam("name") String name) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
 
         // 防止空空字符串
         CommonErrorCode.checkAndThrow(StringUtil.isBlank(name),CommonErrorCode.E_100001);
-        VFileDTO vFileDTO = fileStorageService.makeDirectory(root, parent, name, accountDTO);
+        VFileDTO vFileDTO = fileStorageService.makeDirectory(root, parent, name, userDTO);
         VFileResponse data = VFileConvert.INSTANCE.dto2res(vFileDTO);
         return Response.success().data(data);
     }
@@ -152,7 +152,7 @@ public class FileController {
                            @RequestParam("parentId") String parent,
                            @RequestParam(value = "hash", required = false) String hash,
                            HttpServletRequest request) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
 
         Collection<Part> parts = request.getParts();
         Part filePart = null;
@@ -175,7 +175,7 @@ public class FileController {
         CommonErrorCode.checkAndThrow(StringUtil.isBlank(name), CommonErrorCode.E_500011);
 
         // file存储实现层的上传之前的验证
-        fileStorageService.uploadBefore(root,parent,name,accountDTO);
+        fileStorageService.uploadBefore(root,parent,name,userDTO);
 
         File targetFile = null;
 
@@ -225,7 +225,7 @@ public class FileController {
         }
 
 
-        VFileDTO upload = fileStorageService.upload(root, targetFile, parent, name, declaredFileSize, hash, accountDTO);
+        VFileDTO upload = fileStorageService.upload(root, targetFile, parent, name, declaredFileSize, hash, userDTO);
         VFileResponse data = VFileConvert.INSTANCE.dto2res(upload);
 
         return Response.success().msg("上传成功").data(data);
@@ -242,10 +242,10 @@ public class FileController {
         CommonErrorCode.checkAndThrow(StringUtil.isBlank(root), CommonErrorCode.E_100001);
         CommonErrorCode.checkAndThrow(StringUtil.isBlank(index), CommonErrorCode.E_100001);
 
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
 
         String decodedIndex = URLDecoder.decode(index, StandardCharsets.UTF_8.name());
-        String url = fileStorageService.getDownloadUrl(root,decodedIndex,accountDTO,preference);
+        String url = fileStorageService.getDownloadUrl(root,decodedIndex,userDTO,preference);
         return Response.success().data(url);
     }
 
@@ -369,10 +369,10 @@ public class FileController {
     @Token
     public Response delete(@RequestParam("root") String root,
                            @RequestParam("vFileId") String vFileId) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
         CommonErrorCode.checkAndThrow(StringUtil.isBlank(root),CommonErrorCode.E_100001);
         CommonErrorCode.checkAndThrow(StringUtil.isBlank(vFileId),CommonErrorCode.E_100001);
-        fileStorageService.delete(root,vFileId,accountDTO);
+        fileStorageService.delete(root,vFileId,userDTO);
         return Response.success().msg("文件删除成功");
     }
 
@@ -385,9 +385,9 @@ public class FileController {
         // 部分文件系统不支持头尾存在空格
         name = name.trim();
 
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
         CommonErrorCode.checkAndThrow(StringUtil.isBlank(name),CommonErrorCode.E_100001);
-        fileStorageService.rename(root,vFileId,name,accountDTO);
+        fileStorageService.rename(root,vFileId,name,userDTO);
         return Response.success().msg("重命名成功");
     }
 
@@ -397,8 +397,8 @@ public class FileController {
     public Response copy(@RequestParam("root") String root,
                          @RequestParam("vFileId") String vFileId,
                          @RequestParam("parentId") String parent) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        fileStorageService.copyTo(root,vFileId,parent,accountDTO);
+        UserDTO userDTO = SecurityUtil.getUser();
+        fileStorageService.copyTo(root,vFileId,parent,userDTO);
         return Response.success().msg("复制成功");
     }
 
@@ -408,8 +408,8 @@ public class FileController {
     public Response move(@RequestParam("root") String root,
                          @RequestParam("vFileId") String vFileId,
                          @RequestParam("parentId") String parent) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        fileStorageService.moveTo(root,vFileId,parent,null,accountDTO);
+        UserDTO userDTO = SecurityUtil.getUser();
+        fileStorageService.moveTo(root,vFileId,parent,null,userDTO);
         return Response.success().msg("移动成功");
     }
 
@@ -417,7 +417,7 @@ public class FileController {
     @PostMapping(value = "/uploadAvatar")
     @Token
     public Response uploadAvatar(@RequestParam("file") MultipartFile file) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
 
         // 格式校验
         List<String> uploadImageTypes = Stream.of("image/png", "image/jpeg").collect(toList());
@@ -437,16 +437,16 @@ public class FileController {
         if (imageSize > 2)
             throw new BusinessException(CommonErrorCode.E_500005);
 
-        fileService.uploadAvatar(accountDTO.getId(), file);
+        fileService.uploadAvatar(userDTO.getId(), file);
 
         return Response.success().msg("上传成功");
     }
 
     @Operation(summary ="获取头像")
     @GetMapping(value = "/queryAvatar")
-    public void queryAvatar(@RequestParam("accountId") Long accountId,
+    public void queryAvatar(@RequestParam("userId") Long userId,
                             HttpServletResponse response) {
-        String imageUrl = fileService.queryAvatar(accountId);
+        String imageUrl = fileService.queryAvatar(userId);
 
         FileInputStream in = null;
         OutputStream out = null;

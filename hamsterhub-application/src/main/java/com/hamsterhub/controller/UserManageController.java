@@ -5,8 +5,8 @@ import com.hamsterhub.service.config.SystemConfig;
 import com.hamsterhub.convert.UserConvert;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.response.UserResponse;
-import com.hamsterhub.database.dto.AccountDTO;
-import com.hamsterhub.database.service.AccountService;
+import com.hamsterhub.database.dto.UserDTO;
+import com.hamsterhub.database.service.UserService;
 import com.hamsterhub.vo.UserVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,47 +25,47 @@ public class UserManageController {
     private SystemConfig systemConfig;
 
     @Autowired
-    private AccountService accountService;
+    private UserService userService;
 
 
     @Operation(summary ="新建账号")
-    @PostMapping(value = "/addAccount")
+    @PostMapping(value = "/addUser")
     @Token("0")
     public Response add(@RequestBody UserVO userVO) {
-        AccountDTO accountDTO = UserConvert.INSTANCE.vo2dto(userVO);
-        accountDTO.setUsername(accountDTO.getUsername().toLowerCase()); // 统一小写
-        accountDTO.setPassModified();
-        accountDTO.setPassword("AAA123456"); // 默认密码
-        accountService.create(accountDTO);
+        UserDTO userDTO = UserConvert.INSTANCE.vo2dto(userVO);
+        userDTO.setUsername(userDTO.getUsername().toLowerCase()); // 统一小写
+        userDTO.setPassModified();
+        userDTO.setPassword("AAA123456"); // 默认密码
+        userService.create(userDTO);
         return Response.success().msg("新建成功");
     }
 
     @Operation(summary ="删除账号")
-    @PostMapping(value = "/delAccount")
+    @PostMapping(value = "/delUser")
     @Token("0")
     public Response del(@RequestParam("id") Long id) {
-        accountService.delete(id);
+        userService.delete(id);
         return Response.success().msg("删除账号");
     }
 
     @Operation(summary ="更新账号")
-    @PostMapping(value = "/updateAccount")
+    @PostMapping(value = "/updateUser")
     @Token("0")
     public Response update(@RequestBody UserVO userVO) {
         userVO.setUsername(userVO.getUsername().toLowerCase());
 
-        AccountDTO accountDTO = UserConvert.INSTANCE.vo2dto(userVO);
-        accountDTO.setPassModified();
-        accountService.updateForAdmin(accountDTO);
+        UserDTO userDTO = UserConvert.INSTANCE.vo2dto(userVO);
+        userDTO.setPassModified();
+        userService.updateForAdmin(userDTO);
         return Response.success().msg("更新成功");
     }
 
     @Operation(summary ="查询所有账号")
-    @GetMapping(value = "/fetchAccountAll")
+    @GetMapping(value = "/fetchUserAll")
     @Token("0")
     public Response fetchAll() {
-        List<AccountDTO> accountDTOS = accountService.FetchAll();
-        List<UserResponse> userResponses = UserConvert.INSTANCE.dto2resBatch(accountDTOS);
+        List<UserDTO> userDTOS = userService.FetchAll();
+        List<UserResponse> userResponses = UserConvert.INSTANCE.dto2resBatch(userDTOS);
         return Response.success().data(userResponses);
     }
 

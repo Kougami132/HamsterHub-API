@@ -11,6 +11,7 @@ import com.hamsterhub.enums.PushType;
 import com.hamsterhub.response.PushConfigResponse;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.service.service.PushService;
+import com.hamsterhub.util.ApplicationContextHelper;
 import com.hamsterhub.util.SecurityUtil;
 import com.hamsterhub.vo.PushConfigVO;
 import io.swagger.v3.oas.annotations.Operation;
@@ -33,9 +34,6 @@ public class PushConfigController {
     private List<String> TYPE = PushType.getTypeList();
 
     @Autowired
-    private ApplicationContext applicationContext;
-
-    @Autowired
     PushConfigService pushConfigService;
 
     @Operation(summary = "推送类型")
@@ -48,7 +46,7 @@ public class PushConfigController {
     @GetMapping(value = "/queryPushConfig")
     @Token
     public Response queryPushConfig() {
-        Long userId = SecurityUtil.getAccount().getId();
+        Long userId = SecurityUtil.getUser().getId();
         PushConfigDTO pushConfigDTO = pushConfigService.query(userId);
         PushConfigResponse res = PushConfigConvert.INSTANCE.dto2res(pushConfigDTO);
         return Response.success().data(res);
@@ -58,7 +56,7 @@ public class PushConfigController {
     @PostMapping(value = "/setPushConfig")
     @Token
     public Response setPushConfig(@RequestBody PushConfigVO pushConfigVO) {
-        Long userId = SecurityUtil.getAccount().getId();
+        Long userId = SecurityUtil.getUser().getId();
 
         // type校验
         CommonErrorCode.checkAndThrow(!TYPE.contains(pushConfigVO.getType()), CommonErrorCode.E_130001);
@@ -78,11 +76,11 @@ public class PushConfigController {
     @GetMapping(value = "/testPush")
     @Token
     public Response testPush() {
-        Long userId = SecurityUtil.getAccount().getId();
+        Long userId = SecurityUtil.getUser().getId();
         PushConfigDTO pushConfigDTO = pushConfigService.query(userId);
 
         String beanName = PushType.getBeanNameByType(pushConfigDTO.getType());
-        PushService pushService = (PushService) applicationContext.getBean(beanName);
+        PushService pushService = (PushService) ApplicationContextHelper.getBean(beanName);
         pushService.push(pushConfigDTO.getParam(), "测试");
 
         return Response.success().msg("消息已推送");

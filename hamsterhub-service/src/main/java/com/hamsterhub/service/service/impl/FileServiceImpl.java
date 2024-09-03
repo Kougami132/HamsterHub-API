@@ -153,14 +153,14 @@ public class FileServiceImpl implements FileService {
     }
 
     @Override
-    public void uploadAvatar(Long accountId, MultipartFile file) throws BusinessException {
+    public void uploadAvatar(Long userId, MultipartFile file) throws BusinessException {
         initAvatar();
         String extension = getFileExtension(file);
         // 头像已存在则删除
-        String avatar = findAvatar(accountId);
+        String avatar = findAvatar(userId);
         if (!avatar.equals("default.jpg"))
             new File("avatars/" + avatar).delete();
-        String imageUrl = String.format("%s/avatars/%s.%s", System.getProperty("user.dir"), accountId, extension);
+        String imageUrl = String.format("%s/avatars/%s.%s", System.getProperty("user.dir"), userId, extension);
         File imageFile = new File(imageUrl);
         try {
             file.transferTo(imageFile);
@@ -172,9 +172,9 @@ public class FileServiceImpl implements FileService {
 
 
     @Override
-    public String queryAvatar(Long accountId) throws BusinessException {
+    public String queryAvatar(Long userId) throws BusinessException {
         initAvatar();
-        return "avatars/" + findAvatar(accountId);
+        return "avatars/" + findAvatar(userId);
     }
 
 }

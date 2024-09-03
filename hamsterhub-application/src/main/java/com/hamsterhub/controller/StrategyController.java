@@ -7,7 +7,7 @@ import com.hamsterhub.convert.StrategyConvert;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.response.SizeResponse;
 import com.hamsterhub.response.StrategyResponse;
-import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.UserDTO;
 import com.hamsterhub.database.dto.StrategyDTO;
 import com.hamsterhub.database.service.DeviceStrategyService;
 import com.hamsterhub.service.service.FileStorageService;
@@ -56,14 +56,14 @@ public class StrategyController {
     @GetMapping(value = "/queryStrategy")
     @Token
     public Response queryStrategy() {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
 
         List<StrategyResponse> data = new ArrayList<>();
         List<StrategyDTO> strategyDTOs = strategyService.queryBatch();
         for (StrategyDTO i: strategyDTOs) {
             StrategyResponse strategyResponse = StrategyConvert.INSTANCE.dto2res(i);
             strategyResponse.setPermissions(separatePermission(i.getPermission()));
-            if (accountDTO.isAdmin() || strategyResponse.getPermissions().contains(accountDTO.getType())) {
+            if (userDTO.isAdmin() || strategyResponse.getPermissions().contains(userDTO.getType())) {
 //                strategyResponse.setDeviceIds(deviceStrategyService.queryDeviceIds(i.getId()).stream()
 //                        .map(Objects::toString)
 //                        .collect(toList()));

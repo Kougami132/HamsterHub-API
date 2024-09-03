@@ -7,7 +7,7 @@ import com.hamsterhub.response.DownloaderOptionResponse;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.response.TaskResponse;
 import com.hamsterhub.service.downloader.DownloadService;
-import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.UserDTO;
 import com.hamsterhub.database.dto.DownloadTaskDTO;
 import com.hamsterhub.service.entity.DownloaderOption;
 import com.hamsterhub.util.SecurityUtil;
@@ -39,7 +39,7 @@ public class TaskController {
                                     @RequestParam(value = "downloadId", required = false) Integer downloadId
 
     ) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
         if (downloadId == null) {
             downloadId = 1;
         }
@@ -52,7 +52,7 @@ public class TaskController {
             name = formatter.format(date) + " task";
         }
 
-        String tag = downloadService.addDownloadTaskForUser(accountDTO, downloadId,root,parent,url,name);
+        String tag = downloadService.addDownloadTaskForUser(userDTO, downloadId,root,parent,url,name);
 
         return Response.success().msg("下载请求已加入队列").data(tag);
     }
@@ -61,8 +61,8 @@ public class TaskController {
     @GetMapping(value = "/taskList")
     @Token
     public Response taskList() {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        List<DownloadTaskDTO> list = downloadService.getList(accountDTO);
+        UserDTO userDTO = SecurityUtil.getUser();
+        List<DownloadTaskDTO> list = downloadService.getList(userDTO);
         List<TaskResponse> res  = DownloadTaskConvert.INSTANCE.dto2resBatch(list);
         return Response.success().data(res);
     }
@@ -72,13 +72,13 @@ public class TaskController {
     @Token
     public Response deleteTask(@RequestParam("tag") String tag,
                                @RequestParam(value = "downloadId", required = false) Integer downloadId) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
 
         if (downloadId == null) {
             downloadId = 1;
         }
 
-        downloadService.deleteDownloadTask(downloadId,tag,accountDTO);
+        downloadService.deleteDownloadTask(downloadId,tag,userDTO);
         return Response.success().msg("删除成功");
     }
 
@@ -86,8 +86,8 @@ public class TaskController {
     @GetMapping(value = "/downloaderList")
     @Token
     public Response getDownloaderList() {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        List<DownloaderOption> list = downloadService.getDownloaderOption(accountDTO);
+        UserDTO userDTO = SecurityUtil.getUser();
+        List<DownloaderOption> list = downloadService.getDownloaderOption(userDTO);
         List<DownloaderOptionResponse> res  = DownloadTaskConvert.INSTANCE.dto2resBatchForOption(list);
         return Response.success().data(res);
     }

@@ -1,7 +1,7 @@
 package com.hamsterhub.webdav;
 
 import com.hamsterhub.common.util.StringUtil;
-import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.UserDTO;
 import com.hamsterhub.database.dto.StrategyDTO;
 import com.hamsterhub.database.dto.VFileDTO;
 import com.hamsterhub.database.service.DeviceService;
@@ -84,11 +84,11 @@ public class FileTool {
         return Response.success().data(rFileService.isExist(hash, strategyDTO.getId()));
     }
 
-    public VFileDTO queryFile(String root, String url, AccountDTO accountDTO) {
-        return fileStorageService.queryFile(root, url, accountDTO).get(0);
+    public VFileDTO queryFile(String root, String url, UserDTO userDTO) {
+        return fileStorageService.queryFile(root, url, userDTO).get(0);
     }
 
-    public List<WebFileResource> queryList(String url, int depth, AccountDTO accountDTO) throws UnsupportedEncodingException {
+    public List<WebFileResource> queryList(String url, int depth, UserDTO userDTO) throws UnsupportedEncodingException {
 
         String[] paths = splitUrl(url);
 
@@ -102,13 +102,13 @@ public class FileTool {
         List<WebFileResource> data = new ArrayList<>();
 
         String parentId = "0";
-        VFileDTO vFileDTO = queryFile(root, fileUrl, accountDTO);
+        VFileDTO vFileDTO = queryFile(root, fileUrl, userDTO);
         if (!"".equals(fileUrl) && !"/".equals(fileUrl) && !"\\".equals(fileUrl)){
             // 如果为空说明是根目录查询,否则需要获取父目录id
             data.add(new WebFileResource(url,vFileDTO,true));
             parentId = vFileDTO.getId();
         }else {
-            WebFileResource rootWebFileResource= createWebFileResourceForRoot(root, accountDTO);
+            WebFileResource rootWebFileResource= createWebFileResourceForRoot(root, userDTO);
             data.add(rootWebFileResource);
         }
 
@@ -117,7 +117,7 @@ public class FileTool {
         }
 
         // 获取列表
-        List<VFileDTO> vFileDTOs = fileStorageService.queryDirectory(root,parentId,accountDTO,null,null);
+        List<VFileDTO> vFileDTOs = fileStorageService.queryDirectory(root,parentId,userDTO,null,null);
 
         // 转换为webdav的数据
         for (VFileDTO i: vFileDTOs) {
@@ -127,18 +127,18 @@ public class FileTool {
         return data;
     }
 
-    public boolean hasPermissionRoot(StrategyDTO strategyDTO,AccountDTO accountDTO){
-        return accountDTO.isAdmin() ||
-                separatePermission(strategyDTO.getPermission()).contains(accountDTO.getType());
+    public boolean hasPermissionRoot(StrategyDTO strategyDTO,UserDTO userDTO){
+        return userDTO.isAdmin() ||
+                separatePermission(strategyDTO.getPermission()).contains(userDTO.getType());
     }
 
-    public WebFileResource createWebFileResourceForRoot(String root , AccountDTO accountDTO)
+    public WebFileResource createWebFileResourceForRoot(String root , UserDTO userDTO)
             throws UnsupportedEncodingException {
 
         WebFileResource res = null;
 
         StrategyDTO strategyDTO = strategyService.query(root);
-        if (hasPermissionRoot(strategyDTO,accountDTO)){
+        if (hasPermissionRoot(strategyDTO,userDTO)){
             res = new WebFileResource();
             res.setName(strategyDTO.getRoot());
             res.setIsCollection(true); // 策略一定是文件夹
@@ -149,12 +149,12 @@ public class FileTool {
     }
 
 
-    public List<WebFileResource> queryRoot(AccountDTO accountDTO) throws UnsupportedEncodingException {
+    public List<WebFileResource> queryRoot(UserDTO userDTO) throws UnsupportedEncodingException {
         List<StrategyDTO> strategyDTOs = strategyService.queryBatch();
         List<WebFileResource> data = new ArrayList<>();
         for (StrategyDTO i:strategyDTOs) {
             // 验证访问权限
-            if (hasPermissionRoot(i,accountDTO)){
+            if (hasPermissionRoot(i,userDTO)){
                 WebFileResource temp = new WebFileResource();
                 temp.setName(i.getRoot());
                 temp.setIsCollection(true); // 策略一定是文件夹
@@ -165,7 +165,7 @@ public class FileTool {
         return data;
     }
 
-    public List<WebFileResource> queryFile(String url, AccountDTO accountDTO) throws UnsupportedEncodingException {
+    public List<WebFileResource> queryFile(String url, UserDTO userDTO) throws UnsupportedEncodingException {
         String[] paths = splitUrl(url);
 
         if("".equals(paths[0])){
@@ -180,9 +180,9 @@ public class FileTool {
 
         if ( "".equals(fileUrl) || "/".equals(fileUrl) || "\\".equals(fileUrl)){
             // 如果为根目录
-            temp = createWebFileResourceForRoot(root, accountDTO);
+            temp = createWebFileResourceForRoot(root, userDTO);
         }else{
-            VFileDTO vFileDTO = queryFile(root, fileUrl, accountDTO);
+            VFileDTO vFileDTO = queryFile(root, fileUrl, userDTO);
             temp = new WebFileResource(url,vFileDTO,true);
         }
 
@@ -192,7 +192,7 @@ public class FileTool {
         return data;
     }
 
-    public String getFileUrl(String url, AccountDTO accountDTO) throws UnsupportedEncodingException {
+    public String getFileUrl(String url, UserDTO userDTO) throws UnsupportedEncodingException {
         String[] paths = splitUrl(url);
 
         if("".equals(paths[0])){
@@ -202,8 +202,8 @@ public class FileTool {
         String root = paths[0];
         String fileUrl = paths[1];
 
-        VFileDTO vFileDTO = queryFile(root, fileUrl, accountDTO);
-        return fileStorageService.getDownloadUrl(root,vFileDTO.getId(), accountDTO,null);
+        VFileDTO vFileDTO = queryFile(root, fileUrl, userDTO);
+        return fileStorageService.getDownloadUrl(root,vFileDTO.getId(), userDTO,null);
     }
 
     public String encodeUrl(String url) throws UnsupportedEncodingException {
@@ -211,7 +211,7 @@ public class FileTool {
         return URLEncoder.encode(url, StandardCharsets.UTF_8.name()).replaceAll("\\+", "%20");
     }
 
-    public Boolean delFileUrl(String url, AccountDTO accountDTO) throws UnsupportedEncodingException {
+    public Boolean delFileUrl(String url, UserDTO userDTO) throws UnsupportedEncodingException {
         String[] paths = splitUrl(url);
 
         if("".equals(paths[0])){
@@ -221,17 +221,17 @@ public class FileTool {
         String root = paths[0];
         String fileUrl = paths[1];
 
-        VFileDTO vFileDTO = queryFile(root, fileUrl, accountDTO);
+        VFileDTO vFileDTO = queryFile(root, fileUrl, userDTO);
 
-        return delFile(root ,vFileDTO.getId(), accountDTO);
+        return delFile(root ,vFileDTO.getId(), userDTO);
     }
 
-    public Boolean delFile( String root, String vFileId, AccountDTO accountDTO) {
-        fileStorageService.delete(root,vFileId,accountDTO);
+    public Boolean delFile( String root, String vFileId, UserDTO userDTO) {
+        fileStorageService.delete(root,vFileId,userDTO);
         return true;
     }
 
-    public Boolean mkdirUrl(String url, AccountDTO accountDTO) {
+    public Boolean mkdirUrl(String url, UserDTO userDTO) {
         String[] paths = splitUrl(url);
 
         if("".equals(paths[0])){
@@ -252,11 +252,11 @@ public class FileTool {
         String parent = "0";
 
         if(!StringUtil.isBlank(parentUrl)){
-            VFileDTO vFileDTO = queryFile(root, parentUrl, accountDTO);
+            VFileDTO vFileDTO = queryFile(root, parentUrl, userDTO);
             parent = vFileDTO.getId();
         }
 
-        fileStorageService.makeDirectory(root, parent,dirName,accountDTO);
+        fileStorageService.makeDirectory(root, parent,dirName,userDTO);
         return true;
     }
 
@@ -282,7 +282,7 @@ public class FileTool {
         return new FilePathData(paths[0],paths[1],parentUrl,arr[1]);
     }
 
-    public Boolean copy(String url, String destination, AccountDTO accountDTO) {
+    public Boolean copy(String url, String destination, UserDTO userDTO) {
         FilePathData targetFile = parseUrl(url);
         FilePathData destinationFile = parseUrl(destination);
 
@@ -301,22 +301,22 @@ public class FileTool {
         String fileId = "0";
 
         if(!StringUtil.isBlank(targetFile.getFileUrl())){
-            VFileDTO vFileDTO = queryFile(targetFile.getRoot(), targetFile.getFileUrl(), accountDTO);
+            VFileDTO vFileDTO = queryFile(targetFile.getRoot(), targetFile.getFileUrl(), userDTO);
             fileId = vFileDTO.getId();
         }
 
         String parent = "0";
 
         if(!destinationFile.getParentUrl().equals("/")){
-            VFileDTO vFileDTO = queryFile(destinationFile.getRoot(), destinationFile.getParentUrl(), accountDTO);
+            VFileDTO vFileDTO = queryFile(destinationFile.getRoot(), destinationFile.getParentUrl(), userDTO);
             parent = vFileDTO.getId();
         }
 
-        fileStorageService.copyTo(targetFile.getRoot(),fileId,parent,accountDTO);
+        fileStorageService.copyTo(targetFile.getRoot(),fileId,parent,userDTO);
         return true;
     }
 
-    public Boolean move(String url, String destination, AccountDTO accountDTO) {
+    public Boolean move(String url, String destination, UserDTO userDTO) {
 
 
         FilePathData targetFile = parseUrl(url);
@@ -336,23 +336,23 @@ public class FileTool {
         String fileId = "0";
 
         if(!StringUtil.isBlank(targetFile.getFileUrl())){
-            VFileDTO vFileDTO = queryFile(targetFile.getRoot(), targetFile.getFileUrl(), accountDTO);
+            VFileDTO vFileDTO = queryFile(targetFile.getRoot(), targetFile.getFileUrl(), userDTO);
             fileId = vFileDTO.getId();
         }
 
         String parentId = "0";
 
         if(!destinationFile.getParentUrl().equals("/")){
-            VFileDTO vFileDTO = queryFile(destinationFile.getRoot(), destinationFile.getParentUrl(), accountDTO);
+            VFileDTO vFileDTO = queryFile(destinationFile.getRoot(), destinationFile.getParentUrl(), userDTO);
             parentId = vFileDTO.getId();
         }
 
 
-        fileStorageService.moveTo(targetFile.getRoot(),fileId,parentId,destinationFile.getName(),accountDTO);
+        fileStorageService.moveTo(targetFile.getRoot(),fileId,parentId,destinationFile.getName(),userDTO);
         return true;
     }
 
-    public Boolean upload(File file,String url,Long size, AccountDTO accountDTO) {
+    public Boolean upload(File file,String url,Long size, UserDTO userDTO) {
 
         FilePathData filePathData = parseUrl(url);
 
@@ -362,7 +362,7 @@ public class FileTool {
 
         fileStorageService.upload(filePathData.getRoot(),
                 file,filePathData.getParentUrl(),
-                filePathData.getName(),size,"",accountDTO);
+                filePathData.getName(),size,"",userDTO);
 
         return true;
     }

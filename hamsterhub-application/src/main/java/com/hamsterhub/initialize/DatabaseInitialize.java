@@ -1,6 +1,6 @@
 package com.hamsterhub.initialize;
 
-import com.hamsterhub.database.service.AccountService;
+import com.hamsterhub.database.service.UserService;
 import com.hamsterhub.database.service.SysConfigService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,13 +13,13 @@ import javax.annotation.PostConstruct;
 public class DatabaseInitialize {
 
     @Autowired
-    AccountService accountService;
+    UserService userService;
     @Autowired
     SysConfigService sysConfigService;
 
     @PostConstruct
     private void init() {
-        accountService.init();
+        userService.init();
         sysConfigService.init();
         log.info("数据库初始化完成");
     }

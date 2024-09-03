@@ -6,7 +6,7 @@ import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.convert.ShareConvert;
 import com.hamsterhub.convert.VFileConvert;
-import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.UserDTO;
 import com.hamsterhub.database.dto.ShareDTO;
 import com.hamsterhub.database.dto.VFileDTO;
 import com.hamsterhub.database.service.ShareService;
@@ -48,11 +48,11 @@ public class ShareController {
                               @RequestParam(value = "name", required = false) String name
     ) throws UnsupportedEncodingException {
 
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
         CommonErrorCode.checkAndThrow(StringUtil.isBlank(index),CommonErrorCode.E_100001);
         CommonErrorCode.checkAndThrow(StringUtil.isBlank(root),CommonErrorCode.E_100001);
         index = URLDecoder.decode(index, StandardCharsets.UTF_8.name());
-        ShareDTO shareDTO = shareFileStorageService.shareFile(root, index, accountDTO, key, expiry, name);
+        ShareDTO shareDTO = shareFileStorageService.shareFile(root, index, userDTO, key, expiry, name);
         return Response.success().data(shareDTO);
     }
 
@@ -60,10 +60,10 @@ public class ShareController {
     @PostMapping(value = "/hide")
     @Token
     public Response hide(@RequestParam("vFileId") Long vFileId) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
         VFileDTO vFileDTO = vFileService.query(vFileId);
         // 文件与用户不匹配
-        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
+        if (!vFileDTO.getUserId().equals(userDTO.getId()))
             throw new BusinessException(CommonErrorCode.E_600005);
         // 该文件正在分享
         if (shareService.isExistByVFileId(vFileId))
@@ -78,10 +78,10 @@ public class ShareController {
     @PostMapping(value = "/show")
     @Token
     public Response show(@RequestParam("vFileId") Long vFileId) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
         VFileDTO vFileDTO = vFileService.query(vFileId);
         // 文件与用户不匹配
-        if (!vFileDTO.getAccountID().equals(accountDTO.getId()))
+        if (!vFileDTO.getUserId().equals(userDTO.getId()))
             throw new BusinessException(CommonErrorCode.E_600005);
         // 该文件正在分享
         if (shareService.isExistByVFileId(vFileId))
@@ -97,10 +97,10 @@ public class ShareController {
     @Token
     public Response deleteShare(@RequestParam("root") String root,
                                 @RequestParam("shareId") Long shareId) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
         // 参数为空
         CommonErrorCode.checkAndThrow(StringUtil.isBlank(root),CommonErrorCode.E_100001);
-        shareFileStorageService.deleteShare(root, shareId, accountDTO);
+        shareFileStorageService.deleteShare(root, shareId, userDTO);
 
         return Response.success().msg("分享取消成功");
     }
@@ -109,8 +109,8 @@ public class ShareController {
     @GetMapping(value = "/queryShares")
     @Token
     public Response queryShares() {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        List<ShareDTO> shareDTOs = shareService.queryBatch(accountDTO.getId());
+        UserDTO userDTO = SecurityUtil.getUser();
+        List<ShareDTO> shareDTOs = shareService.queryBatch(userDTO.getId());
         List<ShareResponse> data = ShareConvert.INSTANCE.dto2resBatch(shareDTOs);
         return Response.success().data(data);
     }

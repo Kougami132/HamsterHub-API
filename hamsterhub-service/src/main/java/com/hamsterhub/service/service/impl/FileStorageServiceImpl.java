@@ -7,7 +7,7 @@ import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.service.device.ListFiler;
 import com.hamsterhub.service.device.impl.RealStrategyStorage;
 import com.hamsterhub.service.device.impl.VirtualStrategyStorage;
-import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.UserDTO;
 import com.hamsterhub.database.dto.VFileDTO;
 import com.hamsterhub.database.entity.Strategy;
 
@@ -80,27 +80,27 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     @Override
-    public List<VFileDTO> queryFile(String root, String url, AccountDTO accountDTO){
+    public List<VFileDTO> queryFile(String root, String url, UserDTO userDTO){
         ListFiler listFiler = getListFiler(root);
-        return listFiler.queryFile(url,accountDTO.getId());
+        return listFiler.queryFile(url,userDTO.getId());
     }
 
     @Override
-    public VFileDTO getFile(String root, String index, AccountDTO accountDTO){
+    public VFileDTO getFile(String root, String index, UserDTO userDTO){
         ListFiler listFiler = getListFiler(root);
-        return listFiler.getFile(index,accountDTO.getId());
+        return listFiler.getFile(index,userDTO.getId());
     }
 
     @Override
-    public List<VFileDTO> queryDirectory(String root, String parent, AccountDTO accountDTO, Integer page, Integer limit) {
+    public List<VFileDTO> queryDirectory(String root, String parent, UserDTO userDTO, Integer page, Integer limit) {
         ListFiler listFiler = getListFiler(root);
-        return listFiler.queryDirectory(parent, accountDTO.getId(), page, limit);
+        return listFiler.queryDirectory(parent, userDTO.getId(), page, limit);
     }
 
     @Override
-    public VFileDTO makeDirectory(String root, String parent, String name, AccountDTO accountDTO) {
+    public VFileDTO makeDirectory(String root, String parent, String name, UserDTO userDTO) {
         ListFiler listFiler = getListFiler(root);
-        return listFiler.makeDirectory(parent, name, accountDTO.getId());
+        return listFiler.makeDirectory(parent, name, userDTO.getId());
     }
 
     @Override
@@ -110,37 +110,37 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     @Override
-    public void delete(String root, String index, AccountDTO accountDTO) {
+    public void delete(String root, String index, UserDTO userDTO) {
         ListFiler listFiler = getListFiler(root);
-        listFiler.delete(index, accountDTO.getId());
+        listFiler.delete(index, userDTO.getId());
     }
 
     @Override
-    public void rename(String root, String index, String name, AccountDTO accountDTO) {
+    public void rename(String root, String index, String name, UserDTO userDTO) {
         ListFiler listFiler = getListFiler(root);
-        listFiler.rename(index, name, accountDTO.getId());
+        listFiler.rename(index, name, userDTO.getId());
     }
 
     @Override
-    public void copyTo(String root, String index, String parent, AccountDTO accountDTO) {
+    public void copyTo(String root, String index, String parent, UserDTO userDTO) {
         ListFiler listFiler = getListFiler(root);
-        listFiler.copyTo(index, parent, accountDTO.getId());
+        listFiler.copyTo(index, parent, userDTO.getId());
     }
 
     @Override
-    public void moveTo(String root, String index, String parent, String name, AccountDTO accountDTO) {
+    public void moveTo(String root, String index, String parent, String name, UserDTO userDTO) {
         ListFiler listFiler = getListFiler(root);
-        listFiler.moveTo(index, parent, name, accountDTO.getId());
+        listFiler.moveTo(index, parent, name, userDTO.getId());
     }
 
     @Override
-    public void uploadBefore(String root, String parent,String name, AccountDTO accountDTO) {
+    public void uploadBefore(String root, String parent,String name, UserDTO userDTO) {
         ListFiler listFiler = getListFiler(root);
-        listFiler.uploadBefore(parent, name, accountDTO.getId());
+        listFiler.uploadBefore(parent, name, userDTO.getId());
     }
 
     @Override
-    public VFileDTO upload(String root, File file, String parent, String name, Long size, String hash, AccountDTO accountDTO) {
+    public VFileDTO upload(String root, File file, String parent, String name, Long size, String hash, UserDTO userDTO) {
         ListFiler listFiler = getListFiler(root);
 
         String md5 = null;
@@ -150,13 +150,13 @@ public class FileStorageServiceImpl implements FileStorageService {
         }else{
             md5 = hash;
         }
-        return listFiler.upload(parent, file, name, size, accountDTO.getId(), md5);
+        return listFiler.upload(parent, file, name, size, userDTO.getId(), md5);
     }
 
     @Override
-    public String getDownloadUrl(String root, String index, AccountDTO accountDTO, Long preference){
+    public String getDownloadUrl(String root, String index, UserDTO userDTO, Long preference){
         ListFiler listFiler = getListFiler(root);
-        return listFiler.getDownloadUrl(index, accountDTO.getId(), preference);
+        return listFiler.getDownloadUrl(index, userDTO.getId(), preference);
     }
 
     @Override
@@ -172,9 +172,9 @@ public class FileStorageServiceImpl implements FileStorageService {
     }
 
     @Override
-    public String getQueryUrl(String root, String index, AccountDTO accountDTO){
+    public String getQueryUrl(String root, String index, UserDTO userDTO){
         ListFiler listFiler = getListFiler(root);
-        return listFiler.getQueryUrl(index, accountDTO.getId());
+        return listFiler.getQueryUrl(index, userDTO.getId());
     }
 
 

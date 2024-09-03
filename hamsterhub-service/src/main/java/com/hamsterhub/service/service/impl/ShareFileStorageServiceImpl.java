@@ -5,7 +5,7 @@ import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.database.service.*;
 import com.hamsterhub.service.device.ListFiler;
-import com.hamsterhub.database.dto.AccountDTO;
+import com.hamsterhub.database.dto.UserDTO;
 import com.hamsterhub.database.dto.ShareDTO;
 import com.hamsterhub.database.dto.VFileDTO;
 import com.hamsterhub.service.service.*;
@@ -55,7 +55,7 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
     }
 
     @Override
-    public ShareDTO shareFile(String root, String index, AccountDTO accountDTO, String key, Long expiry, String name){
+    public ShareDTO shareFile(String root, String index, UserDTO userDTO, String key, Long expiry, String name){
         ListFiler listFiler = fileStorageService.getListFiler(root);
 
         // 0: 无需提取码 1: 需要提取码
@@ -74,7 +74,7 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
             vFileDTO = vFileService.query(fileIndex);
 
             // 文件与用户不匹配
-            CommonErrorCode.checkAndThrow(!vFileDTO.getAccountID().equals(accountDTO.getId()),CommonErrorCode.E_600005);
+            CommonErrorCode.checkAndThrow(!vFileDTO.getUserId().equals(userDTO.getId()),CommonErrorCode.E_600005);
 
             // 该文件正在分享
             Long shareParent = vFileService.getShareParent(fileIndex);
@@ -84,7 +84,7 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
         String ticket = generateTicket();
         LocalDateTime expiryTime = generateExpiryTime(expiry);
 
-        ShareDTO shareDTO = new ShareDTO(null, type, ticket, index, key, expiryTime, accountDTO.getId(), name, root);
+        ShareDTO shareDTO = new ShareDTO(null, type, ticket, index, key, expiryTime, userDTO.getId(), name, root);
         shareDTO = shareService.create(shareDTO);
 
         // 创建之后，处理副作用
@@ -97,7 +97,7 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
     }
 
     @Override
-    public Boolean deleteShare(String root, Long shareId, AccountDTO accountDTO){
+    public Boolean deleteShare(String root, Long shareId, UserDTO userDTO){
         ListFiler listFiler = fileStorageService.getListFiler(root);
 
         // 分享ID不存在
@@ -105,7 +105,7 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
 
         // 分享与用户不匹配
         ShareDTO shareDTO = shareService.query(shareId);
-        CommonErrorCode.checkAndThrow(!shareDTO.getAccountID().equals(accountDTO.getId()),CommonErrorCode.E_600012);
+        CommonErrorCode.checkAndThrow(!shareDTO.getUserId().equals(userDTO.getId()),CommonErrorCode.E_600012);
 
         shareService.delete(shareId);
 
@@ -171,7 +171,7 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
                 throw new BusinessException(CommonErrorCode.E_600020);
             }
 
-            vFileDTO = listFiler.queryFile(fileIndex,shareDTO.getAccountID()).get(0);
+            vFileDTO = listFiler.queryFile(fileIndex,shareDTO.getUserId()).get(0);
         }
 
         return vFileDTO;
@@ -209,7 +209,7 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
                 fileIndex += "/";
             }
 
-            vFileDTO = listFiler.queryFile(fileIndex + name,shareDTO.getAccountID()).get(0);
+            vFileDTO = listFiler.queryFile(fileIndex + name,shareDTO.getUserId()).get(0);
         }
 
         return vFileDTO;
@@ -229,15 +229,15 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
             if (!shareParent.equals(Long.parseLong(shareDTO.getFileIndex())))
                 throw new BusinessException(CommonErrorCode.E_600020);
 
-//            vFileDTOs = listFiler.queryDirectory(parentIndex,shareDTO.getAccountID(),page,limit);
+//            vFileDTOs = listFiler.queryDirectory(parentIndex,shareDTO.getUserId(),page,limit);
         } else if (fileSystem.equals(REALY_FILE_SYSTEM)){
             // 对于真实路径，获取的路径应当以分享的路径开头，防止越过权限控制
             if (!parentIndex.startsWith(shareDTO.getFileIndex())){
                 throw new BusinessException(CommonErrorCode.E_600020);
             }
-            vFileDTOs = listFiler.queryDirectory(parentIndex,shareDTO.getAccountID(),page,limit);
+            vFileDTOs = listFiler.queryDirectory(parentIndex,shareDTO.getUserId(),page,limit);
         }
-        vFileDTOs = listFiler.queryDirectory(parentIndex,shareDTO.getAccountID(),page,limit);
+        vFileDTOs = listFiler.queryDirectory(parentIndex,shareDTO.getUserId(),page,limit);
         return vFileDTOs;
     }
 
@@ -249,7 +249,7 @@ public class ShareFileStorageServiceImpl implements ShareFileStorageService {
         String fileIndex = index == null ? shareDTO.getFileIndex() : index;
         Integer fileSystem = listFiler.getFileSystem();
         String res = null;
-        res = listFiler.getDownloadUrl(fileIndex, shareDTO.getAccountID(), preference);
+        res = listFiler.getDownloadUrl(fileIndex, shareDTO.getUserId(), preference);
 
         return res;
     }

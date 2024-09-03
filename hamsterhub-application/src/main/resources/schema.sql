@@ -5,7 +5,7 @@ USE hamster_db;
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
-CREATE TABLE IF NOT EXISTS `account` (
+CREATE TABLE IF NOT EXISTS `user` (
     `ID` bigint(20) NOT NULL COMMENT '主键',
     `USERNAME` varchar(50) NOT NULL COMMENT '用户名',
     `PASSWORD` varchar(50) NOT NULL COMMENT '密码',
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS `v_file` (
     `VERSION` bigint(20) NOT NULL DEFAULT '1' COMMENT '文件版本',
     `CREATED` datetime NOT NULL COMMENT '文件创建时间',
     `MODIFIED` datetime NOT NULL COMMENT '文件最后修改时间',
-    `ACCOUNT_ID` bigint(20) NOT NULL COMMENT '用户ID',
+    `USER_ID` bigint(20) NOT NULL COMMENT '用户ID',
     `SIZE` bigint(20) NOT NULL COMMENT '文件大小',
     `STRATEGY_ID` bigint(20) NOT NULL COMMENT '存储策略ID',
     `SHARE_TYPE` bigint(10) NOT NULL DEFAULT '0' COMMENT '分享类型,0继承,1分享,2不分享',
@@ -80,7 +80,7 @@ CREATE TABLE IF NOT EXISTS `share` (
     `FILE_INDEX` varchar(512) NOT NULL COMMENT '虚拟文件索引',
     `KEY` varchar(50) NULL COMMENT '提取码',
     `EXPIRY` DATETIME NOT NULL COMMENT '分享过期时间',
-    `ACCOUNT_ID` bigint(20) NOT NULL COMMENT '用户ID',
+    `USER_ID` bigint(20) NOT NULL COMMENT '用户ID',
     `NAME` varchar(50) DEFAULT NULL COMMENT '分享的名称',
     `ROOT` varchar(50) NOT NULL DEFAULT '所处策略的ROOT',
     PRIMARY KEY (`ID`) USING BTREE

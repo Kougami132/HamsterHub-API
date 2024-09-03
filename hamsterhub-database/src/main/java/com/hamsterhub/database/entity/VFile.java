@@ -35,8 +35,8 @@ public class VFile implements Serializable {
     @TableField("MODIFIED")
     private LocalDateTime modified;
 
-    @TableField("ACCOUNT_ID")
-    private Long accountID;
+    @TableField("USER_ID")
+    private Long userId;
 
     @TableField("SIZE")
     private Long size;

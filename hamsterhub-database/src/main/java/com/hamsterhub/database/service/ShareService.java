@@ -11,7 +11,7 @@ public interface ShareService {
     void deleteByVFileId(Long vFileId) throws BusinessException;
     ShareDTO query(Long shareId) throws BusinessException;
     ShareDTO query(String ticket) throws BusinessException;
-    List<ShareDTO> queryBatch(Long AccountId) throws BusinessException;
+    List<ShareDTO> queryBatch(Long UserId) throws BusinessException;
     Boolean isExist(Long shareId) throws BusinessException;
     Boolean isExistByVFileId(Long vFileId) throws BusinessException;
     Boolean isExist(String ticket) throws BusinessException;

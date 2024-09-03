@@ -1,10 +1,10 @@
 package com.hamsterhub.database.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.hamsterhub.database.entity.Account;
+import com.hamsterhub.database.entity.User;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface AccountMapper extends BaseMapper<Account> {
+public interface UserMapper extends BaseMapper<User> {
 
 }

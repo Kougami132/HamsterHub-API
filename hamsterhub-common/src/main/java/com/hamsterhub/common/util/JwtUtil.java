@@ -16,7 +16,7 @@ public class JwtUtil {
         secretKey = key;
     }
 
-    public static String createToken(Long accountId, String username, Integer expiryDay) {
+    public static String createToken(Long userId, String username, Integer expiryDay) {
         JwtBuilder jwtBuilder = Jwts.builder();
         String token = jwtBuilder
                 .setHeaderParam("typ", "JWT")

@@ -301,7 +301,7 @@ public class VirtualStrategyStorage implements ListFiler {
         CommonErrorCode.checkAndThrow(!vFileDTO.getStrategyId().equals(this.id), CommonErrorCode.E_600024);
 
         // 文件与用户不匹配
-        CommonErrorCode.checkAndThrow(!vFileDTO.getAccountID().equals(userId), CommonErrorCode.E_600005);
+        CommonErrorCode.checkAndThrow(!vFileDTO.getUserId().equals(userId), CommonErrorCode.E_600005);
 
         // 删除缓存
         redisService.delFileId(this.root, userId,Long.parseLong(index));
@@ -336,14 +336,14 @@ public class VirtualStrategyStorage implements ListFiler {
         CommonErrorCode.checkAndThrow(!vFileDTO.getStrategyId().equals(this.id), CommonErrorCode.E_600024);
 
         // 文件与用户不匹配
-        CommonErrorCode.checkAndThrow(!vFileDTO.getAccountID().equals(userId), CommonErrorCode.E_600005);
+        CommonErrorCode.checkAndThrow(!vFileDTO.getUserId().equals(userId), CommonErrorCode.E_600005);
 
         // 新文件名已存在
         if (vFileService.isExist(userId, vFileDTO.getStrategyId(), vFileDTO.getParentId(), name))
             throw new BusinessException(CommonErrorCode.E_600015);
 
         LambdaUpdateWrapper<VFile> updateWrapper = new LambdaUpdateWrapper<VFile>()
-                .eq(VFile::getAccountID, vFileDTO.getAccountID())
+                .eq(VFile::getUserId, vFileDTO.getUserId())
                 .eq(VFile::getStrategyId, vFileDTO.getStrategyId())
                 .eq(VFile::getParentId, vFileDTO.getParentId())
                 .eq(VFile::getName, vFileDTO.getName())
@@ -372,7 +372,7 @@ public class VirtualStrategyStorage implements ListFiler {
         VFileDTO vParentDTO = this.createParent(userId, parentId);
 
         // 文件与用户不匹配
-        CommonErrorCode.checkAndThrow(!vFileDTO.getAccountID().equals(userId), CommonErrorCode.E_600005);
+        CommonErrorCode.checkAndThrow(!vFileDTO.getUserId().equals(userId), CommonErrorCode.E_600005);
 
         // 目标文件不为目录
         CommonErrorCode.checkAndThrow(!vParentDTO.isDir(), CommonErrorCode.E_600013);
@@ -399,7 +399,7 @@ public class VirtualStrategyStorage implements ListFiler {
         while (!queue.isEmpty()) {
             VFileDTO cur = queue.poll();
             if (cur.isDir()) {
-                List<VFileDTO> vFileDTOs = vFileService.queryBatch(cur.getAccountID(), cur.getStrategyId(), Long.parseLong(cur.getId()));
+                List<VFileDTO> vFileDTOs = vFileService.queryBatch(cur.getUserId(), cur.getStrategyId(), Long.parseLong(cur.getId()));
                 for (VFileDTO i: vFileDTOs)
                     queue.offer(i);
             }
@@ -421,7 +421,7 @@ public class VirtualStrategyStorage implements ListFiler {
         VFileDTO vParentDTO = this.createParent(userId, parentId);
 
         // 文件与用户不匹配
-        CommonErrorCode.checkAndThrow(!vFileDTO.getAccountID().equals(userId), CommonErrorCode.E_600005);
+        CommonErrorCode.checkAndThrow(!vFileDTO.getUserId().equals(userId), CommonErrorCode.E_600005);
 
         // 目标文件不为目录
         CommonErrorCode.checkAndThrow(!vParentDTO.isDir(), CommonErrorCode.E_600013);
@@ -448,7 +448,7 @@ public class VirtualStrategyStorage implements ListFiler {
             vParentDTO = vFileService.query(vParentDTO.getParentId());
         }
 
-        List<VFileDTO> vFileDTOs = vFileService.query(vFileDTO.getAccountID(), vFileDTO.getStrategyId(), vFileDTO.getParentId(), vFileDTO.getName());
+        List<VFileDTO> vFileDTOs = vFileService.query(vFileDTO.getUserId(), vFileDTO.getStrategyId(), vFileDTO.getParentId(), vFileDTO.getName());
         for (VFileDTO i: vFileDTOs) {
             i.setParentId(parentId);
             i.setName(newName);
@@ -476,7 +476,7 @@ public class VirtualStrategyStorage implements ListFiler {
         CommonErrorCode.checkAndThrow(!vFileDTO.getStrategyId().equals(this.id), CommonErrorCode.E_600024);
 
         // 文件与用户不匹配
-        CommonErrorCode.checkAndThrow(!vFileDTO.getAccountID().equals(userId), CommonErrorCode.E_600005);
+        CommonErrorCode.checkAndThrow(!vFileDTO.getUserId().equals(userId), CommonErrorCode.E_600005);
 
     }
 
@@ -487,7 +487,7 @@ public class VirtualStrategyStorage implements ListFiler {
         // 版本控制功能导致复杂度提高，故移除
         // 取出版本最新的VFile
 //        List<VFile> vFiles = vFileMapper.selectList(new LambdaQueryWrapper<VFile>()
-//                .eq(VFile::getAccountID, userId)
+//                .eq(VFile::getUserId, userId)
 //                .eq(VFile::getStrategyId, this.id)
 //                .eq(VFile::getParentId, parentId)
 //                .eq(VFile::getName, name));
@@ -562,7 +562,7 @@ public class VirtualStrategyStorage implements ListFiler {
         CommonErrorCode.checkAndThrow(!vFileDTO.getStrategyId().equals(this.id), CommonErrorCode.E_600024);
 
         // 文件与用户不匹配
-        CommonErrorCode.checkAndThrow(!vFileDTO.getAccountID().equals(userId), CommonErrorCode.E_600005);
+        CommonErrorCode.checkAndThrow(!vFileDTO.getUserId().equals(userId), CommonErrorCode.E_600005);
 
         List<RFileDTO> rFileDTOS = rFileService.queryByHash(vFileDTO.getHash());
 

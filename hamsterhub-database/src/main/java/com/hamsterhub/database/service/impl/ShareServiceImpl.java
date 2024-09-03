@@ -63,8 +63,8 @@ public class ShareServiceImpl implements ShareService {
     }
 
     @Override
-    public List<ShareDTO> queryBatch(Long AccountId) throws BusinessException {
-        List<Share> shares = shareMapper.selectList(new LambdaQueryWrapper<Share>().eq(Share::getAccountID, AccountId));
+    public List<ShareDTO> queryBatch(Long UserId) throws BusinessException {
+        List<Share> shares = shareMapper.selectList(new LambdaQueryWrapper<Share>().eq(Share::getUserId, UserId));
         return ShareConvert.INSTANCE.entity2dtoBatch(shares);
     }
 

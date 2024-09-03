@@ -38,7 +38,7 @@ public class VFileDTO implements Serializable {
     private Long modified;
 
     @Schema(description = "文件所有人ID")
-    private Long accountID;
+    private Long userId;
 
     @Schema(description = "文件大小")
     private Long size;
@@ -66,29 +66,29 @@ public class VFileDTO implements Serializable {
 
     public static VFileDTO rootFileDTO(Long userId, Long strategyId) {
         VFileDTO vFileDTO = rootFileDTO();
-        vFileDTO.setAccountID(userId);
+        vFileDTO.setUserId(userId);
         vFileDTO.setStrategyId(strategyId);
         return vFileDTO;
     }
 
-    public static VFileDTO newFile(String name, Long strategyId, Long parentId, RFileDTO rFileDTO, Long accountId) {
+    public static VFileDTO newFile(String name, Long strategyId, Long parentId, RFileDTO rFileDTO, Long userId) {
         LocalDateTime now = LocalDateTime.now();
         VFileDTO file = new VFileDTO(null, 1, name, parentId, 0,
-                toTimestamp(now) , toTimestamp(now), accountId, rFileDTO.getSize(), strategyId, 0,"");
+                toTimestamp(now) , toTimestamp(now), userId, rFileDTO.getSize(), strategyId, 0,"");
         return file;
     }
 
-    public static VFileDTO newFile(String name, Long strategyId, Long parentId, Long size, Long accountId,String hash) {
+    public static VFileDTO newFile(String name, Long strategyId, Long parentId, Long size, Long userId,String hash) {
         LocalDateTime now = LocalDateTime.now();
         VFileDTO file = new VFileDTO(null, 1, name, parentId, 0,
-                toTimestamp(now), toTimestamp(now), accountId, size, strategyId, 0,hash);
+                toTimestamp(now), toTimestamp(now), userId, size, strategyId, 0,hash);
         return file;
     }
 
-    public static VFileDTO newDir(String name, Long strategyId, Long parentId, Long accountId) {
+    public static VFileDTO newDir(String name, Long strategyId, Long parentId, Long userId) {
         LocalDateTime now = LocalDateTime.now();
         VFileDTO dir = new VFileDTO(null, 0, name, parentId, 0, toTimestamp(now),
-                toTimestamp(now), accountId, 0L, strategyId, 0,"");
+                toTimestamp(now), userId, 0L, strategyId, 0,"");
         return dir;
     }
 

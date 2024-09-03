@@ -22,11 +22,11 @@ public interface RedisService {
     /**
      * 路径缓存
      */
-    Long getFileId(String root, Long accountId, String path) throws BusinessException;
-    void setFileId(String root, Long accountId, String path, Long fileId) throws BusinessException;
-    void delFileId(String root, Long accountId, String path) throws BusinessException;
-    void delFileId(String root, Long accountId, Long fileId) throws BusinessException;
-    boolean isPathExist(String root, Long accountId, String path) throws BusinessException;
+    Long getFileId(String root, Long userId, String path) throws BusinessException;
+    void setFileId(String root, Long userId, String path, Long fileId) throws BusinessException;
+    void delFileId(String root, Long userId, String path) throws BusinessException;
+    void delFileId(String root, Long userId, Long fileId) throws BusinessException;
+    boolean isPathExist(String root, Long userId, String path) throws BusinessException;
 
     /**
      * 阿里云盘token
@@ -39,8 +39,8 @@ public interface RedisService {
      * 下载任务
      */
     Map<String, String> getTasks() throws BusinessException;
-    Map<String, String> getTasks(Long accountId) throws BusinessException;
-    void addTask(Long accountId, String tag) throws BusinessException;
-    void addTask(Long accountId, String tag, String state) throws BusinessException;
+    Map<String, String> getTasks(Long userId) throws BusinessException;
+    void addTask(Long userId, String tag) throws BusinessException;
+    void addTask(Long userId, String tag, String state) throws BusinessException;
     void removeTask(String tag) throws BusinessException;
 }

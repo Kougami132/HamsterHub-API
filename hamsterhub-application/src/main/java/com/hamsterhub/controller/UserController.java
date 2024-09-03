@@ -10,8 +10,8 @@ import com.hamsterhub.service.config.SystemConfig;
 import com.hamsterhub.response.LoginResponse;
 import com.hamsterhub.response.Response;
 import com.hamsterhub.service.service.RedisService;
-import com.hamsterhub.database.dto.AccountDTO;
-import com.hamsterhub.database.service.AccountService;
+import com.hamsterhub.database.dto.UserDTO;
+import com.hamsterhub.database.service.UserService;
 import com.hamsterhub.util.SecurityUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,26 +29,26 @@ import static java.util.stream.Collectors.toList;
 @RestController
 @Tag(name = "用户 数据接口")
 @RequestMapping("api")
-public class AccountController {
+public class UserController {
 
     private List<String> TYPE = Stream.of("管理员", "普通用户").collect(toList());
 
     @Autowired
     private SystemConfig systemConfig;
     @Autowired
-    private AccountService accountService;
+    private UserService userService;
     @Autowired
     private RedisService redisService;
 
     @Operation(summary ="用户类型")
-    @GetMapping(value = "/accountType")
+    @GetMapping(value = "/userType")
     public Response strategyType() {
         return Response.success().data(TYPE);
     }
 
     @Operation(summary ="注册账号")
-    @PostMapping(value = "/registerAccount")
-    public Response registerAccount(@RequestParam("username") String username,
+    @PostMapping(value = "/register")
+    public Response registerUser(@RequestParam("username") String username,
                                     @RequestParam("password") String password,
                                     @RequestParam("phone") Long phone,
                                     @RequestParam("code") String code) {
@@ -66,33 +66,33 @@ public class AccountController {
         if (phoneCode == null || !phoneCode.equals(code))
             throw new BusinessException(CommonErrorCode.E_200011);
 
-        AccountDTO accountDTO = new AccountDTO(username, password, 1, phone);
-        accountDTO = accountService.create(accountDTO);
+        UserDTO userDTO = new UserDTO(username, password, 1, phone);
+        userDTO = userService.create(userDTO);
 
-        String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), 1);
-        LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountDTO.getType().toString(), accountDTO.getUsername(), token);
+        String token = JwtUtil.createToken(userDTO.getId(), userDTO.getUsername(), 1);
+        LoginResponse data = new LoginResponse(userDTO.getId().toString(), userDTO.getType().toString(), userDTO.getUsername(), token);
         return Response.success().msg("注册成功").data(data);
     }
 
     @Operation(summary ="登录账号")
-    @PostMapping(value = "/loginAccount")
-    public Response LoginAccount(@RequestParam("username") String username,
+    @PostMapping(value = "/login")
+    public Response LoginUser(@RequestParam("username") String username,
                                  @RequestParam("password") String password,
                                  @RequestParam(value = "lasting", required = false) Boolean lasting) {
         // 统一小写
         username = username.toLowerCase();
 
-        AccountDTO accountDTO = accountService.query(username);
+        UserDTO userDTO = userService.query(username);
         // 密码错误
-        if (!accountDTO.getPassword().equals(MD5Util.getMd5(password)))
+        if (!userDTO.getPassword().equals(MD5Util.getMd5(password)))
             throw new BusinessException(CommonErrorCode.E_200016);
 
         Integer expiryDay;
         if (Boolean.TRUE.equals(lasting)) expiryDay = 30;
         else expiryDay = 1;
-        String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), expiryDay);
+        String token = JwtUtil.createToken(userDTO.getId(), userDTO.getUsername(), expiryDay);
 
-        LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountDTO.getType().toString(), accountDTO.getUsername(), token);
+        LoginResponse data = new LoginResponse(userDTO.getId().toString(), userDTO.getType().toString(), userDTO.getUsername(), token);
         return Response.success().msg("登录成功").data(data);
     }
 
@@ -102,19 +102,19 @@ public class AccountController {
     public Response ChangePassword(@RequestParam("oldPassword") String oldPassword,
                                    @RequestParam("newPassword") String newPassword,
                                    HttpServletRequest request) {
-        AccountDTO accountDTO = SecurityUtil.getAccount();
+        UserDTO userDTO = SecurityUtil.getUser();
         // 密码错误
-        if (!accountDTO.getPassword().equals(MD5Util.getMd5(oldPassword)))
+        if (!userDTO.getPassword().equals(MD5Util.getMd5(oldPassword)))
             throw new BusinessException(CommonErrorCode.E_200016);
 
-        accountDTO.setPassword(MD5Util.getMd5(newPassword));
-        accountDTO.setPassModified(LocalDateTime.now());
-        accountService.update(accountDTO);
+        userDTO.setPassword(MD5Util.getMd5(newPassword));
+        userDTO.setPassModified(LocalDateTime.now());
+        userService.update(userDTO);
 
 //        // 更换token
 //        String oldToken = request.getHeader("Authorization").replace("Bearer ", "");
 //        long expiryDay = Duration.between(LocalDateTime.now(), JwtUtil.getExpiryTime(oldToken)).toDays() + 1;
-//        String token = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), (int)expiryDay);
+//        String token = JwtUtil.createToken(userDTO.getId(), userDTO.getUsername(), (int)expiryDay);
         return Response.success().msg("密码修改成功");
     }
 
@@ -139,10 +139,10 @@ public class AccountController {
     @Token
     public Response refreshToken(HttpServletRequest request) {
         String oldToken = request.getHeader("Authorization").replace("Bearer ", "");
-        AccountDTO accountDTO = SecurityUtil.getAccount();
-        String newToken = JwtUtil.createToken(accountDTO.getId(), accountDTO.getUsername(), 7);
+        UserDTO userDTO = SecurityUtil.getUser();
+        String newToken = JwtUtil.createToken(userDTO.getId(), userDTO.getUsername(), 7);
         redisService.addTokenBlacklist(oldToken);
-        LoginResponse data = new LoginResponse(accountDTO.getId().toString(), accountDTO.getType().toString(), accountDTO.getUsername(), newToken);
+        LoginResponse data = new LoginResponse(userDTO.getId().toString(), userDTO.getType().toString(), userDTO.getUsername(), newToken);
         return Response.success().data(data);
     }
 }

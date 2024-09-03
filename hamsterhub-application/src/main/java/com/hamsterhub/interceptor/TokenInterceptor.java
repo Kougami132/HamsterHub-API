@@ -5,8 +5,8 @@ import com.hamsterhub.common.domain.BusinessException;
 import com.hamsterhub.common.domain.CommonErrorCode;
 import com.hamsterhub.common.util.JwtUtil;
 import com.hamsterhub.service.service.RedisService;
-import com.hamsterhub.database.dto.AccountDTO;
-import com.hamsterhub.database.service.AccountService;
+import com.hamsterhub.database.dto.UserDTO;
+import com.hamsterhub.database.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -19,7 +19,7 @@ import javax.servlet.http.HttpServletResponse;
 public class TokenInterceptor extends HandlerInterceptorAdapter {
 
     @Autowired
-    private AccountService accountService;
+    private UserService userService;
     @Autowired
     private RedisService redisService;
 
@@ -40,13 +40,13 @@ public class TokenInterceptor extends HandlerInterceptorAdapter {
             String token = request.getHeader("Authorization").replace("Bearer ", "");
             if (JwtUtil.checkToken(token)) { // 检查JWT
                 String username = JwtUtil.getUsername(token);
-                AccountDTO accountDTO = accountService.query(username);
+                UserDTO userDTO = userService.query(username);
                 if (!redisService.checkToken(token)) { // 检查token黑名单
-                    if (JwtUtil.getCreateTime(token).isAfter(accountDTO.getPassModified())) { // 检查token生成时间
+                    if (JwtUtil.getCreateTime(token).isAfter(userDTO.getPassModified())) { // 检查token生成时间
                         // 判断权限
-                        String type = accountDTO.getType().toString();
+                        String type = userDTO.getType().toString();
                         String[] groups = annotation.value().split(" ");
-                        if (groups[0].equals("") || accountDTO.isAdmin())
+                        if (groups[0].equals("") || userDTO.isAdmin())
                             return true;
                         for (String i: groups)
                             if (i.equals(type))

@@ -4,7 +4,7 @@ import com.hamsterhub.common.util.MD5Util;
 import com.hamsterhub.common.util.StringUtil;
 import com.hamsterhub.database.dto.*;
 import com.hamsterhub.database.enums.DownloadState;
-import com.hamsterhub.database.service.AccountService;
+import com.hamsterhub.database.service.UserService;
 import com.hamsterhub.database.service.DownloadTaskService;
 import com.hamsterhub.database.service.RSSService;
 import com.hamsterhub.service.service.*;
@@ -48,7 +48,7 @@ public class RSSCheckService {
     private DownloadTaskService downloadTaskService;
 
     @Autowired
-    private AccountService accountService;
+    private UserService userService;
 
     private final OkHttpClient httpClient = new OkHttpClient();
 
@@ -68,7 +68,7 @@ public class RSSCheckService {
                 continue;
             }
 
-            AccountDTO accountDTO = accountService.query(rssListDTO.getUserId());
+            UserDTO userDTO = userService.query(rssListDTO.getUserId());
 
             try {
                 List<RSSTaskDTO> rssTaskDTOS = parseRSSXml(rssContent, rssListDTO);
@@ -83,7 +83,7 @@ public class RSSCheckService {
                         continue;
                     }
 
-                    String parentIndex = getParentIndex(rssListDTO, rssTaskDTO, accountDTO);
+                    String parentIndex = getParentIndex(rssListDTO, rssTaskDTO, userDTO);
                     if (parentIndex == null) {
                         // 为null说明目录冲突
                         rssTaskDTO.setState(DownloadState.ERROR.ordinal());
@@ -187,7 +187,7 @@ public class RSSCheckService {
         return null;
     }
 
-    public String getParentIndex(RSSListDTO rssListDTO,RSSTaskDTO rssTaskDTO,AccountDTO accountDTO){
+    public String getParentIndex(RSSListDTO rssListDTO,RSSTaskDTO rssTaskDTO,UserDTO userDTO){
         String res = null;
         String title = rssTaskDTO.getTitle();
         String[] split = title.split("/");
@@ -197,7 +197,7 @@ public class RSSCheckService {
         }
 
         String queryUrl = fileStorageService
-                .getQueryUrl(rssListDTO.getRoot(), rssListDTO.getParentIndex(), accountDTO);
+                .getQueryUrl(rssListDTO.getRoot(), rssListDTO.getParentIndex(), userDTO);
 
         String curParentIndex = rssListDTO.getParentIndex();
         // 提前创建好前面部分的目录
@@ -209,13 +209,13 @@ public class RSSCheckService {
             List<VFileDTO> vFileDTOS = null;
             VFileDTO dir;
             try {
-                vFileDTOS = fileStorageService.queryFile(rssListDTO.getRoot(), queryUrl, accountDTO);
+                vFileDTOS = fileStorageService.queryFile(rssListDTO.getRoot(), queryUrl, userDTO);
             }catch (Exception ignored){} // 报错说明不存在
 
 
             if(vFileDTOS ==null || vFileDTOS.isEmpty()){
                 // 没有则创建
-                dir = fileStorageService.makeDirectory(rssListDTO.getRoot(),curParentIndex,split[i],accountDTO);
+                dir = fileStorageService.makeDirectory(rssListDTO.getRoot(),curParentIndex,split[i],userDTO);
             }else if (!vFileDTOS.get(0).isDir()){
                 // 目录冲突
                 return res;
