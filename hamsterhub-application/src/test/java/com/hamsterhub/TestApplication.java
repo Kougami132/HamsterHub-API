@@ -18,8 +18,6 @@ public class TestApplication {
     @SneakyThrows
     @Test
     public void test() {
-        pushService.pushGoCq(false, 1329623049L, "test");
-//        pushService.pushGOCQ("https://bot.kougami.cn/send_msg", true, 182121190L, "test");
 //        System.out.println(goCqHttpBot.getBotQQ());;
     }
 

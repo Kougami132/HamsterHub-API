@@ -52,7 +52,6 @@ CREATE TABLE IF NOT EXISTS `v_file` (
     `TYPE` bigint(10) NOT NULL COMMENT '文件类型',
     `NAME` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '文件名',
     `PARENT_ID` bigint(20) NOT NULL COMMENT '父文件id',
-    `R_FILE_ID` bigint(20) NOT NULL COMMENT '实际文件id',
     `VERSION` bigint(20) NOT NULL DEFAULT '1' COMMENT '文件版本',
     `CREATED` datetime NOT NULL COMMENT '文件创建时间',
     `MODIFIED` datetime NOT NULL COMMENT '文件最后修改时间',
